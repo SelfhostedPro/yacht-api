@@ -15,7 +15,7 @@ export class ContainersController {
   constructor(private readonly containersService: ContainersService) {}
 
   @Get()
-  async getContainers(): Promise<Array<ContainerInfo>> {
+  async getContainers(): Promise<ContainerInfo[]> {
     try {
       return await this.containersService.getContainers();
     } catch (err) {

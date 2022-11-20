@@ -3,7 +3,7 @@ import { ContainerInfo } from 'dockerode';
 
 @Injectable()
 export class ContainersService {
-  async getContainers(): Promise<Array<ContainerInfo>> {
+  async getContainers(): Promise<ContainerInfo[]> {
     const Docker = require('dockerode');
     const docker = new Docker();
     return docker.listContainers({ all: true });
