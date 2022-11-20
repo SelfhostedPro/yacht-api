@@ -21,7 +21,7 @@
             "envFile": "${workspaceFolder}/.env",
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-        }
+        },
     ]
   }
   

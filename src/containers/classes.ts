@@ -38,3 +38,10 @@ export class ContainerInfoDTO implements ContainerInfo {
     Propagation: string;
   }[];
 }
+
+export class ContainerProcessesDTO {
+  @ApiProperty()
+  Titles: string[];
+  @ApiProperty()
+  Processes: string[][];
+}

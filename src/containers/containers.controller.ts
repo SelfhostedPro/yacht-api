@@ -1,14 +1,9 @@
-import {
-  Controller,
-  Get,
-  InternalServerErrorException,
-  BadRequestException,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, Param, HttpException, Sse } from '@nestjs/common';
 import { ApiTags, ApiCreatedResponse } from '@nestjs/swagger';
 import { ContainerInfo } from 'dockerode';
-import { ContainerInfoDTO } from './classes';
+import { ContainerInfoDTO, ContainerProcessesDTO } from './classes';
 import { ContainersService } from './containers.service';
+import { Observable } from 'rxjs';
 
 @ApiTags('containers')
 @Controller('containers')
@@ -24,10 +19,12 @@ export class ContainersController {
     try {
       return await this.containersService.getContainers();
     } catch (err) {
-      throw new InternalServerErrorException(err.code, {
-        cause: new Error(),
-        description: err.message,
-      });
+      // Error Handling
+      if (err.statusCode) {
+        throw new HttpException(err.message, err.statusCode);
+      } else {
+        throw new HttpException(err.message, 500);
+      }
     }
   }
   @Get(':id')
@@ -39,13 +36,15 @@ export class ContainersController {
     try {
       return await this.containersService.getContainer(id);
     } catch (err) {
-      throw new InternalServerErrorException(err.code, {
-        cause: new Error(),
-        description: err.message,
-      });
+      // Error Handling
+      if (err.statusCode) {
+        throw new HttpException(err.message, err.statusCode);
+      } else {
+        throw new HttpException(err.message, 500);
+      }
     }
   }
-  @Get(':id/:action')
+  @Get(':id/actions/:action')
   @ApiCreatedResponse({
     description: 'Get inspect information of one container.',
     type: String,
@@ -55,13 +54,51 @@ export class ContainersController {
     @Param('action') action: string,
   ): Promise<string> {
     try {
-      await this.containersService.containerAction(id, action);
+      await this.containersService.getContainerAction(id, action);
       return 'sucess';
     } catch (err) {
-      throw new BadRequestException(err.message, {
-        cause: new Error(),
-        description: err.message,
-      });
+      // Error Handling
+      if (err.statusCode) {
+        throw new HttpException(err.message, err.statusCode);
+      } else {
+        throw new HttpException(err.message, 500);
+      }
+    }
+  }
+  @Get(':id/processes')
+  @ApiCreatedResponse({
+    description: 'Get processes in container.',
+    type: ContainerProcessesDTO,
+  })
+  async getContainerProcesses(
+    @Param('id') id: string,
+  ): Promise<ContainerProcessesDTO> {
+    try {
+      return await this.containersService.getContainerProcess(id);
+    } catch (err) {
+      // Error Handling
+      if (err.statusCode) {
+        throw new HttpException(err.message, err.statusCode);
+      } else {
+        throw new HttpException(err.message, 500);
+      }
+    }
+  }
+
+  @Sse(':id/logs')
+  async streamContainerLogs(
+    @Param('id') id: string,
+  ): Promise<Observable<MessageEvent>> {
+    try {
+      var test = await this.containersService.getContainerLogs(id);
+      return await this.containersService.getContainerLogs(id);
+    } catch (err) {
+      // Error Handling
+      if (err.statusCode) {
+        throw new HttpException(err.message, err.statusCode);
+      } else {
+        throw new HttpException(err.message, 500);
+      }
     }
   }
 }
