@@ -34,6 +34,8 @@ $ npm install
 
 ## Running the app
 
+There is a swagger interface available at `http://localhost:3000/api#/`
+
 ```bash
 # development
 $ npm run start
