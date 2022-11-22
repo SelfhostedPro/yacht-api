@@ -42,21 +42,10 @@ export class ContainersService {
     const docker = new Docker();
     return docker.getContainer(id).top();
   }
-  async getContainerLogs(id: string): Promise<Observable<MessageEvent>> {
+  async getContainerLogs(id: string): Promise<any> {
     const Docker = require('dockerode');
     const docker = new Docker();
-    const test = await docker
-      .getContainer(id)
-      .logs({ follow: true, stdout: true, stderr: true });
-    const test2 = await docker
-      .getContainer(id)
-      .logs(
-        { follow: true, stdout: true, stderr: true },
-        function (err: any, stream: any) {
-          docker.modem.demuxStream(stream, process.stdout, process.stderr);
-        },
-      );
-    return docker
+    return await docker
       .getContainer(id)
       .logs({ follow: true, stdout: true, stderr: true });
   }

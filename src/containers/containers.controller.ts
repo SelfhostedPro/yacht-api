@@ -4,6 +4,7 @@ import { ContainerInfo } from 'dockerode';
 import { ContainerInfoDTO, ContainerProcessesDTO } from './classes';
 import { ContainersService } from './containers.service';
 import { Observable } from 'rxjs';
+import { map, filter } from 'rxjs/operators/';
 
 @ApiTags('containers')
 @Controller('containers')
@@ -86,12 +87,10 @@ export class ContainersController {
   }
 
   @Sse(':id/logs')
-  async streamContainerLogs(
-    @Param('id') id: string,
-  ): Promise<Observable<MessageEvent>> {
+  async streamContainerLogs(@Param('id') id: string): Promise<any> {
     try {
       var test = await this.containersService.getContainerLogs(id);
-      return await this.containersService.getContainerLogs(id);
+      return test;
     } catch (err) {
       // Error Handling
       if (err.statusCode) {
