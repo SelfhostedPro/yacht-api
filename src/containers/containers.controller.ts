@@ -89,8 +89,9 @@ export class ContainersController {
   @Sse(':id/logs')
   async streamContainerLogs(@Param('id') id: string): Promise<any> {
     try {
-      var test = await this.containersService.getContainerLogs(id);
-      return test;
+      const logStream: any = await this.containersService.getContainerLogs(id);
+      logStream.pipe(process.stdout);
+      return logStream;
     } catch (err) {
       // Error Handling
       if (err.statusCode) {

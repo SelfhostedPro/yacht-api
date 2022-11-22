@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ContainerInfo } from 'dockerode';
-import { Observable } from 'rxjs';
+import { Container, ContainerInfo } from 'dockerode';
 import { ContainerProcessesDTO } from './classes';
 
 @Injectable()
@@ -45,8 +44,18 @@ export class ContainersService {
   async getContainerLogs(id: string): Promise<any> {
     const Docker = require('dockerode');
     const docker = new Docker();
-    return await docker
+
+    const Stream = require('stream');
+    var logStream: any = new Stream.Readable();
+
+    const containerLogs = await docker
       .getContainer(id)
-      .logs({ follow: true, stdout: true, stderr: true });
+      .logs(
+        { follow: true, stdout: true, stderr: true },
+        async function (err: any, stream: any) {
+          await containerLogs.modem.demuxStream(stream, logStream, logStream);
+        },
+      );
+    return await logStream;
   }
 }
