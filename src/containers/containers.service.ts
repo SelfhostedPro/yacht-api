@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Container, ContainerInfo } from 'dockerode';
+import { IncomingMessage } from 'http';
+import { PassThrough as StreamPassThrough } from 'stream';
 import { ContainerProcessesDTO } from './classes';
 
 @Injectable()
@@ -41,21 +43,23 @@ export class ContainersService {
     const docker = new Docker();
     return docker.getContainer(id).top();
   }
-  async getContainerLogs(id: string): Promise<any> {
+  async getContainerLogs(id: string): Promise<StreamPassThrough> {
+    const logStream = new StreamPassThrough();
+
     const Docker = require('dockerode');
     const docker = new Docker();
 
-    const Stream = require('stream');
-    var logStream: any = new Stream.Readable();
+    var container: Container = await docker.getContainer(id);
 
-    const containerLogs = await docker
-      .getContainer(id)
-      .logs(
-        { follow: true, stdout: true, stderr: true },
-        async function (err: any, stream: any) {
-          await containerLogs.modem.demuxStream(stream, logStream, logStream);
-        },
-      );
-    return await logStream;
+    container.logs(
+      { follow: true, stdout: true, stderr: true },
+      function (err: any, stream: any) {
+        container.modem.demuxStream(stream, logStream, logStream);
+        stream.on('end', function () {
+          logStream.end('!stop!');
+        });
+      },
+    );
+    return logStream;
   }
 }

@@ -3,6 +3,8 @@ import { ApiTags, ApiCreatedResponse } from '@nestjs/swagger';
 import { ContainerInfo } from 'dockerode';
 import { ContainerInfoDTO, ContainerProcessesDTO } from './classes';
 import { ContainersService } from './containers.service';
+import { PassThrough as StreamPassThrough } from 'stream';
+import { IncomingMessage } from 'http';
 import { Observable } from 'rxjs';
 import { map, filter } from 'rxjs/operators/';
 
@@ -89,9 +91,15 @@ export class ContainersController {
   @Sse(':id/logs')
   async streamContainerLogs(@Param('id') id: string): Promise<any> {
     try {
-      const logStream: any = await this.containersService.getContainerLogs(id);
-      logStream.pipe(process.stdout);
-      return logStream;
+      const containerStream: StreamPassThrough =
+        await this.containersService.getContainerLogs(id);
+
+      containerStream.on('data', function (chunk) {
+        console.log(chunk.toString('utf8'));
+        console.log('Controller');
+      });
+
+      return containerStream;
     } catch (err) {
       // Error Handling
       if (err.statusCode) {
