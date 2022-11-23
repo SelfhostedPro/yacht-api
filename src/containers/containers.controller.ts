@@ -97,9 +97,11 @@ export class ContainersController {
       containerStream.on('data', function (chunk) {
         chunk.toString('utf8');
       });
+      /// Putting this here to mess with it before returning so I can see types/structure/etc.
       const test = fromEvent(containerStream, 'data').pipe(
         map((x) => ({ data: { x } } as MessageEvent)),
       );
+      /// Console log observer to see what the data is
       test.subscribe((x) => console.log(x));
       return fromEvent(containerStream, 'data').pipe(
         map((x) => ({ data: { x } } as MessageEvent)),
