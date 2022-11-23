@@ -5,7 +5,7 @@ import { ContainerInfoDTO, ContainerProcessesDTO } from './classes';
 import { ContainersService } from './containers.service';
 import { PassThrough as StreamPassThrough } from 'stream';
 import { IncomingMessage } from 'http';
-import { Observable } from 'rxjs';
+import { Observable, fromEvent } from 'rxjs';
 import { map, filter } from 'rxjs/operators/';
 
 @ApiTags('containers')
@@ -89,17 +89,21 @@ export class ContainersController {
   }
 
   @Sse(':id/logs')
-  async streamContainerLogs(@Param('id') id: string): Promise<any> {
+  async streamContainerLogs(@Param('id') id: string): Promise<Observable<any>> {
     try {
       const containerStream: StreamPassThrough =
         await this.containersService.getContainerLogs(id);
 
       containerStream.on('data', function (chunk) {
-        console.log(chunk.toString('utf8'));
-        console.log('Controller');
+        chunk.toString('utf8');
       });
-
-      return containerStream;
+      const test = fromEvent(containerStream, 'data').pipe(
+        map((x) => ({ data: { x } } as MessageEvent)),
+      );
+      test.subscribe((x) => console.log(x));
+      return fromEvent(containerStream, 'data').pipe(
+        map((x) => ({ data: { x } } as MessageEvent)),
+      );
     } catch (err) {
       // Error Handling
       if (err.statusCode) {
