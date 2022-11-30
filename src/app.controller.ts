@@ -1,7 +1,9 @@
-import { Controller, Get, HttpCode, Res } from '@nestjs/common';
-import { Response } from 'express';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { Controller, Get, HttpCode } from '@nestjs/common';
+// Used for testing out SSE
+// import { Res } from '@nestjs/common';
+// import { Response } from 'express';
+// import { readFileSync } from 'fs';
+// import { join } from 'path';
 import { AppService } from './app.service';
 
 @Controller()

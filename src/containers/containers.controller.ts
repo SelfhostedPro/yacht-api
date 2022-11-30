@@ -4,9 +4,8 @@ import { ContainerInfo } from 'dockerode';
 import { ContainerInfoDTO, ContainerProcessesDTO } from './classes';
 import { ContainersService } from './containers.service';
 import { PassThrough as StreamPassThrough } from 'stream';
-import { IncomingMessage } from 'http';
 import { Observable, fromEvent } from 'rxjs';
-import { map, filter } from 'rxjs/operators/';
+import { map } from 'rxjs/operators/';
 
 @ApiTags('containers')
 @Controller('containers')
@@ -87,7 +86,6 @@ export class ContainersController {
       }
     }
   }
-
   @Sse(':id/logs')
   async streamContainerLogs(
     @Param('id') id: string,

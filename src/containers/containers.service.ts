@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Container, ContainerInfo } from 'dockerode';
-import { IncomingMessage } from 'http';
 import { PassThrough as StreamPassThrough } from 'stream';
 import { ContainerProcessesDTO } from './classes';
 
