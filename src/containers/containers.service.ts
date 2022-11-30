@@ -62,4 +62,21 @@ export class ContainersService {
     );
     return logStream;
   }
+
+  async getContainerStats(id: string): Promise<StreamPassThrough> {
+    const statStream = new StreamPassThrough();
+
+    const Docker = require('dockerode');
+    const docker = new Docker();
+
+    var container: Container = await docker.getContainer(id);
+
+    container.stats({ stream: true }, function (err: any, stream: any) {
+      container.modem.demuxStream(stream, statStream, statStream);
+      stream.on('end', function () {
+        statStream.end('!stop!');
+      });
+    });
+    return statStream;
+  }
 }

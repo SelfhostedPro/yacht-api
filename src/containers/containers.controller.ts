@@ -89,22 +89,44 @@ export class ContainersController {
   }
 
   @Sse(':id/logs')
-  async streamContainerLogs(@Param('id') id: string): Promise<Observable<any>> {
+  async streamContainerLogs(
+    @Param('id') id: string,
+  ): Promise<Observable<MessageEvent>> {
     try {
       const containerStream: StreamPassThrough =
         await this.containersService.getContainerLogs(id);
-
-      containerStream.on('data', function (chunk) {
-        chunk.toString('utf8');
-      });
-      /// Putting this here to mess with it before returning so I can see types/structure/etc.
-      const test = fromEvent(containerStream, 'data').pipe(
-        map((x) => ({ data: { x } } as MessageEvent)),
-      );
-      /// Console log observer to see what the data is
-      test.subscribe((x) => console.log(x));
       return fromEvent(containerStream, 'data').pipe(
-        map((x) => ({ data: { x } } as MessageEvent)),
+        map(
+          (x: Buffer) =>
+            ({
+              data: `${x.toString()}`,
+            } as MessageEvent),
+        ),
+      );
+    } catch (err) {
+      // Error Handling
+      if (err.statusCode) {
+        throw new HttpException(err.message, err.statusCode);
+      } else {
+        throw new HttpException(err.message, 500);
+      }
+    }
+  }
+
+  @Sse(':id/stats')
+  async streamContainerStats(
+    @Param('id') id: string,
+  ): Promise<Observable<MessageEvent>> {
+    try {
+      const containerStream: StreamPassThrough =
+        await this.containersService.getContainerStats(id);
+      return fromEvent(containerStream, 'data').pipe(
+        map(
+          (x: Buffer) =>
+            ({
+              data: `${x.toString()}`,
+            } as MessageEvent),
+        ),
       );
     } catch (err) {
       // Error Handling
