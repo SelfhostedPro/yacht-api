@@ -20,7 +20,7 @@ export class TerminalService {
    * Create a new terminal session
    * @param client
    */
-  async startSession(client: WsEventEmitter, size: TermSize) {
+  async startSession(client: WsEventEmitter, container: string) {
     this.ending = false;
 
     // check if we should use bash or sh
@@ -29,8 +29,6 @@ export class TerminalService {
     // spawn a new shell
     const term = this.nodePtyService.spawn(shell, [], {
       name: 'xterm-color',
-      cols: size.cols,
-      rows: size.rows,
     });
 
     // write to the client
