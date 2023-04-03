@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { Injectable } from '@nestjs/common';
-import { NodePtyService } from './node-pty.service';
+import { Container, Exec } from 'dockerode';
+import { Duplex } from 'stream';
 
 export type TermSize = { cols: number; rows: number };
 
@@ -10,70 +11,49 @@ export interface WsEventEmitter extends EventEmitter {
 
 @Injectable()
 export class TerminalService {
-  private ending = false;
-
-  constructor(
-    private nodePtyService: NodePtyService,
-  ) { }
-
   /**
    * Create a new terminal session
-   * @param client
+   * @param id: container id
    */
-  async startSession(client: WsEventEmitter, container: string) {
-    this.ending = false;
-
-    // check if we should use bash or sh
-    const shell = '/bin/bash';
-
-    // spawn a new shell
-    const term = this.nodePtyService.spawn(shell, [], {
-      name: 'xterm-color',
-    });
-
-    // write to the client
-    term.onData((data) => {
-      client.emit('stdout', data);
-    });
-
-    // let the client know when the session ends
-    term.onExit((code) => {
-      try {
-        if (!this.ending) {
-          client.emit('process-exit', code);
-        }
-      } catch (e) {
-        // the client socket probably closed
-      }
-    });
-
-    // write input to the terminal
-    client.on('stdin', (data) => {
-      term.write(data);
-    });
-
-    // capture resize events
-    client.on('resize', (resize: TermSize) => {
-      try {
-        term.resize(resize.cols, resize.rows);
-      } catch (e) { }
-    });
-
-    // cleanup on disconnect
-    const onEnd = () => {
-      this.ending = true;
-
-      client.removeAllListeners('stdin');
-      client.removeAllListeners('resize');
-      client.removeAllListeners('end');
-      client.removeAllListeners('disconnect');
-
-      try {
-        term.kill();
-      } catch (e) { }
+  async startSession(client: WsEventEmitter, id: string) {
+    const Docker = require('dockerode');
+    const docker = new Docker();
+    // get the container
+    const container: Container = await docker.getContainer(id);
+    // form container command
+    const cmd = {
+      AttachStdout: true,
+      AttachStderr: true,
+      AttachStdin: true,
+      Tty: true,
+      Cmd: ['/bin/bash'],
     };
 
-    client.on('end', onEnd.bind(this));
-    client.on('disconnect', onEnd.bind(this));
+    client.on('resize', (data) => {
+      container.resize({ h: data.rows, w: data.cols });
+    });
+
+    container.exec(cmd, (err, exec: Exec) => {
+      const options = {
+        Tty: true,
+        stream: true,
+        stdin: true,
+        stdout: true,
+        stderr: true,
+        hijack: true,
+      };
+      container.wait((err, data) => {
+        client.emit('end', 'ended');
+      });
+      exec.start(options, (err, stream: Duplex) => {
+        stream.on('data', (chunk) => {
+          client.emit('show', chunk.toString());
+        });
+
+        client.on('cmd', (data) => {
+          if (typeof data !== 'object') stream.write(data);
+        });
+      });
+    });
   }
 }
