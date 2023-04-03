@@ -48,7 +48,7 @@ export class ContainersService {
     const Docker = require('dockerode');
     const docker = new Docker();
 
-    var container: Container = await docker.getContainer(id);
+    const container: Container = await docker.getContainer(id);
 
     container.logs(
       { follow: true, stdout: true, stderr: true },
@@ -68,7 +68,7 @@ export class ContainersService {
     const Docker = require('dockerode');
     const docker = new Docker();
 
-    var container: Container = await docker.getContainer(id);
+    const container: Container = await docker.getContainer(id);
 
     container.stats({ stream: true }, function (err: any, stream: any) {
       container.modem.demuxStream(stream, statStream, statStream);
