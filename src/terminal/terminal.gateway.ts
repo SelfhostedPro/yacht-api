@@ -1,12 +1,16 @@
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { TerminalService, WsEventEmitter } from './terminal.service';
+import { WsAdminGuard } from '../auth/guards/ws-admin-guard';
+import { UseGuards } from '@nestjs/common';
 
+
+@UseGuards(WsAdminGuard)
 @WebSocketGateway({
   // namespace: 'containers/terminal',
   allowEIO3: true,
   cors: {
     origin: ['*'],
-    credentials: false,
+    credentials: true,
   },
 })
 export class TerminalGateway {
@@ -14,7 +18,6 @@ export class TerminalGateway {
 
   @SubscribeMessage('start-session')
   startTerminalSession(client: WsEventEmitter, payload: string) {
-    console.log(payload);
     return this.terminalService.startSession(client, payload);
   }
 }
