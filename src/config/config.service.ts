@@ -9,11 +9,16 @@ import * as _ from 'lodash';
 export interface YachtConfig {
   base: {
     name: string;
-    servers: string[];
+    servers: [{
+      type: string, path: string
+    }];
+    auth: boolean,
+    theme: 'dark' | 'light',
+    sessionTimeout: number,
     templates?: {
       url: string;
       name: string;
-      apps: Object[];
+      apps?: Object[];
     };
     template_variables?: {
       variable: string;

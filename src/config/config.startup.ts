@@ -16,7 +16,12 @@ export async function getStartupConfig() {
   const defaultConfig: YachtConfig = {
     base: {
       name: 'Yacht',
-      servers: ['/var/run/docker.sock'],
+      servers: [
+        {type: "local", path: '/var/run/docker.sock'}
+      ],
+      auth: true,
+      theme: 'dark',
+      sessionTimeout: 8
     },
   };
   let config;

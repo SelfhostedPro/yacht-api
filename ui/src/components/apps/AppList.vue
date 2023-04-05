@@ -1,19 +1,19 @@
 <template>
-    <v-card-title> APP LIST</v-card-title>
-    <v-card-text v-for="app in apps" :key="app.Id">{{ app.Names[0] }}</v-card-text>
-    <v-data-table v-model:items-per-page="itemsPerPage" :headers="tableHeaders" :items="apps" value="Id">
+    <v-card-title>apps</v-card-title>
+    <v-data-table v-model:items-per-page="itemsPerPage" @click:row="handleRowClick" :headers="tableHeaders" :items="apps">
     </v-data-table>
 </template>
 
 <script setup lang="ts">
-import { formatApps, ReadableContainerInfo } from '@/composables/formatApps'
+import { ReadableContainerInfo, formatApps } from '@/composables/formatApps'
+import { router } from '@/plugins'
 import { ref } from 'vue';
 const itemsPerPage = ref<number>(5)
 const tableHeaders = [
     {
         title: "name",
         align: "start",
-        value: "Names[0]"
+        value: "ShortName"
     },
     {
         title: "state",
@@ -31,6 +31,11 @@ const tableHeaders = [
         value: "CreatedDate"
     }
 ]
+
+const handleRowClick = function (event,proxyItem) {
+    const item = JSON.parse(JSON.stringify(proxyItem))
+    router.push({ path: `/apps/${item.item.value.ShortName}` });
+}
 
 const apps = ref([])
 fetch('http://localhost:3000/containers')

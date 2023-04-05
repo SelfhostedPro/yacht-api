@@ -1,9 +1,9 @@
 import { ref } from 'vue'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { ContainerInfo } from 'dockerode'
 
 export interface ReadableContainerInfo extends ContainerInfo {
-    CreatedDate: string,
+    CreatedDate: string|number,
     ShortId: string,
     ShortName: string
 }
@@ -18,4 +18,12 @@ export function formatApps(data) {
         appList.push(data[app])
     }   
     return appList
+}
+
+export function formatInspect(data:ReadableContainerInfo) {
+
+    data['CreatedDate'] = format(parseISO(data['Created'].toString()), 'MM/dd/yyyy')
+    data['ShortId'] = data['Id'].substring(0,10)
+    data['ShortName'] = data['Name'].slice(1)
+    return {...data}
 }
