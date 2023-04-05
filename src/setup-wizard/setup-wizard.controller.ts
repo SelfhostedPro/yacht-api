@@ -9,14 +9,13 @@ import { SetupWizardGuard } from './setup-wizard.guard';
 @UseGuards(SetupWizardGuard)
 @Controller('setup-wizard')
 export class SetupWizardController {
-  constructor(
-    private authService: AuthService,
-  ) { }
+  constructor(private authService: AuthService) {}
 
   @Post('/create-first-user')
   @ApiOperation({
     summary: 'Create the first user.',
-    description: 'This endpoint is not available after the Yacht setup wizard is complete.',
+    description:
+      'This endpoint is not available after the Yacht setup wizard is complete.',
   })
   async setupFirstUser(@Body() body: UserDto) {
     return await this.authService.setupFirstUser(body);
@@ -25,7 +24,8 @@ export class SetupWizardController {
   @Get('/get-setup-wizard-token')
   @ApiOperation({
     summary: 'Creates a auth token to be used by the setup wizard.',
-    description: 'This endpoint is not available after the Yacht setup wizard is complete.',
+    description:
+      'This endpoint is not available after the Yacht setup wizard is complete.',
   })
   async generateSetupWizardToken() {
     return await this.authService.generateSetupWizardToken();

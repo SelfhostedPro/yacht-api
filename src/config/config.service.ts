@@ -8,18 +8,18 @@ import * as _ from 'lodash';
 
 export interface YachtConfig {
   base: {
-    name: string,
-    servers: string[],
+    name: string;
+    servers: string[];
     templates?: {
-      url: string,
-      name: string,
-      apps: Object[]
-    }
+      url: string;
+      name: string;
+      apps: Object[];
+    };
     template_variables?: {
-      variable: string,
-      replacement: string
-    }
-  }
+      variable: string;
+      replacement: string;
+    };
+  };
 }
 
 @Injectable()
@@ -27,22 +27,36 @@ export class ConfigService {
   public name = 'yacht';
 
   // yacht env
-  public configPath = process.env.UIX_CONFIG_PATH || path.resolve(os.homedir(), '.yacht/config.yaml');
-  public storagePath = process.env.UIX_STORAGE_PATH || path.resolve(os.homedir(), '.yacht');
+  public configPath =
+    process.env.UIX_CONFIG_PATH ||
+    path.resolve(os.homedir(), '.yacht/config.yaml');
+  public storagePath =
+    process.env.UIX_STORAGE_PATH || path.resolve(os.homedir(), '.yacht');
   public customPluginPath = process.env.UIX_CUSTOM_PLUGIN_PATH;
-  public strictPluginResolution = (process.env.UIX_STRICT_PLUGIN_RESOLUTION === '1');
+  public strictPluginResolution =
+    process.env.UIX_STRICT_PLUGIN_RESOLUTION === '1';
   public secretPath = path.resolve(this.storagePath, '.uix-secrets');
   public authPath = path.resolve(this.storagePath, 'auth.json');
-  public accessoryLayoutPath = path.resolve(this.storagePath, 'accessories', 'uiAccessoriesLayout.json');
-  public configBackupPath = path.resolve(this.storagePath, 'backups/config-backups');
-  public instanceBackupPath = path.resolve(this.storagePath, 'backups/instance-backups');
+  public accessoryLayoutPath = path.resolve(
+    this.storagePath,
+    'accessories',
+    'uiAccessoriesLayout.json',
+  );
+  public configBackupPath = path.resolve(
+    this.storagePath,
+    'backups/config-backups',
+  );
+  public instanceBackupPath = path.resolve(
+    this.storagePath,
+    'backups/instance-backups',
+  );
   public yachtInsecureMode = Boolean(process.env.UIX_INSECURE_MODE === '1');
   public yachtNoTimestamps = Boolean(process.env.UIX_LOG_NO_TIMESTAMPS === '1');
   public yachtVersion: string;
 
   // server env
   public minimumNodeVersion = '14.15.0';
-  public serviceMode = (process.env.UIX_SERVICE_MODE === '1');
+  public serviceMode = process.env.UIX_SERVICE_MODE === '1';
   public runningInDocker = Boolean(process.env.yacht_CONFIG_UI === '1');
 
   // first user setup wizard
@@ -63,7 +77,7 @@ export class ConfigService {
       path?: string;
       service?: string;
     };
-    sessionTimeout: number
+    sessionTimeout: number;
     loginWallpaper?: string;
     standalone?: boolean;
     debug?: boolean;
@@ -79,7 +93,9 @@ export class ConfigService {
   public instanceId: string;
 
   constructor() {
-    const yachtConfig: YachtConfig = <YachtConfig>yaml.load(fs.readFileSync(this.configPath).toString())
+    const yachtConfig: YachtConfig = <YachtConfig>(
+      yaml.load(fs.readFileSync(this.configPath).toString())
+    );
     this.parseConfig(yachtConfig);
   }
 
@@ -177,9 +193,16 @@ export class ConfigService {
     if (!this.ui.port && process.env.yacht_CONFIG_UI_PORT) {
       this.ui.port = parseInt(process.env.yacht_CONFIG_UI_PORT, 10);
     }
-    this.ui.theme = this.ui.theme || process.env.yacht_CONFIG_UI_THEME || 'auto';
-    this.ui.auth = this.ui.auth || process.env.yacht_CONFIG_UI_AUTH as 'form' | 'none' || 'form';
-    this.ui.loginWallpaper = this.ui.loginWallpaper || process.env.yacht_CONFIG_UI_LOGIN_WALLPAPER || undefined;
+    this.ui.theme =
+      this.ui.theme || process.env.yacht_CONFIG_UI_THEME || 'auto';
+    this.ui.auth =
+      this.ui.auth ||
+      (process.env.yacht_CONFIG_UI_AUTH as 'form' | 'none') ||
+      'form';
+    this.ui.loginWallpaper =
+      this.ui.loginWallpaper ||
+      process.env.yacht_CONFIG_UI_LOGIN_WALLPAPER ||
+      undefined;
   }
 
   /**
@@ -219,7 +242,9 @@ export class ConfigService {
    * Generates a public instance id from a sha256 has of the secret key
    */
   private getInstanceId(): string {
-    return crypto.createHash('sha256').update(this.secrets.secretKey).digest('hex');
+    return crypto
+      .createHash('sha256')
+      .update(this.secrets.secretKey)
+      .digest('hex');
   }
-
 }

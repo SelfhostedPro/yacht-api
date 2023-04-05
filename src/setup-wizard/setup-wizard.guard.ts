@@ -5,9 +5,7 @@ import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class SetupWizardGuard implements CanActivate {
-  constructor(
-    private configService: ConfigService,
-  ) { }
+  constructor(private configService: ConfigService) {}
 
   canActivate(
     context: ExecutionContext,

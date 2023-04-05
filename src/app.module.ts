@@ -14,8 +14,6 @@ import { ConfigModule } from './config/config.module';
 import { SetupWizardModule } from './setup-wizard/setup-wizard.module';
 import { LoggerModule } from './logger/logger.module';
 
-
-
 @Module({
   imports: [
     ContainersModule,
@@ -25,7 +23,7 @@ import { LoggerModule } from './logger/logger.module';
     UsersModule,
     ConfigModule,
     LoggerModule,
-    SetupWizardModule
+    SetupWizardModule,
   ],
   controllers: [AppController, ContainersController, ProjectsController],
   providers: [AppService, ContainersService, ProjectsService],

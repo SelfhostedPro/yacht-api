@@ -1,19 +1,39 @@
-import { Controller, UseGuards, Body, Post, Get, Param, Delete, Patch, ParseIntPipe, Req } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Body,
+  Post,
+  Get,
+  Param,
+  Delete,
+  Patch,
+  ParseIntPipe,
+  Req,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags, ApiBearerAuth, ApiBody, ApiResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiBody,
+  ApiResponse,
+  ApiOperation,
+  ApiParam,
+} from '@nestjs/swagger';
 import { AuthService } from '../auth/auth.service';
 import { AdminGuard } from '../auth/guards/admin.guard';
-import { UserDto, UserUpdatePasswordDto, UserActivateOtpDto, UserDeactivateOtpDto } from './users.dto';
+import {
+  UserDto,
+  UserUpdatePasswordDto,
+  UserActivateOtpDto,
+  UserDeactivateOtpDto,
+} from './users.dto';
 
 @ApiTags('User Management')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @Controller('users')
 export class UsersController {
-
-  constructor(
-    private authService: AuthService,
-  ) { }
+  constructor(private authService: AuthService) {}
 
   @UseGuards(AdminGuard)
   @ApiResponse({ type: UserDto, isArray: true, status: 200 })
@@ -36,7 +56,10 @@ export class UsersController {
   @ApiOperation({ summary: 'Update a user.' })
   @ApiParam({ name: 'userId', type: 'number' })
   @Patch('/:userId(\\d+)')
-  updateUser(@Param('userId', ParseIntPipe) userId: number, @Body() body: UserDto) {
+  updateUser(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() body: UserDto,
+  ) {
     return this.authService.updateUser(userId, body);
   }
 
@@ -52,7 +75,11 @@ export class UsersController {
   @ApiBody({ type: UserUpdatePasswordDto })
   @Post('/change-password')
   updateOwnPassword(@Req() req, @Body() body: UserUpdatePasswordDto) {
-    return this.authService.updateOwnPassword(req.user.username, body.currentPassword, body.newPassword);
+    return this.authService.updateOwnPassword(
+      req.user.username,
+      body.currentPassword,
+      body.newPassword,
+    );
   }
 
   @ApiOperation({ summary: 'Start 2FA setup for the current user.' })

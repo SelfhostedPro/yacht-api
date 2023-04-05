@@ -27,18 +27,8 @@ import { WsAdminGuard } from './guards/ws-admin-guard';
     ConfigModule,
     LoggerModule,
   ],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    WsGuard,
-    WsAdminGuard,
-    AdminGuard,
-  ],
-  controllers: [
-    AuthController,
-  ],
-  exports: [
-    AuthService,
-  ],
+  providers: [AuthService, JwtStrategy, WsGuard, WsAdminGuard, AdminGuard],
+  controllers: [AuthController],
+  exports: [AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}

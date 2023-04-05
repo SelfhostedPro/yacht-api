@@ -8,5 +8,4 @@ import { ConfigModule } from '../config/config.module';
   imports: [ConfigModule, AuthModule],
   providers: [TerminalService, TerminalGateway],
 })
-
 export class TerminalModule {}

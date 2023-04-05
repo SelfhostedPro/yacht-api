@@ -3,7 +3,6 @@ import { TerminalService, WsEventEmitter } from './terminal.service';
 import { WsAdminGuard } from '../auth/guards/ws-admin-guard';
 import { UseGuards } from '@nestjs/common';
 
-
 @UseGuards(WsAdminGuard)
 @WebSocketGateway({
   // namespace: 'containers/terminal',

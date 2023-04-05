@@ -1,4 +1,11 @@
-import { Controller, Get, Param, HttpException, Sse, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  HttpException,
+  Sse,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
 import { ContainerInfo } from 'dockerode';
@@ -8,15 +15,12 @@ import { PassThrough as StreamPassThrough } from 'stream';
 import { Observable, fromEvent, map } from 'rxjs';
 import { AdminGuard } from '../auth/guards/admin.guard';
 
-
 @ApiTags('containers')
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
+// @ApiBearerAuth()
+// @UseGuards(AuthGuard('jwt'))
 @Controller('containers')
 export class ContainersController {
-  constructor(
-    private readonly containersService: ContainersService,
-    ) {}
+  constructor(private readonly containersService: ContainersService) {}
 
   @Get()
   @ApiCreatedResponse({

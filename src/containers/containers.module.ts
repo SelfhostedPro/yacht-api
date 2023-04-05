@@ -9,7 +9,7 @@ import { LoggerModule } from '../logger/logger.module';
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     LoggerModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [ContainersController],
   providers: [ContainersService],

@@ -26,7 +26,7 @@ async function bootstrap() {
           scopes: null,
         },
       },
-      type: 'http'
+      type: 'http',
     })
     .addTag('containers')
     .addTag('projects')
@@ -38,7 +38,7 @@ async function bootstrap() {
   app.use(helmet());
 
   const logger = new Logger();
-  
+
   await app.listen(3000, '0.0.0.0', function () {
     logger.log('Listening to port: ' + 3000);
   });

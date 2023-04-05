@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as yaml from 'js-yaml';
 
-
 import { Logger } from '../logger/logger.service';
 import { YachtConfig } from './config.service';
 
@@ -17,19 +16,20 @@ export async function getStartupConfig() {
   const defaultConfig: YachtConfig = {
     base: {
       name: 'Yacht',
-      servers: ['/var/run/docker.sock']
+      servers: ['/var/run/docker.sock'],
     },
-  }
-  let config
+  };
+  let config;
   try {
-    config = yaml.load(fs.readFileSync(configPath, 'utf8'))
-    logger.log('Config Exists!')
+    config = yaml.load(fs.readFileSync(configPath, 'utf8'));
+    logger.log('Config Exists!');
   } catch (e) {
-    if (e.code == "ENOENT"){
+    if (e.code == 'ENOENT') {
+      fs.mkdirSync(path.resolve(os.homedir(), '.yacht/'));
       fs.writeFileSync(configPath, yaml.dump(defaultConfig), { flag: 'w' });
-      logger.log('Config Created!')
+      logger.log('Config Created!');
     } else {
-      logger.error(e)
+      logger.error(e);
     }
   }
 

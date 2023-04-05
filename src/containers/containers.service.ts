@@ -6,9 +6,7 @@ import { Logger } from '../logger/logger.service';
 
 @Injectable()
 export class ContainersService {
-  constructor(
-    private readonly logger: Logger,
-  ) { }
+  constructor(private readonly logger: Logger) {}
 
   async getContainers(): Promise<ContainerInfo[]> {
     const Docker = require('dockerode');
@@ -23,7 +21,7 @@ export class ContainersService {
   async getContainerAction(id: string, action: string): Promise<ContainerInfo> {
     const Docker = require('dockerode');
     const docker = new Docker();
-    this.logger.log(`Action: ${action} used on container: ${id}`)
+    this.logger.log(`Action: ${action} used on container: ${id}`);
     switch (action) {
       case 'start':
         return await docker.getContainer(id).start();

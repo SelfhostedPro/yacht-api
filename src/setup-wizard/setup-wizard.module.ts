@@ -6,11 +6,7 @@ import { LoggerModule } from '../logger/logger.module';
 import { ConfigModule } from '../config/config.module';
 
 @Module({
-  imports: [
-    ConfigModule,
-    LoggerModule,
-    AuthModule,
-  ],
-  controllers: [SetupWizardController]
+  imports: [ConfigModule, LoggerModule, AuthModule],
+  controllers: [SetupWizardController],
 })
-export class SetupWizardModule { }
+export class SetupWizardModule {}
