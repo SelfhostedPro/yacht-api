@@ -45,3 +45,7 @@ export class ContainerProcessesDTO {
   @ApiProperty()
   Processes: string[][];
 }
+
+export class ContainerStatsDTO {
+  
+}

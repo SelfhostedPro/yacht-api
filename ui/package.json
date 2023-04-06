@@ -3,13 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix --ignore-path .gitignore"
   },
   "dependencies": {
     "@mdi/font": "7.0.96",
+    "@vueuse/core": "^9.13.0",
     "core-js": "^3.8.3",
     "pinia": "^2.0.23",
     "roboto-fontface": "*",

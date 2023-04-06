@@ -9,7 +9,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
 import { ContainerInfo } from 'dockerode';
-import { ContainerInfoDTO, ContainerProcessesDTO } from './classes';
+import { ContainerInfoDTO, ContainerProcessesDTO, ContainerStatsDTO } from './classes';
 import { ContainersService } from './containers.service';
 import { PassThrough as StreamPassThrough } from 'stream';
 import { Observable, fromEvent, map } from 'rxjs';
@@ -97,6 +97,27 @@ export class ContainersController {
       }
     }
   }
+
+  @Get(':id/static_stats')
+  @ApiCreatedResponse({
+    description: 'Get processes in container.',
+    type: ContainerProcessesDTO,
+  })
+  async getContainerStats(
+    @Param('id') id: string,
+  ): Promise<any> {
+    try {
+      return await this.containersService.getContainerStats(id);
+    } catch (err) {
+      // Error Handling
+      if (err.statusCode) {
+        throw new HttpException(err.message, err.statusCode);
+      } else {
+        throw new HttpException(err.message, 500);
+      }
+    }
+  }
+
   @Sse(':id/logs')
   async streamContainerLogs(
     @Param('id') id: string,
@@ -127,8 +148,8 @@ export class ContainersController {
     @Param('id') id: string,
   ): Promise<Observable<MessageEvent>> {
     try {
-      const containerStream: StreamPassThrough =
-        await this.containersService.getContainerStats(id);
+      const containerStream: any =
+        await this.containersService.streamContainerStats(id);
       return fromEvent(containerStream, 'data').pipe(
         map(
           (x: Buffer) =>

@@ -8,7 +8,7 @@ import { formatInspect } from '@/composables/formatApps'
 const props = defineProps(['name'])
 
 const app = ref(null)
-fetch(`http://localhost:3000/containers/${props.name}`)
+fetch(`/api/containers/${props.name}`)
     .then(response => response.json())
     .then(data => app.value = formatInspect(data))
 </script>

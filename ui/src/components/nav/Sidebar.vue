@@ -1,5 +1,5 @@
 <template>
-    <v-navigation-drawer :permanent="locked" :expand-on-hover="true" :rail="!locked">
+    <v-navigation-drawer :permanent="locked" elevation="10" floating :expand-on-hover="true" :rail="!locked">
         <v-btn class="my-2 mx-2" :icon="locked ? 'mdi-lock' : 'mdi-lock-open'" density="comfortable"
             v-on:click="locked = !locked" />
         <v-divider />

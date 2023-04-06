@@ -4,6 +4,10 @@
  * Configures SASS variables and Vuetify overwrites
  */
 
+.v-tooltip .v-overlay__content {
+    background: rgba(var(--v-theme-surface-variant), 1) !important;
+}
+
 // https://next.vuetifyjs.com/features/sass-variables/`
 // @use 'vuetify' with (
 //   $color-pack: false
