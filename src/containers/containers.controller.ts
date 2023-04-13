@@ -5,13 +5,17 @@ import {
   HttpException,
   Sse,
   UseGuards,
+  Res,
+  Scope,
+  Req,
 } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
 import { ContainerInfo } from 'dockerode';
 import { ContainerInfoDTO, ContainerProcessesDTO, ContainerStatsDTO } from './classes';
 import { ContainersService } from './containers.service';
-import { PassThrough as StreamPassThrough } from 'stream';
+import { PassThrough as StreamPassThrough, Writable as StreamWritable } from 'stream';
 import { Observable, fromEvent, map } from 'rxjs';
 import { AdminGuard } from '../auth/guards/admin.guard';
 
@@ -20,7 +24,7 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 // @UseGuards(AuthGuard('jwt'))
 @Controller('containers')
 export class ContainersController {
-  constructor(private readonly containersService: ContainersService) {}
+  constructor(private readonly containersService: ContainersService) { }
 
   @Get()
   @ApiCreatedResponse({
@@ -39,7 +43,20 @@ export class ContainersController {
       }
     }
   }
-  @Get(':id')
+  @Sse('/stats')
+  async streamContainerStats(@Res() response: Response, @Req() request: Request): Promise<Observable<MessageEvent>> {
+    try {
+      return await this.containersService.streamBaseContainerStats();
+    } catch (err) {
+      // Error Handling
+      if (err.statusCode) {
+        throw new HttpException(err.message, err.statusCode);
+      } else {
+        throw new HttpException(err.message, 500);
+      }
+    }
+  }
+  @Get('_/:id')
   @ApiCreatedResponse({
     description: 'Get inspect information of one container.',
     type: ContainerInfoDTO,
@@ -57,7 +74,7 @@ export class ContainersController {
     }
   }
   @UseGuards(AdminGuard)
-  @Get(':id/actions/:action')
+  @Get('_/:id/actions/:action')
   @ApiCreatedResponse({
     description: 'Get inspect information of one container.',
     type: String,
@@ -78,7 +95,7 @@ export class ContainersController {
       }
     }
   }
-  @Get(':id/processes')
+  @Get('_/:id/processes')
   @ApiCreatedResponse({
     description: 'Get processes in container.',
     type: ContainerProcessesDTO,
@@ -98,7 +115,7 @@ export class ContainersController {
     }
   }
 
-  @Get(':id/static_stats')
+  @Get('_/:id/static_stats')
   @ApiCreatedResponse({
     description: 'Get processes in container.',
     type: ContainerProcessesDTO,
@@ -118,7 +135,7 @@ export class ContainersController {
     }
   }
 
-  @Sse(':id/logs')
+  @Sse('_/:id/logs')
   async streamContainerLogs(
     @Param('id') id: string,
   ): Promise<Observable<MessageEvent>> {
@@ -128,34 +145,9 @@ export class ContainersController {
       return fromEvent(containerStream, 'data').pipe(
         map(
           (x: Buffer) =>
-            ({
-              data: `${x.toString()}`,
-            } as MessageEvent),
-        ),
-      );
-    } catch (err) {
-      // Error Handling
-      if (err.statusCode) {
-        throw new HttpException(err.message, err.statusCode);
-      } else {
-        throw new HttpException(err.message, 500);
-      }
-    }
-  }
-
-  @Sse(':id/stats')
-  async streamContainerStats(
-    @Param('id') id: string,
-  ): Promise<Observable<MessageEvent>> {
-    try {
-      const containerStream: any =
-        await this.containersService.streamContainerStats(id);
-      return fromEvent(containerStream, 'data').pipe(
-        map(
-          (x: Buffer) =>
-            ({
-              data: `${x.toString()}`,
-            } as MessageEvent),
+          ({
+            data: `${x.toString()}`,
+          } as MessageEvent),
         ),
       );
     } catch (err) {

@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Container, ContainerInfo, ContainerStats } from 'dockerode';
-import { PassThrough as StreamPassThrough } from 'stream';
+import Dockerode, { Container, ContainerInfo, ContainerStats } from 'dockerode';
+import { PassThrough as StreamPassThrough, Stream, Readable } from 'stream';
 import { ContainerProcessesDTO } from './classes';
 import { Logger } from '../logger/logger.service';
+import { transformStatStream } from '../util/streamConverter'
+import { Observable, fromEvent, map } from 'rxjs';
+import { Response } from 'express';
 
 @Injectable()
 export class ContainersService {
-  constructor(private readonly logger: Logger) {}
+  constructor(private readonly logger: Logger) { }
 
   async getContainers(): Promise<ContainerInfo[]> {
     const Docker = require('dockerode');
@@ -49,8 +52,11 @@ export class ContainersService {
   async getContainerStats(id: string): Promise<ContainerStats> {
     const Docker = require('dockerode');
     const docker = new Docker();
-    return docker.getContainer(id).stats({stream: false})
+    return docker.getContainer(id).stats({ stream: false })
   }
+
+  //     >>>>> Streaming Services <<<<<
+  //
   async getContainerLogs(id: string): Promise<StreamPassThrough> {
     const logStream = new StreamPassThrough();
 
@@ -71,20 +77,29 @@ export class ContainersService {
     return logStream;
   }
 
-  async streamContainerStats(id: string): Promise<StreamPassThrough> {
+  async streamBaseContainerStats(): Promise<Observable<MessageEvent>> {
     const statStream = new StreamPassThrough();
 
     const Docker = require('dockerode');
-    const docker = new Docker();
+    const docker: Dockerode = new Docker();
+    const containerList = await docker.listContainers()
 
-    const container: Container = await docker.getContainer(id);
-
-    container.stats({ stream: true }, function (err: any, stream: any) {
-      stream.pipe(statStream)
-      stream.on('end', function () {
-        statStream.end('!stop!');
-      });
-    });
-    return statStream;
+    for await (const app of containerList) {
+      docker.getContainer(app.Id)
+        .stats({ stream: true }, function (err, stream: any) {
+          stream
+            .pipe(transformStatStream)
+            .pipe(statStream)
+        })
+    };
+    const observable = fromEvent(statStream, 'data').pipe(
+      map(
+        (x: Buffer) =>
+        ({
+          data: `${x.toString()}`,
+        } as MessageEvent),
+      ),
+    );
+    return observable
   }
 }
