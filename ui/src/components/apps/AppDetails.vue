@@ -1,14 +1,21 @@
 <template>
-    <v-card-title class="text-center" v-if="app != null"> {{ app['ShortName'] + ' details' }} </v-card-title>
+    <v-card>
+        <!-- <baseinfo :app="app" :details="true" /> -->
+        {{ app }}
+    </v-card>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { formatInspect } from '@/composables/formatApps'
+import { ReadableContainerInfo } from '@/composables/formatApps';
+import baseinfo from './info/base.vue'
+import { Ref, ref } from 'vue'
 const props = defineProps(['name'])
 
-const app = ref(null)
-fetch(`/api/containers/${props.name}`)
-    .then(response => response.json())
-    .then(data => app.value = formatInspect(data))
+const app: Ref<ReadableContainerInfo> = ref()
+const fetchApp = async function () {
+    fetch(`/api/containers/info/${props.name}`)
+        .then(response => response.json())
+        .then(data => app.value = data)
+}
+fetchApp()
 </script>

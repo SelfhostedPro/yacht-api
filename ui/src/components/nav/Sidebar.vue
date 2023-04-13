@@ -23,7 +23,6 @@
         <template v-slot:append>
             <div>
                 <v-btn size="large" variant="text" icon="mdi-file-document" target="_blank" href="https://yacht.sh" />
-                <br />
                 <v-btn size="large" variant="text" icon="mdi-github" target="_blank" href="https://github.com/SelfhostedPro/Yacht" />
             </div>
         </template>

@@ -25,7 +25,6 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 @Controller('containers')
 export class ContainersController {
   constructor(private readonly containersService: ContainersService) { }
-
   @Get()
   @ApiCreatedResponse({
     description: 'List all containers.',
@@ -56,7 +55,7 @@ export class ContainersController {
       }
     }
   }
-  @Get('_/:id')
+  @Get('info/:id')
   @ApiCreatedResponse({
     description: 'Get inspect information of one container.',
     type: ContainerInfoDTO,
@@ -73,29 +72,7 @@ export class ContainersController {
       }
     }
   }
-  @UseGuards(AdminGuard)
-  @Get('_/:id/actions/:action')
-  @ApiCreatedResponse({
-    description: 'Get inspect information of one container.',
-    type: String,
-  })
-  async containerAction(
-    @Param('id') id: string,
-    @Param('action') action: string,
-  ): Promise<string> {
-    try {
-      await this.containersService.getContainerAction(id, action);
-      return 'sucess';
-    } catch (err) {
-      // Error Handling
-      if (err.statusCode) {
-        throw new HttpException(err.message, err.statusCode);
-      } else {
-        throw new HttpException(err.message, 500);
-      }
-    }
-  }
-  @Get('_/:id/processes')
+  @Get('info/:id/processes')
   @ApiCreatedResponse({
     description: 'Get processes in container.',
     type: ContainerProcessesDTO,
@@ -114,8 +91,7 @@ export class ContainersController {
       }
     }
   }
-
-  @Get('_/:id/static_stats')
+  @Get('info/:id/static_stats')
   @ApiCreatedResponse({
     description: 'Get processes in container.',
     type: ContainerProcessesDTO,
@@ -134,8 +110,7 @@ export class ContainersController {
       }
     }
   }
-
-  @Sse('_/:id/logs')
+  @Sse('info/:id/logs')
   async streamContainerLogs(
     @Param('id') id: string,
   ): Promise<Observable<MessageEvent>> {
@@ -150,6 +125,28 @@ export class ContainersController {
           } as MessageEvent),
         ),
       );
+    } catch (err) {
+      // Error Handling
+      if (err.statusCode) {
+        throw new HttpException(err.message, err.statusCode);
+      } else {
+        throw new HttpException(err.message, 500);
+      }
+    }
+  }
+  @UseGuards(AdminGuard)
+  @Get('actions/:id/:action')
+  @ApiCreatedResponse({
+    description: 'Get inspect information of one container.',
+    type: String,
+  })
+  async containerAction(
+    @Param('id') id: string,
+    @Param('action') action: string,
+  ): Promise<string> {
+    try {
+      await this.containersService.getContainerAction(id, action);
+      return 'sucess';
     } catch (err) {
       // Error Handling
       if (err.statusCode) {

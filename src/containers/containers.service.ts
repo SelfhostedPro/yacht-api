@@ -5,21 +5,21 @@ import { ContainerProcessesDTO } from './classes';
 import { Logger } from '../logger/logger.service';
 import { transformStatStream } from '../util/streamConverter'
 import { Observable, fromEvent, map } from 'rxjs';
-import { Response } from 'express';
+import { formatContainers, formatInspect, ReadableContainerInfo } from '../util/containerFormatter'
 
 @Injectable()
 export class ContainersService {
   constructor(private readonly logger: Logger) { }
 
-  async getContainers(): Promise<ContainerInfo[]> {
+  async getContainers(): Promise<ReadableContainerInfo[]> {
     const Docker = require('dockerode');
     const docker = new Docker();
-    return docker.listContainers({ all: true });
+    return formatContainers( await docker.listContainers({ all: true }));
   }
   async getContainer(id: string): Promise<ContainerInfo> {
     const Docker = require('dockerode');
     const docker = new Docker();
-    return docker.getContainer(id).inspect();
+    return formatInspect( await docker.getContainer(id).inspect());
   }
   async getContainerAction(id: string, action: string): Promise<ContainerInfo> {
     const Docker = require('dockerode');

@@ -6,18 +6,24 @@
                 <v-fade-transition group>
                     <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-if="apps" v-for="app in apps"
                         :key="app.ShortName">
-                        <v-card class="pa-1 pb-1" density="compact">
+                        <v-card :to="'/apps/'+app.ShortId" class="pa-1 pb-1" density="compact">
                             <v-row dense no-gutters class="align-start">
                                 <v-col>
                                     <baseinfo :app="app" />
-                                    <v-btn :icon="reveal[app.ShortId] ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                                    <v-btn :icon="revealActions[app.ShortId] ? 'mdi-chevron-up' : 'mdi-chevron-down'"
                                         variant="text" color="primary"
-                                        v-on:click="reveal[app.ShortId] = !reveal[app.ShortId]">
+                                        v-on:click.prevent="revealActions[app.ShortId] = !revealActions[app.ShortId]">
                                     </v-btn>
-                                    <stats v-if="statsList[app.ShortName]" :stats="statsList[app.ShortName]" :app="app"></stats>
+                                    <v-btn v-if="app.Mounts[0] || app.Ports[0]" :icon="revealResources[app.ShortId] ? 'mdi-information-off' : 'mdi-information'"
+                                        variant="text" color="primary"
+                                        v-on:click.prevent="revealResources[app.ShortId] = !revealResources[app.ShortId]">
+                                    </v-btn>
+                                    <stats v-if="statsList[app.ShortName]" :stats="statsList[app.ShortName]" :app="app">
+                                    </stats>
                                 </v-col>
                             </v-row>
-                            <resourcetab :app="app" :reveal="reveal" />
+                            <actions :app="app" :reveal="revealActions" />
+                            <resourcetab :app="app" :reveal="revealResources" />
                         </v-card>
                     </v-col>
                 </v-fade-transition>
@@ -27,31 +33,29 @@
 </template>
 
 <script setup lang="ts">
-import { formatApps } from '@/composables/formatApps'
+import { ReadableContainerInfo } from '@/composables/formatApps'
 import { router } from '@/plugins'
 import { ref } from 'vue';
+import type { Ref } from 'vue';
 import baseinfo from './info/base.vue'
 import resourcetab from './info/resourcetab.vue'
+import actions from './info/actions.vue'
 import stats from './info/stats.vue'
 import { tryOnBeforeUnmount } from '@vueuse/core'
-
-
-
-const handleCardClick = function (event, proxyItem) {
-    const item = JSON.parse(JSON.stringify(proxyItem))
-    router.push({ path: `/apps/${item.item.value.ShortName}` });
-}
-
-const reveal = ref({})
-const apps = ref([])
+const revealActions = ref({})
+const revealResources = ref({})
+const apps: Ref<ReadableContainerInfo[]> = ref([])
 const statsList = ref({})
-const fetchApp = async function () {
+
+// Get all apps
+const fetchApps = async function () {
     fetch('/api/containers')
         .then(response => response.json())
-        .then(data => apps.value = formatApps(data))
+        .then(data => apps.value = data)
 }
-fetchApp()
+fetchApps()
 
+// Get live stats for all apps
 const statSource = new EventSource(`/api/containers/stats`)
 statSource.addEventListener('message', (message) => {
     if (statSource.OPEN) {
@@ -60,6 +64,7 @@ statSource.addEventListener('message', (message) => {
     }
 })
 
+// Close EventSource before leaving page
 tryOnBeforeUnmount(() => {
     statSource.close()
 })
