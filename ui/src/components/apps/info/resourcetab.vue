@@ -4,8 +4,8 @@
             <v-row no-gutters>
                 <v-col>
                     <v-tabs color="primary" show-arrows grow mandatory v-model="tab[app.ShortId]">
-                        <v-tab v-if="app.Ports[0]" rounded="0" value="1" title="ports" />
-                        <v-tab v-if="app.Mounts[0]" rounded="0" value="2" title="mounts" />
+                        <v-tab v-on:click.prevent v-if="app.Ports[0]" rounded="0" value="1" title="ports" />
+                        <v-tab v-on:click.prevent v-if="app.Mounts[0]" rounded="0" value="2" title="mounts" />
                     </v-tabs>
                 </v-col>
             </v-row>

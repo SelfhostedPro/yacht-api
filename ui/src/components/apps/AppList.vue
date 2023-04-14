@@ -65,6 +65,6 @@ onMounted(async () => {
 })
 
 const handleRefresh = async () => {
-    appStore.$reset()
+    appStore.resetApps()
 }
 </script>

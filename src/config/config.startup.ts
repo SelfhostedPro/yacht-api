@@ -17,7 +17,7 @@ export async function getStartupConfig() {
     base: {
       name: 'Yacht',
       servers: [
-        {type: "local", path: '/var/run/docker.sock'}
+        { name: "local", type: "local", path: '/var/run/docker.sock' }
       ],
       auth: true,
       theme: 'dark',
@@ -30,7 +30,7 @@ export async function getStartupConfig() {
     logger.log('Config Exists!');
   } catch (e) {
     if (e.code == 'ENOENT') {
-      fs.mkdirSync(path.resolve(os.homedir(), '.yacht/'));
+      fs.mkdirSync(path.resolve(os.homedir(), '.yacht/storage/templates'), { recursive: true})
       fs.writeFileSync(configPath, yaml.dump(defaultConfig), { flag: 'w' });
       logger.log('Config Created!');
     } else {

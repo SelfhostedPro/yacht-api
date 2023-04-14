@@ -1,0 +1,29 @@
+<template>
+  <v-snackbar :model-value="notification.visible" :color="notification.color" :timeout="notification.timeout || -1" :location="notification.location">
+    {{ notification.content }}
+    <template v-slot:actions>
+      <v-btn icon text :color="notification.btnColor" @click="clearSnack()">
+        <v-icon>{{ notification.btnIcon }}</v-icon>
+      </v-btn>
+    </template>
+  </v-snackbar>
+</template>
+  
+<script setup lang="ts">
+import { useNotifyStore } from '@/stores/notifications';
+import { storeToRefs } from 'pinia';
+
+
+// Store variables
+const notifyStore = useNotifyStore()
+const { notification } = storeToRefs(notifyStore)
+
+// Used to prevent snackbar style from being reset before it closes fully
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+const clearSnack = (async () => {
+  notification.value.visible = false
+  await sleep(100)
+  notifyStore.notificationReset()
+})
+
+</script>

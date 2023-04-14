@@ -47,4 +47,10 @@ export class AuthController {
   checkAuth() {
     return { status: 'OK' };
   }
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/refresh')
+  refreshToken() {
+    return { status: 'OK'}
+  }
 }

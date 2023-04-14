@@ -10,7 +10,7 @@ export interface YachtConfig {
   base: {
     name: string;
     servers: [{
-      type: string, path: string
+      name: string, type: string, path: string
     }];
     auth: boolean,
     theme: 'dark' | 'light',
@@ -36,7 +36,7 @@ export class ConfigService {
     process.env.UIX_CONFIG_PATH ||
     path.resolve(os.homedir(), '.yacht/config.yaml');
   public storagePath =
-    process.env.UIX_STORAGE_PATH || path.resolve(os.homedir(), '.yacht');
+    process.env.UIX_STORAGE_PATH || path.resolve(os.homedir(), '.yacht/storage');
   public customPluginPath = process.env.UIX_CUSTOM_PLUGIN_PATH;
   public strictPluginResolution =
     process.env.UIX_STRICT_PLUGIN_RESOLUTION === '1';

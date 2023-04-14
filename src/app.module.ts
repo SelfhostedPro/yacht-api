@@ -13,6 +13,8 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from './config/config.module';
 import { SetupWizardModule } from './setup-wizard/setup-wizard.module';
 import { LoggerModule } from './logger/logger.module';
+import { TemplatesService } from './templates/templates.service';
+import { TemplatesModule } from './templates/templates.module';
 
 @Module({
   imports: [
@@ -24,8 +26,9 @@ import { LoggerModule } from './logger/logger.module';
     ConfigModule,
     LoggerModule,
     SetupWizardModule,
+    TemplatesModule,
   ],
   controllers: [AppController, ContainersController, ProjectsController],
-  providers: [AppService, ContainersService, ProjectsService],
+  providers: [AppService, ContainersService, ProjectsService, TemplatesService],
 })
 export class AppModule {}
