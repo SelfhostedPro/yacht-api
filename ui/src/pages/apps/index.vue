@@ -1,8 +1,6 @@
 <template>
     <v-container fluid>
-        <v-card>
             <AppList></AppList>
-        </v-card>
     </v-container>
 </template>
 

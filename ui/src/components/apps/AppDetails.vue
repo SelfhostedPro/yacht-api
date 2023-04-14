@@ -1,21 +1,21 @@
 <template>
     <v-card>
-        <!-- <baseinfo :app="app" :details="true" /> -->
-        {{ app }}
+        {{ appDetails }}
     </v-card>
 </template>
 
 <script setup lang="ts">
-import { ReadableContainerInfo } from '@/composables/formatApps';
-import baseinfo from './info/base.vue'
-import { Ref, ref } from 'vue'
+import { useAppStore } from '@/stores/apps'
+import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue';
 const props = defineProps(['name'])
 
-const app: Ref<ReadableContainerInfo> = ref()
-const fetchApp = async function () {
-    fetch(`/api/containers/info/${props.name}`)
-        .then(response => response.json())
-        .then(data => app.value = data)
-}
-fetchApp()
+
+// Store variables
+const appStore = useAppStore()
+const { appDetails, isLoading } = storeToRefs(appStore)
+// Fetch App Details
+onMounted(async () => {
+    appStore.fetchAppDetails(props.name)
+})
 </script>

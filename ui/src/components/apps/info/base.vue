@@ -15,6 +15,6 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps(['app'])
+const props = defineProps(['app', 'details'])
 
 </script>

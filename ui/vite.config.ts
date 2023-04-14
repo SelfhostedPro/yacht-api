@@ -4,6 +4,8 @@ import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import Pages from 'vite-plugin-pages'
 import Layouts from 'vite-plugin-vue-layouts';
 import WebfontDownload from 'vite-plugin-webfont-dl'
+// import basicSsl from '@vitejs/plugin-basic-ssl'
+
 
 
 
@@ -48,6 +50,7 @@ export default defineConfig({
   },
   server: {
     port: 5000,
+    https: false,
     proxy: {
       '/api': {
         target: 'http://localhost:3000',

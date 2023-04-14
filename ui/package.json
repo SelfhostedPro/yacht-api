@@ -23,6 +23,7 @@
     "@types/dockerode": "^3.3.16",
     "@types/node": "^18.11.9",
     "@types/webfontloader": "^1.6.35",
+    "@vitejs/plugin-basic-ssl": "^1.0.1",
     "@vitejs/plugin-vue": "^3.0.3",
     "@vue/eslint-config-typescript": "^11.0.0",
     "eslint": "^8.22.0",

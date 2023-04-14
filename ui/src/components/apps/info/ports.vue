@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { ReadableContainerInfo } from '@/composables/formatApps';
+import { ReadableContainerInfo } from '@/types/apps';
 
 defineProps(['app'])
 

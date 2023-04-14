@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import Dockerode, { Container, ContainerInfo, ContainerStats } from 'dockerode';
-import { PassThrough as StreamPassThrough, Stream, Readable } from 'stream';
+import { PassThrough as StreamPassThrough, Transform } from 'stream';
 import { ContainerProcessesDTO } from './classes';
 import { Logger } from '../logger/logger.service';
-import { transformStatStream } from '../util/streamConverter'
+import { formatStats } from '../util/streamConverter'
 import { Observable, fromEvent, map } from 'rxjs';
 import { formatContainers, formatInspect, ReadableContainerInfo } from '../util/containerFormatter'
+import { Response } from 'express';
 
 @Injectable()
 export class ContainersService {
@@ -79,11 +80,13 @@ export class ContainersService {
 
   async streamBaseContainerStats(): Promise<Observable<MessageEvent>> {
     const statStream = new StreamPassThrough();
-
+    const transformStatStream = new Transform({ objectMode: true , transform (chunk, enc, callback) {
+      this.push(formatStats(chunk))
+      callback()
+  }})
     const Docker = require('dockerode');
     const docker: Dockerode = new Docker();
     const containerList = await docker.listContainers()
-
     for await (const app of containerList) {
       docker.getContainer(app.Id)
         .stats({ stream: true }, function (err, stream: any) {

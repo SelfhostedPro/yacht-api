@@ -5,11 +5,7 @@ import {
   HttpException,
   Sse,
   UseGuards,
-  Res,
-  Scope,
-  Req,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
 import { ContainerInfo } from 'dockerode';
@@ -43,7 +39,7 @@ export class ContainersController {
     }
   }
   @Sse('/stats')
-  async streamContainerStats(@Res() response: Response, @Req() request: Request): Promise<Observable<MessageEvent>> {
+  async streamContainerStats(): Promise<Observable<MessageEvent>> {
     try {
       return await this.containersService.streamBaseContainerStats();
     } catch (err) {

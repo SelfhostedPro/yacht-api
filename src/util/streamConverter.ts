@@ -1,5 +1,4 @@
 import { ContainerStats } from 'dockerode'
-import { Transform } from "stream"
 
 export interface BasicStats {
     Name: string,
@@ -7,7 +6,7 @@ export interface BasicStats {
     CpuUsage: string
 }
 
-export const transformStatStream = new Transform({ objectMode: true , transform (chunk, enc, callback) {
+export function formatStats(chunk) {
     const stats = JSON.parse(chunk.toString())
     formatCpuPercent(stats)
     formatMemPercent(stats)
@@ -19,9 +18,8 @@ export const transformStatStream = new Transform({ objectMode: true , transform 
     formattedStats.MemoryPercentage = formatMemPercent(stats).toFixed(2)
     formattedStats.CpuUsage = formatCpuPercent(stats).toFixed(2)
     formattedStats.Name = stats.name.slice(1)
-    this.push(JSON.stringify(formattedStats))
-    callback()
-}})
+    return JSON.stringify(formattedStats)
+}
 
 
 export function formatCpuPercent(data: ContainerStats) {
