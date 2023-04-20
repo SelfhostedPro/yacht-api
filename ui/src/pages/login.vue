@@ -4,7 +4,7 @@
             <v-col>
                 <v-card class="mx-auto" max-width="400px" color="foreground">
                         <v-img class="mx-auto mt-5" max-height="76" alt="Vue logo" :src="logo" />
-                    <LoginForm></LoginForm>
+                    <LoginForm :registration="firstSetup"></LoginForm>
                 </v-card>
             </v-col>
         </v-row>
@@ -14,6 +14,21 @@
 <script setup lang="ts">
 import LoginForm from "@/components/auth/LoginForm.vue"
 import { Logo } from "@/composables/logo"
+import { useAuthStore } from "@/stores/auth";
+import { storeToRefs } from "pinia";
+import { onMounted } from 'vue';
+
+const authStore = useAuthStore()
+const { firstSetup, authDisabled} = storeToRefs(authStore)
+
+// Fetch Apps
+onMounted(async () => {
+    if (firstSetup.value == null || authDisabled.value == null) {
+        console.log("Getting auth settings")
+        authStore.initCheck()
+    }
+})
+
 
 const logo = Logo()
 </script>
@@ -21,4 +36,5 @@ const logo = Logo()
 <route lang="yaml">
 meta:
     layout: login
+    public: true
 </route>

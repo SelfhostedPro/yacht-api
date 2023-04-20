@@ -3,6 +3,7 @@ import { defineStore } from "pinia"
 import { Ref, computed, ref } from "vue"
 import { useNotifyStore } from "./notifications"
 import { useFetch, useEventSource } from "@vueuse/core"
+import { useAuthFetch } from "@/helpers/auth/fetch"
 
 export const useAppStore = defineStore('apps', () => {
     const apps: Ref<ReadableContainerInfo[]> = ref([])
@@ -15,14 +16,7 @@ export const useAppStore = defineStore('apps', () => {
     // Fetching API Data
     const fetchApps = (async () => {
         isLoading.value.set("fetchApps", true)
-        const { isFetching, error, data } = await useFetch<string>(`/api/containers/`, {
-            onFetchError(ctx) {
-                console.log(JSON.parse(ctx.data))
-                const notify = useNotifyStore()
-                notify.setError(`${JSON.parse(ctx.data).statusCode}: ${JSON.parse(ctx.data).message}`)
-                return ctx
-            },
-        })
+        const { isFetching, error, data } = await useAuthFetch<string>(`/api/containers/`)
         isLoading.value.set("fetchApps", isFetching.value)
         if (!error.value) {
             apps.value = JSON.parse(data.value)
@@ -30,14 +24,7 @@ export const useAppStore = defineStore('apps', () => {
     })
     const fetchAppDetails = (async (Id) => {
         isLoading.value.set("fetchAppDetails", true)
-        const { isFetching, error, data } = await useFetch<string>(`/api/containers/info/${Id}`, {
-            onFetchError(ctx) {
-                console.log(JSON.parse(ctx.data))
-                const notify = useNotifyStore()
-                notify.setError(`${JSON.parse(ctx.data).statusCode}: ${JSON.parse(ctx.data).message}`)
-                return ctx
-            },
-        })
+        const { isFetching, error, data } = await useAuthFetch<string>(`/api/containers/info/${Id}`)
         isLoading.value.set("fetchAppDetails", isFetching.value)
         if (!error.value) {
             appDetails.value = JSON.parse(data.value)

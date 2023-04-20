@@ -9,16 +9,41 @@ import {
   IsDefined,
 } from 'class-validator';
 
-export class UserDto {
-  @IsNumber()
-  @ApiProperty({ readOnly: true })
-  id?: number;
-
+export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
   @IsDefined()
   @ApiProperty()
-  name: string;
+  username?: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  admin?: boolean;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ writeOnly: true })
+  password?: string;
+
+  @Equals(undefined)
+  hashedPassword?: string;
+
+  @Equals(undefined)
+  otpSecret?: string;
+
+  @Equals(undefined)
+  @ApiProperty({ readOnly: true })
+  otpActive?: boolean;
+
+  @Equals(undefined)
+  @ApiProperty()
+  refreshToken?: string
+}
+
+export class UserDto {
+  @IsNumber()
+  @ApiProperty({ readOnly: true })
+  id?: number;
 
   @IsString()
   @IsNotEmpty()
@@ -47,6 +72,10 @@ export class UserDto {
   @Equals(undefined)
   @ApiProperty({ readOnly: true })
   otpActive?: boolean;
+
+  @Equals(undefined)
+  @ApiProperty()
+  refreshToken?: string
 }
 
 export class UserUpdatePasswordDto {

@@ -12,7 +12,7 @@ export class WsAdminGuard implements CanActivate {
     try {
       const user = jwt.verify(
         client.handshake.query.token,
-        this.configService.secrets.secretKey,
+        this.configService.secrets.accessSecret,
       ) as UserDto;
       return user.admin;
     } catch (e) {

@@ -19,13 +19,10 @@ import {
   ApiOperation,
   ApiParam,
 } from '@nestjs/swagger';
-import { AuthService } from '../auth/auth.service';
-import { AdminGuard } from '../auth/guards/admin.guard';
+import { UsersService } from './users.service';
+import { AdminGuard } from 'src/common/guards/admin.guard';
 import {
   UserDto,
-  UserUpdatePasswordDto,
-  UserActivateOtpDto,
-  UserDeactivateOtpDto,
 } from './users.dto';
 
 @ApiTags('User Management')
@@ -33,14 +30,16 @@ import {
 @UseGuards(AuthGuard('jwt'))
 @Controller('users')
 export class UsersController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private usersService: UsersService
+    ) { }
 
   @UseGuards(AdminGuard)
   @ApiResponse({ type: UserDto, isArray: true, status: 200 })
   @ApiOperation({ summary: 'List of existing users.' })
   @Get()
   getUsers() {
-    return this.authService.getUsers(true);
+    return this.usersService.get(true);
   }
 
   @UseGuards(AdminGuard)
@@ -48,7 +47,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Create a new user.' })
   @Post()
   addUser(@Body() body: UserDto) {
-    return this.authService.addUser(body);
+    return this.usersService.create(body);
   }
 
   @UseGuards(AdminGuard)
@@ -60,7 +59,7 @@ export class UsersController {
     @Param('userId', ParseIntPipe) userId: number,
     @Body() body: UserDto,
   ) {
-    return this.authService.updateUser(userId, body);
+    return this.usersService.update(userId, body);
   }
 
   @UseGuards(AdminGuard)
@@ -68,37 +67,7 @@ export class UsersController {
   @ApiParam({ name: 'userId', type: 'number' })
   @Delete('/:userId(\\d+)')
   deleteUser(@Param('userId', ParseIntPipe) userId: number) {
-    return this.authService.deleteUser(userId);
+    return this.usersService.delete(userId);
   }
 
-  @ApiOperation({ summary: 'Update the password for the current user.' })
-  @ApiBody({ type: UserUpdatePasswordDto })
-  @Post('/change-password')
-  updateOwnPassword(@Req() req, @Body() body: UserUpdatePasswordDto) {
-    return this.authService.updateOwnPassword(
-      req.user.username,
-      body.currentPassword,
-      body.newPassword,
-    );
-  }
-
-  @ApiOperation({ summary: 'Start 2FA setup for the current user.' })
-  @Post('/otp/setup')
-  setupOtp(@Req() req) {
-    return this.authService.setupOtp(req.user.username);
-  }
-
-  @ApiOperation({ summary: 'Activate 2FA setup for the current user.' })
-  @ApiBody({ type: UserActivateOtpDto })
-  @Post('/otp/activate')
-  activateOtp(@Req() req, @Body() body: UserActivateOtpDto) {
-    return this.authService.activateOtp(req.user.username, body.code);
-  }
-
-  @ApiOperation({ summary: 'Deactivate 2FA setup for the current user.' })
-  @ApiBody({ type: UserDeactivateOtpDto })
-  @Post('/otp/deactivate')
-  deactivateOtp(@Req() req, @Body() body: UserDeactivateOtpDto) {
-    return this.authService.deactivateOtp(req.user.username, body.password);
-  }
 }

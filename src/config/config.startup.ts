@@ -2,6 +2,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as yaml from 'js-yaml';
+import * as crypto from 'crypto'
 
 import { Logger } from '../logger/logger.service';
 import { YachtConfig } from './config.service';
@@ -21,7 +22,7 @@ export async function getStartupConfig() {
       ],
       auth: true,
       theme: 'dark',
-      sessionTimeout: 8
+      sessionTimeout: 3600
     },
   };
   let config;

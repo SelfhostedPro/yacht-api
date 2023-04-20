@@ -92,7 +92,8 @@ export class ConfigService {
   private uiFreeze: this['ui'];
 
   public secrets: {
-    secretKey: string;
+    accessSecret: string;
+    refreshSecret: string;
   };
 
   public instanceId: string;
@@ -217,7 +218,7 @@ export class ConfigService {
     if (fs.pathExistsSync(this.secretPath)) {
       try {
         const secrets = fs.readJsonSync(this.secretPath);
-        if (!secrets.secretKey) {
+        if (!secrets.accessSecret || ! secrets.refreshSecret) {
           return this.generateSecretToken();
         } else {
           return secrets;
@@ -235,7 +236,8 @@ export class ConfigService {
    */
   private generateSecretToken() {
     const secrets = {
-      secretKey: crypto.randomBytes(32).toString('hex'),
+      accessSecret: crypto.randomBytes(256).toString('base64'),
+      refreshSecret: crypto.randomBytes(256).toString('base64'),
     };
 
     fs.writeJsonSync(this.secretPath, secrets);
@@ -249,7 +251,7 @@ export class ConfigService {
   private getInstanceId(): string {
     return crypto
       .createHash('sha256')
-      .update(this.secrets.secretKey)
+      .update(this.secrets.accessSecret)
       .digest('hex');
   }
 }

@@ -12,7 +12,7 @@ export class WsGuard implements CanActivate {
     try {
       jwt.verify(
         client.handshake.query.token,
-        this.configService.secrets.secretKey,
+        this.configService.secrets.accessSecret,
       ) as UserDto;
       return true;
     } catch (e) {

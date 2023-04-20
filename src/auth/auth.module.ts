@@ -7,9 +7,12 @@ import { ConfigService } from '../config/config.service';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { WsGuard } from './guards/ws.guard';
-import { AdminGuard } from './guards/admin.guard';
-import { WsAdminGuard } from './guards/ws-admin-guard';
+import { WsGuard } from 'src/common/guards/ws.guard';
+import { AdminGuard } from 'src/common/guards/admin.guard';
+import { WsAdminGuard } from 'src/common/guards/ws-admin-guard';
+import { RefreshTokenStrategy } from './refresh.strategy';
+import { UsersModule } from 'src/users/users.module';
+import { UsersService } from 'src/users/users.service';
 
 @Module({
   imports: [
@@ -17,7 +20,7 @@ import { WsAdminGuard } from './guards/ws-admin-guard';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.secrets.secretKey,
+        secret: configService.secrets.accessSecret,
         signOptions: {
           expiresIn: configService.ui.sessionTimeout,
         },
@@ -26,8 +29,9 @@ import { WsAdminGuard } from './guards/ws-admin-guard';
     }),
     ConfigModule,
     LoggerModule,
+    UsersModule
   ],
-  providers: [AuthService, JwtStrategy, WsGuard, WsAdminGuard, AdminGuard],
+  providers: [AuthService, UsersService, JwtStrategy, RefreshTokenStrategy, WsGuard, WsAdminGuard, AdminGuard],
   controllers: [AuthController],
   exports: [AuthService],
 })

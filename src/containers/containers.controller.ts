@@ -13,7 +13,7 @@ import { ContainerInfoDTO, ContainerProcessesDTO, ContainerStatsDTO } from './cl
 import { ContainersService } from './containers.service';
 import { PassThrough as StreamPassThrough, Writable as StreamWritable } from 'stream';
 import { Observable, fromEvent, map } from 'rxjs';
-import { AdminGuard } from '../auth/guards/admin.guard';
+import { AdminGuard } from '../common/guards/admin.guard';
 
 @ApiTags('containers')
 // @ApiBearerAuth()
@@ -21,6 +21,8 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 @Controller('containers')
 export class ContainersController {
   constructor(private readonly containersService: ContainersService) { }
+
+  // @UseGuards(AuthGuard('jwt'))
   @Get()
   @ApiCreatedResponse({
     description: 'List all containers.',
@@ -51,6 +53,9 @@ export class ContainersController {
       }
     }
   }
+  
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @Get('info/:id')
   @ApiCreatedResponse({
     description: 'Get inspect information of one container.',
