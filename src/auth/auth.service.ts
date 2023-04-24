@@ -19,6 +19,7 @@ import { ConfigService } from '../config/config.service';
 import { Logger } from '../logger/logger.service';
 import { UserDto } from '../users/users.dto';
 import { UsersService } from 'src/users/users.service';
+import { TokensDto } from './auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -47,12 +48,11 @@ export class AuthService {
     otp?: string,
   ): Promise<any> {
     try {
-      const user = await this.usersService.findByUsername(username);
-
+      const user: UserDto = await this.usersService.findByUsername(username);
       if (!user) {
         throw new ForbiddenException();
       }
-      const test = await this.checkPassword(user, password);
+      await this.checkPassword(user, password);
       if (user.otpActive && !otp) {
         throw new HttpException('2FA Code Required', 412);
       }
@@ -63,6 +63,7 @@ export class AuthService {
 
       if (user) {
         return {
+          id: user.id,
           username: user.username,
           admin: user.admin,
           instanceId: this.configService.instanceId,
@@ -91,10 +92,10 @@ export class AuthService {
    * @param username
    * @param password
    */
-  async signIn(username: string, password: string, otp?: string): Promise<any> {
+  async signIn(username: string, password: string, otp?: string): Promise<TokensDto> {
     const user = await this.authenticate(username, password, otp);
-    const tokens = await this.getTokens(user.id, user.username);
-
+    const tokens: TokensDto = await this.getTokens(user.id, user.username);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
 
@@ -102,7 +103,7 @@ export class AuthService {
    * Logout user and remove refresh token
    */
   async logout(id: number) {
-    await this.usersService.update(id, { refreshToken: null})
+    await this.usersService.update(id, { refreshToken: null })
     return 'ok'
   }
 
@@ -130,7 +131,26 @@ export class AuthService {
   }
 
   /**
-   * Give user a new refresh token
+   * Validate the current refresh token and generate a new one.
+   * @param id
+   * @param refreshToken
+   */
+
+  async refreshTokens(id: number, refreshToken: string) {
+    const user = await this.usersService.findById(id);
+    if (!user || !user.refreshToken)
+      throw new ForbiddenException('Access Denied');
+    const refreshTokenMatches = await argon2.verify(
+      user.refreshToken,
+      refreshToken,
+    );
+    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+    const tokens = await this.getTokens(user.id, user.username);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+    return tokens;
+  }
+  /**
+   * Give user a new refresh token in our auth file
    * @param userId 
    * @param refreshToken 
    */
@@ -223,7 +243,6 @@ export class AuthService {
    * @param payload the decoded, verified jwt payload
    */
   async validateUser(payload): Promise<any> {
-    console.log(payload)
     return payload;
   }
 

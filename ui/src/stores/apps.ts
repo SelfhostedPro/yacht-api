@@ -32,7 +32,7 @@ export const useAppStore = defineStore('apps', () => {
     })
     const fetchStats = (async () => {
         isLoading.value.set("fetchStats", true)
-        const { eventSource } = useEventSource(`/api/containers/stats`, ['message'])
+        const { eventSource } = useEventSource(`/api/containers/stats`, ['message'], {withCredentials: true})
         eventSource.value.onopen = () => {
             isLoading.value.set("fetchStats", false)
         }

@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { GitUrlDTO } from './classes';
 import { ProjectsService } from './projects.service';
 
-@ApiTags('projects')
+@ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}

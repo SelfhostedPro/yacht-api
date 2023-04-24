@@ -3,7 +3,7 @@ import { Ref, computed, ref } from "vue"
 import { useNotifyStore } from "./notifications"
 import { useFetch, useStorage } from "@vueuse/core"
 import { router } from "@/plugins"
-import { useAuthFetch } from "@/helpers/auth/fetch"
+import { useAuthFetch, useRefreshFetch } from "@/helpers/auth/fetch"
 
 export const useAuthStore = defineStore('auth', () => {
     const user: Ref<any> = ref(localStorage.getItem('user'))
@@ -21,10 +21,24 @@ export const useAuthStore = defineStore('auth', () => {
         isLoading.value.set("login", isFetching.value)
         if (!error.value) {
             user.value = data.value
-            useStorage('user', user.value)
-            useStorage('auth-token', user.value['access_token'])
-            useStorage('refresh-token', user.value['access_token'])
+            useStorage('user', await user.value)
+            useStorage('auth-token', await user.value['accessToken'])
+            useStorage('refresh-token', await user.value['refreshToken'])
             router.push(returnUrl.value || '/')
+        }
+    })
+
+    const refresh = (async () => {
+        const {error, data} = await useRefreshFetch('/api/auth/refresh').json()
+        if (!error.value && !data.value['statusCode']) {
+            user.value = await data.value
+            useStorage('user', await user.value)
+            localStorage.removeItem('auth-token')
+            localStorage.removeItem('refresh-token')
+            useStorage('auth-token', await user.value['accessToken'])
+            useStorage('refresh-token', await user.value['refreshToken'])
+        } else {
+            return data.value
         }
     })
 
@@ -67,10 +81,18 @@ export const useAuthStore = defineStore('auth', () => {
         }
     })
 
-    const logOut = (async () => {
+    const logOut = (async (path?: string, reason?: string) => {
+        const notify = useNotifyStore()
         isLoading.value.clear()
-        useStorage('user', null)
-        useStorage('auth-token', null)
+        localStorage.removeItem('auth-token')
+        localStorage.removeItem('refresh-token')
+        localStorage.removeItem('user')
+        user.value = ref(undefined)
+        if (path) {
+            returnUrl.value = path
+        }
+        await router.push('/login')
+        notify.setError(reason)
     })
-    return { userLogin, user, returnUrl, isLoading, initCheck, firstSetup, authDisabled, userRegister, logOut }
+    return { userLogin, user, returnUrl, isLoading, initCheck, firstSetup, authDisabled, userRegister, logOut, refresh }
 })

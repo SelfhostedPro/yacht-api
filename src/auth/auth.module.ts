@@ -4,7 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { LoggerModule } from '../logger/logger.module';
 import { ConfigModule } from '../config/config.module';
 import { ConfigService } from '../config/config.service';
-import { JwtStrategy } from './jwt.strategy';
+import { AccessTokenStrategy } from './jwt.strategy';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { WsGuard } from 'src/common/guards/ws.guard';
@@ -31,7 +31,7 @@ import { UsersService } from 'src/users/users.service';
     LoggerModule,
     UsersModule
   ],
-  providers: [AuthService, UsersService, JwtStrategy, RefreshTokenStrategy, WsGuard, WsAdminGuard, AdminGuard],
+  providers: [AuthService, UsersService, AccessTokenStrategy, RefreshTokenStrategy, WsGuard, WsAdminGuard, AdminGuard],
   controllers: [AuthController],
   exports: [AuthService],
 })

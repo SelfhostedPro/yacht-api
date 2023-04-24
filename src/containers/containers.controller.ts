@@ -14,15 +14,15 @@ import { ContainersService } from './containers.service';
 import { PassThrough as StreamPassThrough, Writable as StreamWritable } from 'stream';
 import { Observable, fromEvent, map } from 'rxjs';
 import { AdminGuard } from '../common/guards/admin.guard';
+import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 
-@ApiTags('containers')
-// @ApiBearerAuth()
-// @UseGuards(AuthGuard('jwt'))
+@ApiTags('Containers')
+@ApiBearerAuth()
+@UseGuards(AccessTokenGuard)
 @Controller('containers')
 export class ContainersController {
   constructor(private readonly containersService: ContainersService) { }
 
-  // @UseGuards(AuthGuard('jwt'))
   @Get()
   @ApiCreatedResponse({
     description: 'List all containers.',
@@ -53,9 +53,7 @@ export class ContainersController {
       }
     }
   }
-  
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+
   @Get('info/:id')
   @ApiCreatedResponse({
     description: 'Get inspect information of one container.',
@@ -135,7 +133,6 @@ export class ContainersController {
       }
     }
   }
-  @UseGuards(AdminGuard)
   @Get('actions/:id/:action')
   @ApiCreatedResponse({
     description: 'Get inspect information of one container.',

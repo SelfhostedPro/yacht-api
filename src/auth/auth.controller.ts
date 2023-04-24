@@ -1,25 +1,62 @@
-import { Controller, Post, Body, Get, UseGuards, Header, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Header, Req, Res } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { AuthDto } from './auth.dto';
+import { AuthDto, TokensDto } from './auth.dto';
 import { ConfigService } from '../config/config.service';
 import { UserActivateOtpDto, UserDeactivateOtpDto, UserUpdatePasswordDto } from 'src/users/users.dto';
+import { RefreshTokenGuard } from 'src/common/guards/refreshToken.guard';
+import { Request, Response, response } from 'express';
 
-@ApiTags('Authentication')
+
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   @ApiOperation({
     summary: 'Exchange a username and password for an authentication token.',
   })
   @Post('login')
-  signIn(@Body() body: AuthDto) {
-    return this.authService.signIn(body.username, body.password, body.otp);
+  async signIn(@Body() body: AuthDto, @Res({ passthrough: true }) response: Response) {
+    const tokens = await this.authService.signIn(body.username, body.password, body.otp);
+    response.cookie('access-token', tokens.accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      expires: new Date(Date.now() + 1 * 24 * 60 * 1800)
+    }).cookie('refresh-token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      expires: new Date(Date.now() + 1 * 24 * 60 * this.configService.ui.sessionTimeout)
+    }).send(tokens)
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(RefreshTokenGuard)
+  @Get('refresh')
+  async refreshTokens(@Req() req: Request, @Res() response: Response) {
+    const id = req.user['sub'];
+    const oldRefreshToken = req.user['refreshToken'];
+
+    const { accessToken, refreshToken } = await this.authService.refreshTokens(id, oldRefreshToken)
+    response.cookie('access-token', accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      expires: new Date(Date.now() + 1 * 1800)
+    })
+    response.cookie('refresh-token', refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      expires: new Date(Date.now() + 1 * this.configService.ui.sessionTimeout)
+    })
+    return { accessToken, refreshToken }
   }
 
   @Get('/settings')
@@ -48,12 +85,7 @@ export class AuthController {
   checkAuth() {
     return { status: 'OK' };
   }
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
-  @Get('/refresh')
-  refreshToken() {
-    return { status: 'OK'}
-  }
+
   @ApiOperation({ summary: 'Update the password for the current user.' })
   @ApiBody({ type: UserUpdatePasswordDto })
   @Post('/change-password')

@@ -19,3 +19,16 @@ export class AuthDto {
   @ApiProperty({ required: false })
   readonly otp?: string;
 }
+
+export class TokensDto {
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  readonly accessToken: string;
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  readonly refreshToken: string;
+}

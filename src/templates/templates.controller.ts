@@ -5,7 +5,7 @@ import { HttpService } from '@nestjs/axios';
 import { TemplateUrlDTO } from './classes';
 
 
-@ApiTags('templates')
+@ApiTags('Templates')
 @Controller('templates')
 export class TemplatesController {
     constructor(

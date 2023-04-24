@@ -97,14 +97,13 @@ export class UsersService {
      */
     async update(id: number, update: UpdateUserDto) {
         const authfile = await this.get();
-
         const user = authfile.find((x) => x.id === id);
 
         if (!user) {
             throw new BadRequestException('User Not Found');
         }
 
-        if (user.username !== update.username) {
+        if (update.username && user.username !== update.username) {
             if (
                 authfile.find(
                     (x) => x.username.toLowerCase() === update.username.toLowerCase(),
@@ -124,10 +123,11 @@ export class UsersService {
         user.admin = update.admin === undefined ? user.admin : update.admin;
 
         user.hashedPassword = update.hashedPassword === undefined ? user.hashedPassword : update.hashedPassword;
+        user.refreshToken = update.refreshToken === undefined ? user.refreshToken : update.refreshToken;
 
         // update the auth.json
         this.saveUserFile(authfile);
-        this.logger.log(`Updated user: ${user.username}`);
+        this.logger.log(`Updated user: ${user.username}: ${Object.keys(update)}`);
 
         return this.desensitiseUserProfile(user);
     }
@@ -229,6 +229,7 @@ export class UsersService {
             id: user.id,
             username: user.username,
             admin: user.admin,
+            refreshToken: user.refreshToken,
             otpActive: user.otpActive || false,
         };
     }
