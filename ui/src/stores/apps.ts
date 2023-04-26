@@ -1,8 +1,7 @@
 import { ReadableContainerDetails, ReadableContainerInfo, ReadableContainerStats } from "@/types/apps"
 import { defineStore } from "pinia"
 import { Ref, computed, ref } from "vue"
-import { useNotifyStore } from "./notifications"
-import { useFetch, useEventSource } from "@vueuse/core"
+import { useEventSource } from "@vueuse/core"
 import { useAuthFetch } from "@/helpers/auth/fetch"
 
 export const useAppStore = defineStore('apps', () => {
@@ -45,6 +44,16 @@ export const useAppStore = defineStore('apps', () => {
         // Assign openStats to eventSource so we can close it later
         openStats.value = eventSource.value
     })
+    // Interact with containers
+    const appAction = (async (id, action) => {
+        isLoading.value.set("appAction", true)
+        const { isFetching, error, data } = await useAuthFetch<string>(`/api/containers/actions/:id/:action`)
+        isLoading.value.set("appAction", isFetching.value)
+        if (!error.value) {
+            fetchAppDetails(id)
+        }
+    })
+
 
     // >>>>> Clean Up <<<<<
     function resetApps() {
@@ -74,5 +83,5 @@ export const useAppStore = defineStore('apps', () => {
     })
 
 
-    return { apps, getApps, fetchApps, stats, getStats, fetchStats, isLoading, getIsLoading, appDetails, getAppDetails, fetchAppDetails, resetApps, resetAppDetails }
+    return { apps, getApps, fetchApps, stats, getStats, fetchStats, isLoading, getIsLoading, appDetails, getAppDetails, fetchAppDetails, resetApps, resetAppDetails, appAction }
 })

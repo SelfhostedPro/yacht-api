@@ -1,5 +1,6 @@
 <template>
-    <v-card-item class="px-2 pb-0" density="compact" prepend-avatar="https://cdn.vuetifyjs.com/images/cards/halcyon.png">
+    <v-card-item class="px-2 pb-0" density="compact"
+        :prepend-avatar="app.Labels['com.docker.desktop.extension.icon'] ? app.Labels['com.docker.desktop.extension.icon'] : 'https://cdn.vuetifyjs.com/images/cards/halcyon.png'">
         <v-card-title>
             <v-tooltip :text="app['Status']" location="bottom">
                 <template v-slot:activator="{ props }">
@@ -15,6 +16,6 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps(['app', 'details'])
+defineProps(['app', 'details'])
 
 </script>

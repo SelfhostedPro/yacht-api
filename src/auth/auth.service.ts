@@ -1,15 +1,14 @@
 import * as fs from 'fs-extra';
-import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import * as argon2 from 'argon2';
 import { authenticator } from 'otplib';
+import { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import {
   Injectable,
   ForbiddenException,
   BadRequestException,
   UnauthorizedException,
-  ConflictException,
   NotFoundException,
   HttpException,
 } from '@nestjs/common';
@@ -19,7 +18,7 @@ import { ConfigService } from '../config/config.service';
 import { Logger } from '../logger/logger.service';
 import { UserDto } from '../users/users.dto';
 import { UsersService } from 'src/users/users.service';
-import { TokensDto } from './auth.dto';
+import { TokensDto, UserTokensDto } from './auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -92,11 +91,11 @@ export class AuthService {
    * @param username
    * @param password
    */
-  async signIn(username: string, password: string, otp?: string): Promise<TokensDto> {
+  async signIn(username: string, password: string, otp?: string): Promise<UserTokensDto> {
     const user = await this.authenticate(username, password, otp);
-    const tokens: TokensDto = await this.getTokens(user.id, user.username);
+    const tokens: TokensDto = await this.getTokens(user.id, user.username, user.admin);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
-    return tokens;
+    return { username: user.username, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken };
   }
 
   /**
@@ -125,7 +124,7 @@ export class AuthService {
       ...user,
       password: hash,
     });
-    const tokens = await this.getTokens(newUser.id, newUser.username);
+    const tokens = await this.getTokens(newUser.id, newUser.username, newUser.admin);
     await this.updateRefreshToken(newUser.id, tokens.refreshToken);
     return tokens;
   }
@@ -145,7 +144,7 @@ export class AuthService {
       refreshToken,
     );
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
-    const tokens = await this.getTokens(user.id, user.username);
+    const tokens = await this.getTokens(user.id, user.username, user.admin);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
@@ -155,7 +154,6 @@ export class AuthService {
    * @param refreshToken 
    */
   async updateRefreshToken(id: number, refreshToken: string) {
-    const user = await this.usersService.findById(id)
     const hashedRefreshToken = await this.hashData(refreshToken);
     await this.usersService.update(id, {
       refreshToken: hashedRefreshToken,
@@ -181,12 +179,13 @@ export class AuthService {
    * @param userId
    * @param username
    */
-  async getTokens(userId: number, username: string) {
+  async getTokens(userId: number, username: string, admin: boolean) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
           username,
+          admin: admin,
         },
         {
           secret: this.configService.secrets.accessSecret,
@@ -197,6 +196,7 @@ export class AuthService {
         {
           sub: userId,
           username,
+          admin: admin,
         },
         {
           secret: this.configService.secrets.refreshSecret,
@@ -208,6 +208,21 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  storeTokensInCookies(res: Response, tokens: TokensDto) {
+    res.cookie('access-token', tokens.accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 15
+    })
+    res.cookie('refresh-token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7
+    })
   }
 
   /**

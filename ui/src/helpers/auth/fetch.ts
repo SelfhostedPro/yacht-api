@@ -1,8 +1,6 @@
-import { router } from "@/plugins";
 import { useAuthStore } from "@/stores/auth";
 import { useNotifyStore } from "@/stores/notifications";
-import { createFetch, useStorage } from "@vueuse/core";
-import { storeToRefs } from "pinia";
+import { createFetch } from "@vueuse/core";
 
 
 export const useAuthFetch = createFetch({
@@ -30,25 +28,5 @@ export const useAuthFetch = createFetch({
             notify.setError(`${JSON.parse(ctx.data).statusCode}: ${JSON.parse(ctx.data).message}`)
             return ctx
         },
-    }
-})
-
-export const useRefreshFetch = createFetch({
-    options: {
-        async beforeFetch({ options }) {
-            const token = localStorage.getItem('refresh-token')
-            if (token) {
-                options.headers.Authorization = `Bearer ${token}`
-            }
-            return { options }
-        },
-        async onFetchError({ data }) {
-            const authStore = useAuthStore()
-            await authStore.logOut(
-                router.currentRoute.value.fullPath, 
-                `${JSON.parse(data).statusCode}: ${JSON.parse(data).message}`
-                )
-            return { data }
-        }
     }
 })

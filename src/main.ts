@@ -3,6 +3,8 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { getStartupConfig } from './config/config.startup';
 import * as cookieParser from 'cookie-parser';
+import * as crypto from 'crypto';
+// import { doubleCsrf } from 'csrf-csrf';
 
 import helmet from 'helmet';
 import { Logger } from './logger/logger.service';
@@ -39,7 +41,14 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  // const { doubleCsrfProtection } =
+  // doubleCsrf({
+  //   getSecret: () => crypto.randomBytes(256).toString('base64'),
+  //   cookieName: 'yacht-csrf',
+  // });
+
   app.use(cookieParser());
+  // app.use(doubleCsrfProtection)
   app.use(helmet());
 
   const logger = new Logger();

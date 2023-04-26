@@ -7,8 +7,8 @@
         <v-sheet color="foreground">
             <v-container>
                 <v-row dense class="justify-space-between">
-                    <v-fade-transition group>
-                        <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-if="apps" v-for="app in apps"
+                    <v-fade-transition v-if="apps" group>
+                        <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-for="app in apps"
                             :key="app.ShortName">
                             <v-card :to="'/apps/' + app.ShortId" class="pa-1 pb-1" density="compact">
                                 <v-row dense no-gutters class="align-start">
@@ -34,6 +34,7 @@
                     </v-fade-transition>
                 </v-row>
             </v-container>
+            <!-- <pre>{{ apps }}</pre> -->
         </v-sheet>
     </v-card>
 </template>

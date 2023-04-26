@@ -20,3 +20,12 @@ export interface ReadableContainerStats {
     }
 
 }
+
+export interface OciInfo {
+    title?: string,
+    description?: string,
+    docs?: string,
+    url?: string,
+    source?: string,
+    vendor?: string
+}

@@ -25,7 +25,7 @@ const { firstSetup, authDisabled} = storeToRefs(authStore)
 onMounted(async () => {
     if (firstSetup.value == null || authDisabled.value == null) {
         console.log("Getting auth settings")
-        authStore.initCheck()
+        authStore.authCheck()
     }
 })
 

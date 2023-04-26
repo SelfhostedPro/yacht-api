@@ -1,9 +1,9 @@
 import { defineStore } from "pinia"
-import { Ref, computed, ref } from "vue"
+import { Ref, ref } from "vue"
 import { useNotifyStore } from "./notifications"
 import { useFetch, useStorage } from "@vueuse/core"
 import { router } from "@/plugins"
-import { useAuthFetch, useRefreshFetch } from "@/helpers/auth/fetch"
+import { useAuthFetch } from "@/helpers/auth/fetch"
 
 export const useAuthStore = defineStore('auth', () => {
     const user: Ref<any> = ref(localStorage.getItem('user'))
@@ -20,23 +20,17 @@ export const useAuthStore = defineStore('auth', () => {
         const { isFetching, error, data } = await useFetch('/api/auth/login/').post(creds).json()
         isLoading.value.set("login", isFetching.value)
         if (!error.value) {
-            user.value = data.value
+            user.value = data.value.username
+            console.log(data.value)
             useStorage('user', await user.value)
-            useStorage('auth-token', await user.value['accessToken'])
-            useStorage('refresh-token', await user.value['refreshToken'])
             router.push(returnUrl.value || '/')
-        }
+        } else { console.log(error.value)}
     })
 
     const refresh = (async () => {
-        const {error, data} = await useRefreshFetch('/api/auth/refresh').json()
+        const {error, data} = await useFetch('/api/auth/refresh').json()
         if (!error.value && !data.value['statusCode']) {
-            user.value = await data.value
-            useStorage('user', await user.value)
-            localStorage.removeItem('auth-token')
-            localStorage.removeItem('refresh-token')
-            useStorage('auth-token', await user.value['accessToken'])
-            useStorage('refresh-token', await user.value['refreshToken'])
+            console.log(`refreshed token for ${user.value}`)
         } else {
             return data.value
         }
@@ -49,12 +43,13 @@ export const useAuthStore = defineStore('auth', () => {
         if (!error.value) {
             user.value = data.value
             useStorage('first-setup', false)
+            localStorage.removeItem('auth-token')
             delete data.value.admin
             userLogin(data.value)
         }
     })
 
-    const initCheck = (async () => {
+    const authCheck = (async () => {
         isLoading.value.set("init", true)
         const { error } = await useFetch('/auth/noaut').post()
         if (error.value) {
@@ -84,8 +79,6 @@ export const useAuthStore = defineStore('auth', () => {
     const logOut = (async (path?: string, reason?: string) => {
         const notify = useNotifyStore()
         isLoading.value.clear()
-        localStorage.removeItem('auth-token')
-        localStorage.removeItem('refresh-token')
         localStorage.removeItem('user')
         user.value = ref(undefined)
         if (path) {
@@ -94,5 +87,5 @@ export const useAuthStore = defineStore('auth', () => {
         await router.push('/login')
         notify.setError(reason)
     })
-    return { userLogin, user, returnUrl, isLoading, initCheck, firstSetup, authDisabled, userRegister, logOut, refresh }
+    return { userLogin, user, returnUrl, isLoading, authCheck, firstSetup, authDisabled, userRegister, logOut, refresh }
 })

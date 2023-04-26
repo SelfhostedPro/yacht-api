@@ -6,7 +6,7 @@ import { AuthDto, TokensDto } from './auth.dto';
 import { ConfigService } from '../config/config.service';
 import { UserActivateOtpDto, UserDeactivateOtpDto, UserUpdatePasswordDto } from 'src/users/users.dto';
 import { RefreshTokenGuard } from 'src/common/guards/refreshToken.guard';
-import { Request, Response, response } from 'express';
+import { Request, Response } from 'express';
 
 
 @ApiTags('Auth')
@@ -23,17 +23,8 @@ export class AuthController {
   @Post('login')
   async signIn(@Body() body: AuthDto, @Res({ passthrough: true }) response: Response) {
     const tokens = await this.authService.signIn(body.username, body.password, body.otp);
-    response.cookie('access-token', tokens.accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      expires: new Date(Date.now() + 1 * 24 * 60 * 1800)
-    }).cookie('refresh-token', tokens.refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      expires: new Date(Date.now() + 1 * 24 * 60 * this.configService.ui.sessionTimeout)
-    }).send(tokens)
+    this.authService.storeTokensInCookies(response,tokens)
+    response.send({ username: tokens.username})
   }
 
   @ApiBearerAuth()
@@ -43,20 +34,9 @@ export class AuthController {
     const id = req.user['sub'];
     const oldRefreshToken = req.user['refreshToken'];
 
-    const { accessToken, refreshToken } = await this.authService.refreshTokens(id, oldRefreshToken)
-    response.cookie('access-token', accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      expires: new Date(Date.now() + 1 * 1800)
-    })
-    response.cookie('refresh-token', refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      expires: new Date(Date.now() + 1 * this.configService.ui.sessionTimeout)
-    })
-    return { accessToken, refreshToken }
+    const tokens = await this.authService.refreshTokens(id, oldRefreshToken)
+    this.authService.storeTokensInCookies(response,tokens)
+    response.send({ result: 'ok' })
   }
 
   @Get('/settings')

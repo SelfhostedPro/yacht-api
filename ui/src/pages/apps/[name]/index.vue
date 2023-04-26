@@ -1,9 +1,5 @@
 <template>
-    <v-container fluid>
-        <v-card>
-            <app-details :name="props.name" />
-        </v-card>
-    </v-container>
+    <app-details :name="props.name" />
 </template>
 
 <script setup lang="ts">

@@ -218,23 +218,23 @@ export class ConfigService {
     if (fs.pathExistsSync(this.secretPath)) {
       try {
         const secrets = fs.readJsonSync(this.secretPath);
-        if (!secrets.accessSecret || ! secrets.refreshSecret) {
-          return this.generateSecretToken();
+        if (!secrets.accessSecret || !secrets.refreshSecret) {
+          return this.generateSecretTokens();
         } else {
           return secrets;
         }
       } catch (e) {
-        return this.generateSecretToken();
+        return this.generateSecretTokens();
       }
     } else {
-      return this.generateSecretToken();
+      return this.generateSecretTokens();
     }
   }
 
   /**
    * Generates the secret token for signing JWTs
    */
-  private generateSecretToken() {
+  private generateSecretTokens() {
     const secrets = {
       accessSecret: crypto.randomBytes(256).toString('base64'),
       refreshSecret: crypto.randomBytes(256).toString('base64'),

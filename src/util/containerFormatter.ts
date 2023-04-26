@@ -4,7 +4,8 @@ import { ContainerInfo } from 'dockerode'
 export interface ReadableContainerInfo extends ContainerInfo {
     CreatedDate?: string|number,
     ShortId?: string,
-    ShortName?: string
+    ShortName?: string,
+    PortDetails?: string
 }
 
 export function formatContainers(data: ContainerInfo[]) {

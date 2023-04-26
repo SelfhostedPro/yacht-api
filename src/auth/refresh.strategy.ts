@@ -13,19 +13,18 @@ export class RefreshTokenStrategy extends PassportStrategy(
     configService: ConfigService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([RefreshTokenStrategy.extractCookies, ExtractJwt.fromAuthHeaderAsBearerToken()]),
+      jwtFromRequest: ExtractJwt.fromExtractors([RefreshTokenStrategy.extractCookies]),
       secretOrKey: configService.secrets.refreshSecret,
       passReqToCallback: true,
     });
   }
 
   validate(req: RequestType, payload: any) {
-    const refreshToken = req.get('Authorization').replace('Bearer', '').trim();
+    let refreshToken = req.cookies['refresh-token']
     return { ...payload, refreshToken };
   }
 
   private static extractCookies(req: RequestType): string | null {
-    console.log('Inside cookie extractor')
     if (req.cookies && 'refresh-token' in req.cookies) {
       return req.cookies['refresh-token'];
     }

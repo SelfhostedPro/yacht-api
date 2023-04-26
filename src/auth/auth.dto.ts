@@ -32,3 +32,10 @@ export class TokensDto {
   @ApiProperty()
   readonly refreshToken: string;
 }
+
+export class UserTokensDto extends TokensDto {
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  readonly username: string;
+}
