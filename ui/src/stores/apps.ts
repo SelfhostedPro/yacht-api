@@ -3,37 +3,40 @@ import { defineStore } from "pinia"
 import { Ref, computed, ref } from "vue"
 import { useEventSource } from "@vueuse/core"
 import { useAuthFetch } from "@/helpers/auth/fetch"
+import { useLoadingStore } from "./loading"
 
 export const useAppStore = defineStore('apps', () => {
     const apps: Ref<Container[]> = ref([])
     const appDetails: Ref<Container> = ref(null)
     const stats: Ref<ReadableContainerStats> = ref({})
-    const isLoading: Ref<Map<string, boolean>> = ref(new Map<'', false>)
     const openStats: Ref<EventSource> = ref(null)
 
     // >>>>> Actions <<<<<
     // Fetching API Data
     const fetchApps = (async () => {
-        isLoading.value.set("fetchApps", true)
+        const loading = useLoadingStore()
+        loading.startLoading()
         const { isFetching, error, data } = await useAuthFetch<string>(`/api/containers/`)
-        isLoading.value.set("fetchApps", isFetching.value)
+        loading.stopLoading()
         if (!error.value) {
             apps.value = JSON.parse(data.value)
         }
     })
     const fetchAppDetails = (async (Id) => {
-        isLoading.value.set("fetchAppDetails", true)
+        const loading = useLoadingStore()
+        loading.startLoading()
         const { isFetching, error, data } = await useAuthFetch<string>(`/api/containers/info/${Id}`)
-        isLoading.value.set("fetchAppDetails", isFetching.value)
+        loading.stopLoading()
         if (!error.value) {
             appDetails.value = JSON.parse(data.value)
         }
     })
     const fetchStats = (async () => {
-        isLoading.value.set("fetchStats", true)
+        const loading = useLoadingStore()
+        loading.startLoading()
         const { eventSource } = useEventSource(`/api/containers/stats`, ['message'], {withCredentials: true})
         eventSource.value.onopen = () => {
-            isLoading.value.set("fetchStats", false)
+            loading.stopLoading()
         }
         eventSource.value.addEventListener('message', (message) => {
             if (eventSource.value.OPEN) {
@@ -46,9 +49,10 @@ export const useAppStore = defineStore('apps', () => {
     })
     // Interact with containers
     const appAction = (async (id, action) => {
-        isLoading.value.set("appAction", true)
+        const loading = useLoadingStore()
+        loading.startLoading()
         const { isFetching, error, data } = await useAuthFetch<string>(`/api/containers/actions/:id/:action`)
-        isLoading.value.set("appAction", isFetching.value)
+        loading.stopLoading()
         if (!error.value) {
             fetchAppDetails(id)
         }
@@ -59,12 +63,10 @@ export const useAppStore = defineStore('apps', () => {
     function resetApps() {
         apps.value = []
         stats.value = {}
-        isLoading.value.clear()
         openStats.value.close()
         openStats.value = null
     }
     function resetAppDetails() {
-        isLoading.value.clear()
         appDetails.value = null
     }
 
@@ -78,10 +80,7 @@ export const useAppStore = defineStore('apps', () => {
     const getStats = computed(() => {
         return stats.value
     })
-    const getIsLoading = computed(() => {
-        return isLoading.value
-    })
 
 
-    return { apps, getApps, fetchApps, stats, getStats, fetchStats, isLoading, getIsLoading, appDetails, getAppDetails, fetchAppDetails, resetApps, resetAppDetails, appAction }
+    return { apps, getApps, fetchApps, stats, getStats, fetchStats, appDetails, getAppDetails, fetchAppDetails, resetApps, resetAppDetails, appAction }
 })

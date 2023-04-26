@@ -1,5 +1,5 @@
 <template>
-    <v-card :loading="isLoading.get('fetchApps')">
+    <v-card :loading="loading.loading">
         <template v-slot:loader="{ isActive }">
             <v-progress-linear :active="isActive" color="primary" height="4" indeterminate></v-progress-linear>
         </template>
@@ -24,11 +24,11 @@
                                             v-on:click.prevent="revealResources[app.shortId] = !revealResources[app.shortId]">
                                         </v-btn>
                                             <iconstats v-if="stats" :stats="stats[app.shortId]" :app="app"
-                                                :loading="!isLoading.get('fetchStats')" />
+                                                :loading="!loading.loading" />
                                     </v-col>
                                 </v-row>
-                                <actions :app="app" :reveal="revealActions" />
-                                <resourcetab :app="app" :reveal="revealResources" />
+                                <actions :app="app" :reveal="revealActions[app.shortId]" />
+                                <resourcetab :app="app" :reveal="revealResources[app.shortId]" />
                             </v-card>
                         </v-col>
                     </v-fade-transition>
@@ -49,6 +49,7 @@ import iconstats from './info/stats.vue'
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 import { Container } from '@/types/apps'
+import { useLoadingStore } from '@/stores/loading';
 
 // Card expansion variables
 const revealActions = ref({})
@@ -56,7 +57,9 @@ const revealResources = ref({})
 
 // Store variables
 const appStore = useAppStore()
-const { apps, stats, isLoading } = storeToRefs(appStore)
+const { apps, stats } = storeToRefs(appStore)
+const loadingStore = useLoadingStore()
+const { loading } = storeToRefs(loadingStore)
 
 // Fetch Apps
 onMounted(async () => {
