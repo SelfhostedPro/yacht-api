@@ -1,12 +1,12 @@
-import { ReadableContainerDetails, ReadableContainerInfo, ReadableContainerStats } from "@/types/apps"
+import { Container, ReadableContainerStats } from "@/types/apps"
 import { defineStore } from "pinia"
 import { Ref, computed, ref } from "vue"
 import { useEventSource } from "@vueuse/core"
 import { useAuthFetch } from "@/helpers/auth/fetch"
 
 export const useAppStore = defineStore('apps', () => {
-    const apps: Ref<ReadableContainerInfo[]> = ref([])
-    const appDetails: Ref<ReadableContainerDetails> = ref(null)
+    const apps: Ref<Container[]> = ref([])
+    const appDetails: Ref<Container> = ref(null)
     const stats: Ref<ReadableContainerStats> = ref({})
     const isLoading: Ref<Map<string, boolean>> = ref(new Map<'', false>)
     const openStats: Ref<EventSource> = ref(null)

@@ -1,10 +1,10 @@
 <template>
     <v-expand-transition>
-        <div v-show="reveal[app.ShortId]">
+        <div v-show="reveal[app.shortId]">
             <v-btn-group divided block class="d-flex justify-center">
                 <v-tooltip v-for="action in actions" :key="action.name" :text="action.name" location="bottom">
                     <template v-slot:activator="{ props }">
-                        <v-btn v-bind="props" v-if="action.depends.includes(app.State) || action.depends.includes('all')"
+                        <v-btn v-bind="props" v-if="action.depends.includes(app.status) || action.depends.includes('all')"
                             :size="mdAndDown ? 'small' : 'default'" :color="action.color" class="my-1">
                             <v-icon :icon="action.icon" />
                         </v-btn>
@@ -17,7 +17,12 @@
 
 <script setup lang="ts">
 import { useDisplay } from 'vuetify';
-defineProps(['app', 'reveal'])
+import { Container } from '@/types/apps';
+interface Props {
+    app: Container,
+    reveal: boolean
+}
+defineProps<Props>()
 const { mdAndDown } = useDisplay()
 
 const actions = [

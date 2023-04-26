@@ -9,21 +9,21 @@
                 <v-row dense class="justify-space-between">
                     <v-fade-transition v-if="apps" group>
                         <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-for="app in apps"
-                            :key="app.ShortName">
-                            <v-card :to="'/apps/' + app.ShortId" class="pa-1 pb-1" density="compact">
+                            :key="app.name">
+                            <v-card :to="'/apps/' + app.name" class="pa-1 pb-1" density="compact">
                                 <v-row dense no-gutters class="align-start">
                                     <v-col>
                                         <baseinfo :app="app" />
-                                        <v-btn :icon="revealActions[app.ShortId] ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                                        <v-btn :icon="revealActions[app.shortId] ? 'mdi-chevron-up' : 'mdi-chevron-down'"
                                             variant="text" color="primary"
-                                            v-on:click.prevent="revealActions[app.ShortId] = !revealActions[app.ShortId]">
+                                            v-on:click.prevent="revealActions[app.shortId] = !revealActions[app.shortId]">
                                         </v-btn>
-                                        <v-btn v-if="app.Mounts[0] || app.Ports[0]"
-                                            :icon="revealResources[app.ShortId] ? 'mdi-information-off' : 'mdi-information'"
+                                        <v-btn v-if="app.mounts[0] || app.ports[0]"
+                                            :icon="revealResources[app.shortId] ? 'mdi-information-off' : 'mdi-information'"
                                             variant="text" color="primary"
-                                            v-on:click.prevent="revealResources[app.ShortId] = !revealResources[app.ShortId]">
+                                            v-on:click.prevent="revealResources[app.shortId] = !revealResources[app.shortId]">
                                         </v-btn>
-                                            <iconstats v-if="stats" :stats="stats[app.ShortName]" :app="app"
+                                            <iconstats v-if="stats" :stats="stats[app.shortId]" :app="app"
                                                 :loading="!isLoading.get('fetchStats')" />
                                     </v-col>
                                 </v-row>
@@ -34,7 +34,7 @@
                     </v-fade-transition>
                 </v-row>
             </v-container>
-            <!-- <pre>{{ apps }}</pre> -->
+            <pre>{{ apps }}</pre>
         </v-sheet>
     </v-card>
 </template>
@@ -48,6 +48,7 @@ import actions from './info/actions.vue'
 import iconstats from './info/stats.vue'
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
+import { Container } from '@/types/apps'
 
 // Card expansion variables
 const revealActions = ref({})

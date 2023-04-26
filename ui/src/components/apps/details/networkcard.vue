@@ -62,10 +62,10 @@
 </template>
 
 <script setup lang="ts">
-import { ReadableContainerDetails } from '@/types/apps';
+import { Container } from '@/types/apps';
 import { ref } from 'vue';
 interface Props {
-    app: ReadableContainerDetails
+    app: Container
 }
 const props = defineProps<Props>()
 const tab = ref(0)

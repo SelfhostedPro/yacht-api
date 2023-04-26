@@ -1,6 +1,6 @@
 <template>
-        <v-slide-group v-if="app.Mounts">
-        <v-slide-group-item v-for="mount in app.Mounts" :key="mount.Destination">
+        <v-slide-group v-if="app.mounts">
+        <v-slide-group-item v-for="mount in app.mounts" :key="mount.destination">
             <v-btn elevation="4" size="small" variant="tonal" class="ma-1"
             color='warning'> {{ mount["Destination"] }}</v-btn>
         </v-slide-group-item>
@@ -9,6 +9,10 @@
 </template>
 
 <script setup lang="ts">
-defineProps(['app'])
+import { Container } from '@/types/apps';
+interface Props {
+    app: Container,
+}
+defineProps<Props>()
 
 </script>

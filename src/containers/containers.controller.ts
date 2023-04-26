@@ -8,10 +8,10 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
-import { ContainerInfo } from 'dockerode';
-import { ContainerInfoDTO, ContainerProcessesDTO, ContainerStatsDTO } from './classes';
+import { Container } from 'ui/src/types/apps';
+import { ContainerInfoDTO, ContainerProcessesDTO } from './classes';
 import { ContainersService } from './containers.service';
-import { PassThrough as StreamPassThrough, Writable as StreamWritable } from 'stream';
+import { PassThrough as StreamPassThrough } from 'stream';
 import { Observable, fromEvent, map } from 'rxjs';
 import { AdminGuard } from '../common/guards/admin.guard';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
@@ -28,7 +28,7 @@ export class ContainersController {
     description: 'List all containers.',
     type: [ContainerInfoDTO],
   })
-  async getContainers(): Promise<ContainerInfo[]> {
+  async getContainers(): Promise<Container[]> {
     try {
       return await this.containersService.getContainers();
     } catch (err) {
@@ -59,7 +59,7 @@ export class ContainersController {
     description: 'Get inspect information of one container.',
     type: ContainerInfoDTO,
   })
-  async getContainerByName(@Param('id') id: string): Promise<ContainerInfo> {
+  async getContainerByName(@Param('id') id: string): Promise<Container> {
     try {
       return await this.containersService.getContainer(id);
     } catch (err) {

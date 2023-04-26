@@ -3,7 +3,7 @@
         <v-toolbar>
             <v-tooltip v-for="action in actions" :key="action.name" :text="action.name" location="bottom">
                 <template v-slot:activator="{ props }">
-                    <v-btn v-bind="props" v-if="action.depends.includes(app.State.Status) || action.depends.includes('all')"
+                    <v-btn v-bind="props" v-if="action.depends.includes(app.status) || action.depends.includes('all')"
                         :size="mdAndDown ? 'small' : 'default'" :color="action.color" :prepend-icon="action.icon"
                         class="my-1">
                         {{ action.name }}
@@ -15,11 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import { ReadableContainerDetails } from '@/types/apps';
+import { Container } from '@/types/apps';
 import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
 interface Props {
-    app: ReadableContainerDetails
+    app: Container
 }
 const props = defineProps<Props>()
 const { mdAndDown } = useDisplay()

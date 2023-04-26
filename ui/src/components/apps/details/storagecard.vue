@@ -8,15 +8,15 @@
         </v-tabs>
         <v-window v-model="tab">
             <v-window-item value="0">
-                <v-list v-if="app.Mounts[0]">
-                    <v-list-item v-for="mount in app.Mounts" class="text-no-wrap">
-                        <v-list-item-title>{{ mount.Destination }}</v-list-item-title>
-                        <v-list-item-subtitle>{{ `type: ${mount['Type']}` }}</v-list-item-subtitle>
-                        <v-list-item-subtitle v-if="mount.Name">{{ `name: ${mount.Name}` }}</v-list-item-subtitle>
-                        <v-list-item-subtitle v-if="mount['Driver']">{{ `driver: ${mount['Driver']}`
+                <v-list v-if="app.mounts[0]">
+                    <v-list-item v-for="mount in app.mounts" class="text-no-wrap">
+                        <v-list-item-title>{{ mount.destination }}</v-list-item-title>
+                        <v-list-item-subtitle>{{ `type: ${mount['type']}` }}</v-list-item-subtitle>
+                        <v-list-item-subtitle v-if="mount.name">{{ `name: ${mount.name}` }}</v-list-item-subtitle>
+                        <v-list-item-subtitle v-if="mount['Driver']">{{ `driver: ${mount['driver']}`
                         }}</v-list-item-subtitle>
-                        <v-list-item-subtitle>{{ `read-only: ${!mount['RW']}` }}</v-list-item-subtitle>
-                        {{ `source: ${mount.Source}` }}
+                        <v-list-item-subtitle>{{ `read-only: ${!mount['rw']}` }}</v-list-item-subtitle>
+                        {{ `source: ${mount.source}` }}
                     </v-list-item>
                 </v-list>
                 <v-card-text v-else>No mounts configured.</v-card-text>
@@ -26,10 +26,10 @@
 </template>
 
 <script setup lang="ts">
-import { ReadableContainerDetails } from '@/types/apps';
+import { Container } from '@/types/apps';
 import { ref } from 'vue';
 interface Props {
-    app: ReadableContainerDetails
+    app: Container
 }
 const props = defineProps<Props>()
 const tab = ref(0)

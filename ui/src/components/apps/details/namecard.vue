@@ -8,9 +8,9 @@
                 <v-avatar image="https://cdn.vuetifyjs.com/images/cards/halcyon.png" />
             </template>
             <v-toolbar-title>
-                <v-tooltip :text="app.State.Status" location="bottom">
+                <v-tooltip :text="app.status" location="bottom">
                     <template v-slot:activator="{ props }">
-                        <v-avatar class="ml-1" v-bind="props" :color="app.State.Status == 'running' ? 'primary' : 'red'"
+                        <v-avatar class="ml-1" v-bind="props" :color="app.status == 'running' ? 'primary' : 'red'"
                             size="6"></v-avatar>
                     </template>
                 </v-tooltip>
@@ -31,51 +31,50 @@
             <div v-show="expand">
                 <v-list-item>
                     <v-list-item-title> image </v-list-item-title>
-                    <v-list-item-subtitle>{{ app.Config.Image }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{ app.image }}</v-list-item-subtitle>
                 </v-list-item>
                 <v-list-item>
                     <v-list-item-title> id </v-list-item-title>
-                    <v-list-item-subtitle>{{ app.Id }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{ app.id }}</v-list-item-subtitle>
                 </v-list-item>
                 <v-list-item>
                     <v-list-item-title> status </v-list-item-title>
-                    <v-list-item-subtitle>{{ app.State.Status }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{ app.status }}</v-list-item-subtitle>
                 </v-list-item>
                 <v-list-item>
                     <v-list-item-title> restart </v-list-item-title>
-                    <v-list-item-subtitle>{{ app.HostConfig.RestartPolicy.Name }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{ app.restart.policy }}</v-list-item-subtitle>
                 </v-list-item>
                 <v-divider />
             </div>
         </v-expand-transition>
-        <v-card-title tag="span">{{ props.ociInfo.title }}
-            <v-btn v-if="props.ociInfo.url" @click.native.capture.stop size="small" icon target="_blank" variant="plain"
-                :href="props.ociInfo.url">
+        <v-card-title tag="span">{{ props.app.info.title }}
+            <v-btn v-if="props.app.info.url" @click.native.capture.stop size="small" icon target="_blank" variant="plain"
+                :href="props.app.info.url">
                 <v-icon icon="mdi-open-in-new" />
             </v-btn>
-            <v-btn v-if="props.ociInfo.docs" @click.native.capture.stop size="small" icon target="_blank" variant="plain"
-                :href="props.ociInfo.docs">
+            <v-btn v-if="props.app.info.docs" @click.native.capture.stop size="small" icon target="_blank" variant="plain"
+                :href="props.app.info.docs">
                 <v-icon icon="mdi-file-document" />
             </v-btn>
-            <v-btn v-if="props.ociInfo.source" @click.native.capture.stop size="small" icon target="_blank" variant="plain"
-                :href="props.ociInfo.source">
+            <v-btn v-if="props.app.info.source" @click.native.capture.stop size="small" icon target="_blank" variant="plain"
+                :href="props.app.info.source">
                 <v-icon icon="mdi-github" />
             </v-btn>
         </v-card-title>
-        <v-card-subtitle v-if="props.ociInfo.vendor" tag="span" class="mt-0">created by: {{ props.ociInfo.vendor
+        <v-card-subtitle v-if="props.app.info.vendor" tag="span" class="mt-0">created by: {{ props.app.info.vendor
         }}</v-card-subtitle>
-        <v-card-text><vue-markdown v-if="props.ociInfo.description" :source="props.ociInfo.description" /></v-card-text>
+        <v-card-text><vue-markdown v-if="props.app.info.description" :source="props.app.info.description" /></v-card-text>
     </v-card>
 </template>
 
 <script setup lang="ts">
-import { OciInfo, ReadableContainerDetails } from '@/types/apps';
-import { onMounted, ref } from 'vue';
+import { Container } from '@/types/apps';
+import { ref } from 'vue';
 import VueMarkdown from '@/helpers/render/markdown.vue'
 
 interface Props {
-    app: ReadableContainerDetails,
-    ociInfo: OciInfo
+    app: Container
 }
 const props = defineProps<Props>()
 const expand = ref(true)

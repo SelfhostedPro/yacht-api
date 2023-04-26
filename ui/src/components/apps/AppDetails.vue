@@ -6,7 +6,7 @@
         <v-row v-if="appDetails" no-gutters>
             <v-col sm="12" md="6">
                 <Suspense>
-                    <namecard class="my-2 mx-1" :app="appDetails" :ociInfo="ociInfo" />
+                    <namecard class="my-2 mx-1" :app="appDetails" />
                 </Suspense>
                 <Suspense>
                     <actioncard class="my-2 mx-1" :app="appDetails" />
@@ -46,20 +46,9 @@ const props = defineProps(['name'])
 // Store variables
 const appStore = useAppStore()
 const { appDetails, isLoading } = storeToRefs(appStore)
-const ociInfo = ref({})
 
 // Fetch App Details
 onMounted(async () => {
     appStore.fetchAppDetails(props.name)
-        .then(() => {
-            ociInfo.value = {
-                title: appDetails.value.Config.Labels['org.opencontainers.image.title'] || appDetails.value.ShortName,
-                description: appDetails.value.Config.Labels['org.opencontainers.image.description'] || null,
-                docs: appDetails.value.Config.Labels['org.opencontainers.image.documentation'] || null,
-                url: appDetails.value.Config.Labels['org.opencontainers.image.url'] || appDetails.value.Config.Labels['com.docker.extension.publisher-url'] || null,
-                source: appDetails.value.Config.Labels['org.opencontainers.image.source'] || null,
-                vendor: appDetails.value.Config.Labels['org.opencontainers.image.vendor']
-            }
-        })
 })
 </script>

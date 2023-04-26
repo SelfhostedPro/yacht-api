@@ -1,26 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import Dockerode, { Container, ContainerInfo, ContainerStats } from 'dockerode';
+import Dockerode, { Container as UsableContainer, ContainerInfo, ContainerStats } from 'dockerode';
 import { PassThrough as StreamPassThrough, Transform } from 'stream';
 import { ContainerProcessesDTO } from './classes';
 import { Logger } from '../logger/logger.service';
 import { formatStats } from '../util/streamConverter'
 import { Observable, fromEvent, map } from 'rxjs';
-import { formatContainers, formatInspect, ReadableContainerInfo } from '../util/containerFormatter'
+import { formatInspect, normalizeContainer, normalizeContainers, ReadableContainerInfo } from '../util/containerFormatter'
 import { Response } from 'express';
+import { Container } from 'ui/src/types/apps';
 
 @Injectable()
 export class ContainersService {
   constructor(private readonly logger: Logger) { }
 
-  async getContainers(): Promise<ReadableContainerInfo[]> {
+  async getContainers(): Promise<Container[]> {
     const Docker = require('dockerode');
     const docker = new Docker();
-    return formatContainers( await docker.listContainers({ all: true }));
+    return await normalizeContainers( await docker.listContainers({ all: true }));
   }
-  async getContainer(id: string): Promise<ContainerInfo> {
+  async getContainer(id: string): Promise<Container> {
     const Docker = require('dockerode');
     const docker = new Docker();
-    return formatInspect( await docker.getContainer(id).inspect());
+    return await normalizeContainer( await docker.getContainer(id).inspect());
   }
   async getContainerAction(id: string, action: string): Promise<ContainerInfo> {
     const Docker = require('dockerode');
@@ -64,7 +65,7 @@ export class ContainersService {
     const Docker = require('dockerode');
     const docker = new Docker();
 
-    const container: Container = await docker.getContainer(id);
+    const container: UsableContainer = await docker.getContainer(id);
 
     container.logs(
       { follow: true, stdout: true, stderr: true },

@@ -1,4 +1,4 @@
-import { ContainerInfo, ContainerInspectInfo } from "dockerode"
+import { ContainerInfo, ContainerInspectInfo, NetworkInfo } from "dockerode"
 
 export interface ReadableContainerInfo extends ContainerInfo {
     CreatedDate: string|number,
@@ -12,33 +12,37 @@ export interface ReadableContainerDetails extends ContainerInspectInfo {
     ShortName: string
 }
 
-export interface ReadableContainerStats {
-    [key: string]: {
-        Name: string,
-        MemoryPercentage: string,
-        CpuUsage: string
-    }
+export interface ContainerStats {
+    [key: string]: ContainerStat
+}
 
+export interface ContainerStat {
+    Name: string,
+    MemoryPercentage: string,
+    CpuUsage: string
 }
 
 export interface Container {
     name: string,
     id: string,
-    created: Date,
+    image: string,
+    shortId: string,
+    created: string,
     status: string,
-    restart: {
+    info?: ContainerOciInfo,
+    restart?: {
         policy: string,
         count: number
     }
     config: {
         network: ContainerNetworkSettings,
-        general: ContainerGeneralConfig
+        general?: ContainerGeneralConfig
     },
     mounts?: ContainerMount[],
-    ports?: ContainerPorts[],
+    ports?: ContainerPort[],
     env?: string[],
     labels?: {
-        [key: string]: string
+        [label: string]: string
     }
 
 }
@@ -53,8 +57,9 @@ export interface ContainerGeneralConfig {
     path: string,
     args: string[],
     autoRemove: boolean,
-    sysctls: {
-        [key: string]: string|boolean
+    capabilities?: {
+        add: string[],
+        remove: string[]
     }
     logConfig: {
         type: string,
@@ -73,23 +78,20 @@ export interface ContainerMount {
     propagation: string
 }
 
-export interface ContainerPorts {
-    containerPort: string,
-    hostPort: string,
-    hostIP: string
+export interface ContainerPort {
+    containerPort: number,
+    hostPort?: number,
+    hostIP?: string
+    type?: string
 }
 
 export interface ContainerNetworkSettings {
     mode: string,
-    macAddress: string,
-    hairpinmode: boolean,
+    macAddress?: string,
+    hairpinmode?: boolean,
     networks: {
-        [key: string]: {
-            networkId: string,
-            gateway: string,
-            ipAddress: string,
-            ipamconfig?: IPAMConfig,
-        }
+        [networkType: string]: NetworkInfo
+            
     }
 }
 
@@ -105,5 +107,6 @@ export interface ContainerOciInfo {
     docs?: string,
     url?: string,
     source?: string,
-    vendor?: string
+    vendor?: string,
+    icon?: string
 }
