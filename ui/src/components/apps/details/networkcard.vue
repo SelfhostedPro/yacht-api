@@ -25,14 +25,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="_, port, i in app.Config.ExposedPorts" :key="i">
-                            <td class="text-left">{{ port }}</td>
-                            <td v-if="app.NetworkSettings.Ports[port]" class="text-center">{{
-                                app.NetworkSettings.Ports[port][0].HostIp }}</td>
+                        <tr v-for="port of app.ports" :key="port.containerPort">
+                            <td class="text-left">{{ port.containerPort }}</td>
+                            <td v-if="port.hostIP" class="text-center">{{
+                                port.hostIP }}</td>
                             <td v-else class="text-center">-</td>
-                            <td v-if="app.NetworkSettings.Ports[port]" class="text-right"><v-btn color="primary"><v-icon
+                            <td v-if="port.hostPort" class="text-right"><v-btn color="primary"><v-icon
                                         icon="mdi-link-variant" /> {{
-                                            app.NetworkSettings.Ports[port][0].HostPort }}</v-btn></td>
+                                            port.hostPort }}</v-btn></td>
                             <td v-else class="text-right">-</td>
                         </tr>
                     </tbody>
@@ -40,7 +40,7 @@
             </v-window-item>
             <v-window-item value="1">
                 <v-list>
-                    <v-list-item v-for="network, name in app.NetworkSettings.Networks">
+                    <v-list-item v-for="network, name in app.config.network.networks" :key="name">
                         <v-list-item-title>{{ name }}</v-list-item-title>
                         <v-list-item-subtitle>ip address: {{ network.IPAddress + '/' + network.IPPrefixLen }}</v-list-item-subtitle>
                         <v-list-item-subtitle>gateway: {{ network.Gateway+'/'+network.IPPrefixLen }}</v-list-item-subtitle>
@@ -50,14 +50,15 @@
             </v-window-item>
             <v-window-item value="2">
                 <v-list>
-                    <v-list-item v-for="setting in networkSettings">
+                    <!-- <v-list-item v-for="setting in networkSettings">
                         <v-list-item-title>{{ setting.title }}</v-list-item-title>
                         <v-list-item-subtitle>{{ setting.main }}</v-list-item-subtitle>
                         <v-list-item-subtitle v-if="setting.sub">{{ setting.sub }}</v-list-item-subtitle>
-                    </v-list-item>
+                    </v-list-item> -->
                 </v-list>
             </v-window-item>
         </v-window>
+        <!-- <pre>{{ app.ports }} {{ app.config.network }}</pre> -->
     </v-card>
 </template>
 
@@ -67,31 +68,6 @@ import { ref } from 'vue';
 interface Props {
     app: Container
 }
-const props = defineProps<Props>()
+defineProps<Props>()
 const tab = ref(0)
-
-const networkSettings = [
-    {
-        title: "ip address",
-        main: props.app.NetworkSettings.IPAddress + '/' + props.app.NetworkSettings.IPPrefixLen
-    },
-    {
-        title: "gateway",
-        main: props.app.NetworkSettings.Gateway
-    },
-    {
-        title: "mac address",
-        main: props.app.NetworkSettings.MacAddress
-    },
-    {
-        title: "hairpin mode",
-        main: props.app.NetworkSettings.HairpinMode
-    },
-    {
-        title: "sandbox",
-        main: 'id: '+props.app.NetworkSettings.SandboxID,
-        sub: 'key: '+props.app.NetworkSettings.SandboxKey
-    },
-
-]
 </script>

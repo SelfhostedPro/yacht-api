@@ -9,7 +9,7 @@
         <v-window v-model="tab">
             <v-window-item value="0">
                 <v-list v-if="app.mounts[0]">
-                    <v-list-item v-for="mount in app.mounts" class="text-no-wrap">
+                    <v-list-item v-for="mount in app.mounts" :key="mount.destination" class="text-no-wrap">
                         <v-list-item-title>{{ mount.destination }}</v-list-item-title>
                         <v-list-item-subtitle>{{ `type: ${mount['type']}` }}</v-list-item-subtitle>
                         <v-list-item-subtitle v-if="mount.name">{{ `name: ${mount.name}` }}</v-list-item-subtitle>
@@ -31,6 +31,6 @@ import { ref } from 'vue';
 interface Props {
     app: Container
 }
-const props = defineProps<Props>()
+defineProps<Props>()
 const tab = ref(0)
 </script>

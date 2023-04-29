@@ -3,7 +3,7 @@ import { ContainerInfo, ContainerInspectInfo, Port } from 'dockerode'
 import { Container, ContainerMount, ContainerPort } from 'ui/src/types/apps'
 
 export interface ReadableContainerInfo extends ContainerInfo {
-    CreatedDate?: string|number,
+    CreatedDate?: string | number,
     ShortId?: string,
     ShortName?: string,
     PortDetails?: string
@@ -36,10 +36,11 @@ export async function normalizeContainer(data: ContainerInfo | FixedContainerIns
         const container: Container = {
             name: data.Names[0].slice(1),
             id: data.Id,
-            shortId: data['Id'].substring(0,10),
+            shortId: data['Id'].substring(0, 10),
             image: data['Image'],
             created: format(new Date(data.Created * 1000), 'MM/dd/yyyy'),
-            status: data.Status,
+            status: data.State,
+            state: data.Status,
             info: {
                 title: data.Labels["org.opencontainers.image.title"],
                 description: data.Labels["org.opencontainers.image.description"],
@@ -64,8 +65,8 @@ export async function normalizeContainer(data: ContainerInfo | FixedContainerIns
         const container: Container = {
             name: data.Name.slice(1),
             id: data.Id,
-            shortId: data['Id'].substring(0,10),
-            image: data['Image'],
+            shortId: data['Id'].substring(0, 10),
+            image: data.Config.Image,
             created: format(parseISO(data['Created'].toString()), 'MM/dd/yyyy'),
             status: data.State.Status,
             restart: {
@@ -75,7 +76,7 @@ export async function normalizeContainer(data: ContainerInfo | FixedContainerIns
             info: {
                 title: data.Config.Labels["org.opencontainers.image.title"],
                 description: data.Config.Labels["org.opencontainers.image.description"],
-                docs: data.Config.Labels["org.opencontainers.image.docs"],
+                docs: data.Config.Labels["org.opencontainers.image.documentation"],
                 url: data.Config.Labels["org.opencontainers.image.url"],
                 source: data.Config.Labels["org.opencontainers.image.source"],
                 vendor: data.Config.Labels["org.opencontainers.image.vendor"],
@@ -103,7 +104,7 @@ export async function normalizeContainer(data: ContainerInfo | FixedContainerIns
                 }
             },
             mounts: data.Mounts ? formatMounts(data.Mounts) : null,
-            ports: data.NetworkSettings.Ports ? formatInspectPorts(data.NetworkSettings.Ports) : null,
+            ports: Object.keys(data.NetworkSettings.Ports).length ? formatInspectPorts(data) : null,
             labels: data.Config.Labels,
             env: data.Config.Env
         }
@@ -112,82 +113,82 @@ export async function normalizeContainer(data: ContainerInfo | FixedContainerIns
 }
 
 function formatMounts(data: ContainerInfo['Mounts']): ContainerMount[] {
-    const mountList = []
-    for (const mount of data){
-        const formattedMount: ContainerMount = {
-            type: mount.Type,
-            name: mount.Name || null,
-            source: mount.Source || null,
-            destination: mount.Destination || null,
-            driver: mount.Driver || null,
-            mode: mount.Mode,
-            rw: mount.RW,
-            propagation: mount.Propagation
-        }
-        mountList.push(formattedMount)
-    } return mountList
+    return data.map(({ Type, Name, Source, Destination, Driver, Mode, RW, Propagation }) => ({
+        type: Type,
+        name: Name ?? null,
+        source: Source ?? null,
+        destination: Destination ?? null,
+        driver: Driver ?? null,
+        mode: Mode,
+        rw: RW,
+        propagation: Propagation,
+    }));
 }
 
-function formatInspectPorts(data: ContainerInspectInfo['NetworkSettings']['Ports']): ContainerPort[] {
-    const portList = []
-    for (const port in data) {
-        const formattedPort: ContainerPort = {
-            containerPort: parseInt(port.split("/")[0]) ,
-            hostPort: data[port]['HostPort'] || null,
-            hostIP: data[port]['HostIp'] || null,
-            type: port.split("/")[1] || null
-        }
-        portList.push(formattedPort)
-    } return portList
 
+
+function splitPort(port) {
+    const [portNumber, type] = port.split('/');
+    return { containerPort: parseInt(portNumber), type };
+}
+// Runs on inspect in order to convert them to a more usable format.
+function formatInspectPorts(data: ContainerInspectInfo): ContainerPort[] {
+    const portList: Set<ContainerPort> = new Set();
+    const { NetworkSettings, Config } = data;
+    // Check network settings for mapped ports
+    Object.entries(NetworkSettings.Ports).forEach(([port, forwarded]) => {
+        const formattedPort: ContainerPort = { ...splitPort(port) };
+        if (forwarded) {
+            formattedPort.hostPort = parseInt(forwarded[0].HostPort);
+            formattedPort.hostIP = forwarded[0].HostIp;
+        }
+        portList.add(formattedPort);
+    })
+    // Check config for additional ports that might not be mapped
+    Object.entries(Config.ExposedPorts).forEach(([port, _]) => {
+        const { containerPort, type } = splitPort(port);
+        // Check to make sure the port doesn't already exist
+        if (containerPort! in portList.values()) {
+            portList.add({
+                containerPort,
+                type: type || null,
+                hostPort: null,
+                hostIP: null
+            });
+        }
+    })
+    return Array.from(portList);
 }
 
 function formatInfoPorts(data: Port[]): ContainerPort[] {
-    const portList = []
-    for (const port of data) {
-        const formattedPort: ContainerPort = {
-            containerPort: port.PrivatePort,
-            hostPort: port.PublicPort || null,
-            hostIP: port.IP || null,
-            type: port.Type || null
-        }
-        portList.push(formattedPort)
-    } return portList
-
+    return data.map(({ PrivatePort, PublicPort = null, IP = null, Type = null }) => ({
+        ...{ containerPort: PrivatePort, hostPort: PublicPort, hostIP: IP, type: Type }
+    }));
 }
 
 async function getIconUrl(labels: Container['labels']) {
-    if (labels["org.opencontainers.image.vendor"] && labels["org.opencontainers.image.title"]){
-        switch(labels["org.opencontainers.image.vendor"].toLowerCase()) {
+    if (labels["org.opencontainers.image.vendor"] && labels["org.opencontainers.image.title"]) {
+        const vendor = labels["org.opencontainers.image.vendor"]?.toLowerCase();
+        const title = labels["org.opencontainers.image.title"]?.toLowerCase();
+        switch (vendor) {
             case 'linuxserver.io': {
-                const url = `https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/${labels["org.opencontainers.image.title"].toLowerCase()}-logo.png`
+                const url = `https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/${title}-logo.png`
                 const response = await fetch(url)
                 if (response.ok && response.status != 404) {
                     return url
                 } else return 'https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/linuxserver-ls-logo.png'
             }
             case 'portainer.io': {
-                return labels["com.docker.desktop.extension.icon"]
+                return labels["com.docker.desktop.extension.icon"] || null;
             }
             default: {
                 return null
             }
         }
     } else return null
-
 }
 
 export async function normalizeContainers(data: ContainerInfo[]): Promise<Container[]> {
-    const containerList: Container[] =[]
-    for (const container of data){
-        containerList.push(await normalizeContainer(container))
-    } return containerList
-}
-
-export function formatInspect(data:ReadableContainerInfo) {
-
-    data['CreatedDate'] = format(parseISO(data['Created'].toString()), 'MM/dd/yyyy')
-    data['ShortId'] = data['Id'].substring(0,10)
-    data['ShortName'] = data['Name'].slice(1)
-    return {...data}
-}
+    const promises = data.map(normalizeContainer);
+    return Promise.all(promises);
+}  

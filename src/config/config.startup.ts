@@ -2,18 +2,18 @@ import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as yaml from 'js-yaml';
-import * as crypto from 'crypto'
 
 import { Logger } from '../logger/logger.service';
 import { YachtConfig } from './config.service';
+import { cwd } from 'process';
 
 /**
  * Return config required to start the console server
  */
 export async function getStartupConfig() {
   const logger = new Logger();
-
-  const configPath = path.resolve(os.homedir(), '.yacht/config.yaml');
+  console.log(__dirname)
+  const configPath = path.resolve(os.homedir(), 'config.yaml');
   const defaultConfig: YachtConfig = {
     base: {
       name: 'Yacht',

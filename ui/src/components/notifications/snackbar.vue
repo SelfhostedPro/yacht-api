@@ -2,7 +2,7 @@
   <v-snackbar :model-value="notification.visible" :color="notification.color" :timeout="notification.timeout || -1" :location="notification.location">
     {{ notification.content }}
     <template v-slot:actions>
-      <v-btn icon text :color="notification.btnColor" @click="clearSnack()">
+      <v-btn icon variant="text" :color="notification.btnColor" @click="clearSnack()">
         <v-icon>{{ notification.btnIcon }}</v-icon>
       </v-btn>
     </template>

@@ -6,10 +6,6 @@ import Layouts from 'vite-plugin-vue-layouts';
 import WebfontDownload from 'vite-plugin-webfont-dl'
 // import basicSsl from '@vitejs/plugin-basic-ssl'
 
-
-
-
-
 // Utilities
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
@@ -53,17 +49,17 @@ export default defineConfig({
   server: {
     port: 5000,
     https: false,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-      '/ws': {
-        target: 'ws://localhost:3000',
-        ws: true,
-        changeOrigin: true
-      },
-    }
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://localhost:3000',
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/api/, ''),
+    //   },
+    //   '/ws': {
+    //     target: 'ws://localhost:3000',
+    //     ws: true,
+    //     changeOrigin: true
+    //   },
+    // }
   },
 })

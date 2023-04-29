@@ -7,9 +7,9 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 
 // Plugins
-import { loadFonts } from './webfontloader'
-import vuetify from './vuetify'
-import pinia from '../stores'
+import { loadFonts } from '@/plugins/webfontloader'
+import vuetify from '@/plugins/vuetify'
+import pinia from '@/stores'
 import { setupLayouts } from 'virtual:generated-layouts'
 import generatedRoutes from 'virtual:generated-pages'
 import MasonryWall from '@yeger/vue-masonry-wall'

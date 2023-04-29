@@ -1,14 +1,14 @@
 <template>
     <v-card-title tag="span">{{ app.info.title }}
-        <v-btn v-if="app.info.url" @click.native.capture.stop size="small" icon target="_blank" variant="plain"
+        <v-btn v-if="app.info.url" @click.stop size="small" icon target="_blank" variant="plain"
             :href="app.info.url">
             <v-icon icon="mdi-open-in-new" />
         </v-btn>
-        <v-btn v-if="app.info.docs" @click.native.capture.stop size="small" icon target="_blank" variant="plain"
+        <v-btn v-if="app.info.docs" @click.stop size="small" icon target="_blank" variant="plain"
             :href="app.info.docs">
             <v-icon icon="mdi-file-document" />
         </v-btn>
-        <v-btn v-if="app.info.source" @click.native.capture.stop size="small" icon target="_blank" variant="plain"
+        <v-btn v-if="app.info.source" @click.stop size="small" icon target="_blank" variant="plain"
             :href="app.info.source">
             <v-icon icon="mdi-github" />
         </v-btn>
@@ -23,5 +23,5 @@ import VueMarkdown from '@/helpers/render/markdown.vue'
 interface Props {
     app: Container
 }
-const props = defineProps<Props>()
+defineProps<Props>()
 </script>

@@ -15,6 +15,8 @@ import { SetupWizardModule } from './setup-wizard/setup-wizard.module';
 import { LoggerModule } from './logger/logger.module';
 import { TemplatesService } from './templates/templates.service';
 import { TemplatesModule } from './templates/templates.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -27,6 +29,10 @@ import { TemplatesModule } from './templates/templates.module';
     LoggerModule,
     SetupWizardModule,
     TemplatesModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'ui'),
+      exclude: ['/api/(.*)'],
+    }),
   ],
   controllers: [AppController, ContainersController, ProjectsController],
   providers: [AppService, ContainersService, ProjectsService, TemplatesService],

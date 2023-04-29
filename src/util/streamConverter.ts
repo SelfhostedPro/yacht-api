@@ -1,39 +1,28 @@
 import { ContainerStats } from 'dockerode'
-
-export interface BasicStats {
-    Name: string,
-    MemoryPercentage: string,
-    CpuUsage: string
+import { YachtContainerStat } from 'ui/src/types/apps';
+interface FixedContainerStats extends ContainerStats {
+    name: string
 }
 
-export function formatStats(chunk) {
-    const stats = JSON.parse(chunk.toString())
-    formatCpuPercent(stats)
-    formatMemPercent(stats)
-    const formattedStats: BasicStats = {
-        Name: '',
-        MemoryPercentage: '',
-        CpuUsage: ''
-    }
-    formattedStats.MemoryPercentage = formatMemPercent(stats).toFixed(2)
-    formattedStats.CpuUsage = formatCpuPercent(stats).toFixed(2)
-    formattedStats.Name = stats.name.slice(1)
-    return JSON.stringify(formattedStats)
+export function formatStats(chunk: Buffer): string {
+    const stats: FixedContainerStats = JSON.parse(chunk.toString(), (key: string, value) => value);
+    const formattedStats: YachtContainerStat = {
+        Name: stats.name?.slice(1) ?? '',
+        MemoryPercentage: stats.memory_stats ? formatMemPercent(stats.memory_stats) : '0' ?? '0',
+        CpuUsage: stats.cpu_stats ? formatCpuPercent(stats) : '0' ?? '0',
+    };
+    return JSON.stringify(formattedStats);
 }
 
-
-export function formatCpuPercent(data: ContainerStats) {
-    const cpuDelta = data.cpu_stats.cpu_usage.total_usage - data.precpu_stats.cpu_usage.total_usage
-    const systemCpuDelta = data.cpu_stats.system_cpu_usage - data.precpu_stats.system_cpu_usage
-    return (cpuDelta / systemCpuDelta) * data.cpu_stats.online_cpus * 100.0
+function formatCpuPercent(data: ContainerStats): string {
+    const cpuDelta = data.cpu_stats.cpu_usage.total_usage - data.precpu_stats.cpu_usage.total_usage;
+    const systemCpuDelta = data.precpu_stats.system_cpu_usage === undefined ? data.cpu_stats.system_cpu_usage : data.cpu_stats.system_cpu_usage - data.precpu_stats.system_cpu_usage;
+    const cpuUsage = (cpuDelta / systemCpuDelta) * data.cpu_stats.online_cpus * 100.0;
+    return cpuUsage.toFixed(2);
 }
 
-export function formatMemPercent(data: ContainerStats) {
-    let usedMemory = 0
-    if (data.memory_stats.hasOwnProperty("stats") && data.memory_stats.stats.cache) {
-        usedMemory = data.memory_stats.usage - data.memory_stats.stats.cache
-    } else {
-        usedMemory = data.memory_stats.usage
-    }
-    return (usedMemory / data.memory_stats.limit) * 100.0
+function formatMemPercent(data: ContainerStats['memory_stats']): string {
+    const usedMemory = data.stats && data.stats.cache ? data.usage - data.stats.cache : data.usage;
+    const memUsage = (usedMemory / data.limit) * 100.0;
+    return memUsage.toFixed(2);
 }

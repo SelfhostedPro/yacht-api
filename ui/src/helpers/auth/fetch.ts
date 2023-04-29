@@ -8,24 +8,21 @@ export const useAuthFetch = createFetch({
         async beforeFetch({ options }) {
             const token = localStorage.getItem('auth-token')
             if (token) {
-                options.headers.Authorization = `Bearer ${token}`
+                options.headers['Authorization'] = `Bearer ${token}`
             }
             return { options }
         },
         async onFetchError(ctx) {
-            const data = JSON.parse(ctx.data)
+            const data = ctx.data
             const authStore = useAuthStore()
-            if (data['statusCode'] === 401 || data['statusCode'] === 403) {
-                const error = await authStore.refresh()
-                if (!await error) {
-                    const { data, response, error } = await useAuthFetch(ctx.response.url)
-                    return { data: data.value, response: response.value, error: error.value }
-                } else {
-                    authStore.logOut()
-                }
+            if (data['statusCode'] === 401) {
+                await authStore.refresh()
+                const { data, response, error } = await useAuthFetch(ctx.response.url).json()
+                return { data: data.value, response: response.value, error: error.value }
+            } else {
+                const notify = useNotifyStore()
+                notify.setError(`${ctx.data.statusCode}: ${ctx.data.message}`)
             }
-            const notify = useNotifyStore()
-            notify.setError(`${JSON.parse(ctx.data).statusCode}: ${JSON.parse(ctx.data).message}`)
             return ctx
         },
     }

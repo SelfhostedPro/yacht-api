@@ -1,54 +1,72 @@
 <template>
-    <v-card color="background" roudned="false" :loading="isLoading.get('fetchAppDetails')">
-        <template v-slot:loader="{ isActive }">
-            <v-progress-linear :active="isActive" color="primary" height="4" indeterminate></v-progress-linear>
-        </template>
-        <v-row v-if="appDetails" no-gutters>
+    <v-card color="background" roudned="false">
+        <v-row v-if="app && app.name" no-gutters>
             <v-col sm="12" md="6">
                 <Suspense>
-                    <namecard class="my-2 mx-1" :app="appDetails" />
+                    <namecard @refresh="handleRefresh" class="mb-1" :app="app" />
                 </Suspense>
                 <Suspense>
-                    <actioncard class="my-2 mx-1" :app="appDetails" />
+                    <actioncard @action="handleAction" class="mb-1" :app="app" />
                 </Suspense>
-                <Suspense>
-                    <environmentcard class="my-2 mx-1" :app="appDetails" />
+                <Suspense v-show="mdAndUp">
+                    <environmentcard class="mb-1" v-show="mdAndUp" :app="app" />
                 </Suspense>
             </v-col>
             <v-col sm="12" md="6">
                 <Suspense>
-                    <networkcard class="my-2 mx-1" :app="appDetails" />
+                    <networkcard :class="mdAndUp ? 'mb-1 ml-1' : 'mb-1'" :app="app" />
                 </Suspense>
                 <Suspense>
-                    <storagecard class="my-2 mx-1" :app="appDetails" />
+                    <storagecard :class="mdAndUp ? 'mb-1 ml-1' : 'mb-1'" :app="app" />
                 </Suspense>
-            </v-col>
-            <v-col>
-                <pre>{{ JSON.stringify(appDetails, null, 2) }}</pre>
-
+                <Suspense>
+                    <environmentcard :class="mdAndUp ? 'mb-1 ml-1' : 'mb-1'" v-show="!mdAndUp" :app="app" />
+                </Suspense>
             </v-col>
         </v-row>
     </v-card>
 </template>
 
 <script setup lang="ts">
-import namecard from './details/namecard.vue';
-import actioncard from './details/actioncard.vue';
-import networkcard from './details/networkcard.vue';
-import storagecard from './details/storagecard.vue';
-import environmentcard from './details/environmentcard.vue';
-
+import namecard from '@/components/apps/details/namecard.vue';
+import actioncard from '@/components/apps/details/actioncard.vue';
+import networkcard from '@/components/apps/details/networkcard.vue';
+import storagecard from '@/components/apps/details/storagecard.vue';
+import environmentcard from '@/components/apps/details/environmentcard.vue';
+import { useDisplay } from 'vuetify';
 import { useAppStore } from '@/stores/apps'
 import { storeToRefs } from 'pinia';
-import { onMounted, ref } from 'vue';
+import { Ref, onMounted, ref } from 'vue';
+import { Container } from '@/types/apps';
+
+// Props
 const props = defineProps(['name'])
+// Display Breakpoints
+const { mdAndUp } = useDisplay()
 
 // Store variables
 const appStore = useAppStore()
-const { appDetails, isLoading } = storeToRefs(appStore)
+const { apps } = storeToRefs(appStore)
+const app: Ref<Container> = ref({} as Container)
+
+if (apps.value.length > 0) {
+    app.value = appStore.getApp(props.name)
+}
 
 // Fetch App Details
 onMounted(async () => {
-    appStore.fetchAppDetails(props.name)
+    await appStore.fetchApp(props.name)
+    app.value = appStore.getApp(props.name)
 })
+
+const handleRefresh = async () => {
+    await appStore.fetchApp(props.name)
+    app.value = appStore.getApp(props.name)
+}
+
+// Action button functions
+const handleAction = async (action: string) => {
+    await appStore.fetchAppAction(app.value.id, action)
+    app.value = appStore.getApp(props.name)
+}
 </script>

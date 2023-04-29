@@ -1,4 +1,3 @@
-import { computed } from 'vue'
 import lightLogo from "@/assets/logo-light.svg";
 import darkLogo from "@/assets/logo.svg";
 import vuetify from '@/plugins/vuetify';

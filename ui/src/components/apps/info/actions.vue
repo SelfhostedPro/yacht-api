@@ -1,10 +1,11 @@
 <template>
     <v-expand-transition>
-        <div v-show="reveal[app.shortId]">
+        <div v-show="reveal">
             <v-btn-group divided block class="d-flex justify-center">
                 <v-tooltip v-for="action in actions" :key="action.name" :text="action.name" location="bottom">
                     <template v-slot:activator="{ props }">
                         <v-btn v-bind="props" v-if="action.depends.includes(app.status) || action.depends.includes('all')"
+                            v-on:click.prevent="handleAction(action.name)"
                             :size="mdAndDown ? 'small' : 'default'" :color="action.color" class="my-1">
                             <v-icon :icon="action.icon" />
                         </v-btn>
@@ -18,12 +19,19 @@
 <script setup lang="ts">
 import { useDisplay } from 'vuetify';
 import { Container } from '@/types/apps';
+import { useAppStore } from '@/stores/apps';
 interface Props {
     app: Container,
-    reveal: boolean
+    reveal: any
 }
-defineProps<Props>()
+const props = defineProps<Props>()
 const { mdAndDown } = useDisplay()
+const appStore = useAppStore()
+
+const handleAction = async (action: string) => {
+    await appStore.fetchAppAction(props.app.id, action)
+    appStore.fetchStats()
+}
 
 const actions = [
     {

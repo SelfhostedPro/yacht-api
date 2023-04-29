@@ -136,15 +136,13 @@ export class ContainersController {
   @Get('actions/:id/:action')
   @ApiCreatedResponse({
     description: 'Get inspect information of one container.',
-    type: String,
   })
   async containerAction(
     @Param('id') id: string,
     @Param('action') action: string,
-  ): Promise<string> {
+  ): Promise<Container> {
     try {
-      await this.containersService.getContainerAction(id, action);
-      return 'sucess';
+      return await this.containersService.getContainerAction(id, action);
     } catch (err) {
       // Error Handling
       if (err.statusCode) {

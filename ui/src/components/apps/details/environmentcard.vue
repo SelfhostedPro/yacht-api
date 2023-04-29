@@ -9,8 +9,8 @@
         </v-tabs>
         <v-window v-model="tab">
             <v-window-item value="0">
-                <v-list v-if="app.env[0]">
-                    <v-list-item v-for="env in app.env" class="text-no-wrap">
+                <v-list v-if="app.env && app.env[0]">
+                    <v-list-item v-for="env in app.env" :key="env.split('=')[0]" class="text-no-wrap">
                         <v-list-item-title>{{ env.split('=')[0]  }}</v-list-item-title>
                         <v-list-item-subtitle>{{ env.split('=')[1] }}</v-list-item-subtitle>
                     </v-list-item>
@@ -19,7 +19,7 @@
             </v-window-item>
             <v-window-item value="1">
                 <v-list v-if="app.labels">
-                    <v-list-item v-for="value,label in app.labels" class="text-no-wrap">
+                    <v-list-item v-for="value,label in app.labels" :key="label" class="text-no-wrap">
                         <v-list-item-title>{{ label  }}</v-list-item-title>
                         <v-list-item-subtitle>{{ value }}</v-list-item-subtitle>
                     </v-list-item>
@@ -36,6 +36,6 @@ import { ref } from 'vue';
 interface Props {
     app: Container
 }
-const props = defineProps<Props>()
+defineProps<Props>()
 const tab = ref(0)
 </script>

@@ -12,11 +12,11 @@ export interface ReadableContainerDetails extends ContainerInspectInfo {
     ShortName: string
 }
 
-export interface ContainerStats {
-    [key: string]: ContainerStat
+export interface YachtContainerStats {
+    [key: string]: YachtContainerStat
 }
 
-export interface ContainerStat {
+export interface YachtContainerStat {
     Name: string,
     MemoryPercentage: string,
     CpuUsage: string
@@ -29,6 +29,7 @@ export interface Container {
     shortId: string,
     created: string,
     status: string,
+    state?: string,
     info?: ContainerOciInfo,
     restart?: {
         policy: string,

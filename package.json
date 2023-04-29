@@ -28,6 +28,7 @@
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/platform-socket.io": "^9.3.12",
+    "@nestjs/serve-static": "^3.0.1",
     "@nestjs/swagger": "^6.3.0",
     "@nestjs/websockets": "^9.3.12",
     "argon2": "^0.30.3",
@@ -35,7 +36,6 @@
     "bash-color": "^0.0.4",
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
-    "csurf": "^1.11.0",
     "dockerode": "^3.3.5",
     "helmet": "^6.0.1",
     "node-cache": "^5.1.2",
@@ -44,8 +44,6 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
     "simple-git": "^3.17.0",
-    "through2": "^4.0.2",
-    "typeorm": "^0.3.12",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
