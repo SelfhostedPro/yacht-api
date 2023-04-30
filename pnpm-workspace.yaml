@@ -1,0 +1,4 @@
+packages:
+  - "./types/**"
+  - "./ui/**"
+  - "./server/**"

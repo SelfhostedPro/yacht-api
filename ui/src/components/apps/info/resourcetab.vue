@@ -41,7 +41,7 @@ import mountinfo from '@/components/apps/info/mounts.vue'
 import info from '@/components/apps/info/info.vue';
 import { ref } from 'vue';
 const tab = ref(0)
-import { Container } from '@/types/apps';
+import { Container } from '@yacht/types';
 interface Props {
     app: Container,
     reveal: any

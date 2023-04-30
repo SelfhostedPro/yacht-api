@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import VueMarkdown from '@/helpers/render/markdown.vue'
-import { Container } from '@/types/apps';
+import { Container } from '@yacht/types';
 interface Props {
     info: Container['info']
 }

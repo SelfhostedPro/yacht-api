@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { useDisplay } from 'vuetify';
-import { Container } from '@/types/apps';
+import { Container } from '@yacht/types';
 import { useAppStore } from '@/stores/apps';
 interface Props {
     app: Container,

@@ -54,7 +54,7 @@ import iconstats from '@/components/apps/info/stats.vue'
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 import { useLoadingStore } from '@/stores/loading';
-import { Container } from '@/types/apps';
+import { Container } from '@yacht/types';
 // Card expansion variables
 const revealActions = ref({})
 const revealResources = ref({})

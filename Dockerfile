@@ -1,28 +1,32 @@
-FROM node:lts-alpine as build-stage
+# Build stage
+FROM node:18-alpine as base
+WORKDIR /app
+# Enable pnpm
+RUN npm install -g pnpm@latest-7
+# Copy pnpm requirements
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+# Copy App Requirements
+COPY types/package.json types/
+COPY server/package.json server/
+COPY ui/package.json ui/
+# Fetch packages and install all dependencies
+RUN pnpm -r fetch
+RUN pnpm -r install --offline
+# Fetch Apps Source
+COPY types types
+COPY server server
+COPY ui ui
+# Build apps
+RUN pnpm run build:docker
+# Install and copy prod packages to deploy stage.
+RUN pnpm -r exec rm -rf node_modules && \
+        pnpm --filter @yacht/server install --prod --offline && \
+        pnpm --filter @yacht/server --prod deploy pruned
 
-# Build Frontend
-WORKDIR /app/ui/
-COPY ./ui/package*.json ./
-RUN npm install
-COPY ./ui/ .
-RUN npm run build
-
-WORKDIR /app/
-COPY ./package*.json ./
-RUN npm install
-COPY ./ .
-RUN npm run build
-
-# Setup Container and install Flask
-FROM ghcr.io/linuxserver/baseimage-alpine:3.16 as deploy-stage
-# MAINTANER Your Name "info@selfhosted.pro"
-COPY root /
-
-# Vue
-COPY --from=build-stage /app/dist /app
-COPY --from=build-stage /app/ui/dist /app/ui
-COPY nginx.conf /etc/nginx/
-
-# Expose
-VOLUME /config
-EXPOSE 5000
+# Deployment stage
+FROM node:18-alpine as deploy
+WORKDIR /app
+COPY --from=base /app/server/package.json /app/pnpm-lock.yaml ./
+COPY --from=base /app/pruned/node_modules ./node_modules
+COPY --from=base /app/dist/ .
+CMD node main.js

@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { Container } from '@/types/apps';
+import { Container } from '@yacht/types';
 import ocilabels from "@/components/apps/details/ocilabels.vue"
 import { ref } from 'vue';
 import { useLoadingStore } from '@/stores/loading';

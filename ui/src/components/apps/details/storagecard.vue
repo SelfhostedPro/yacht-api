@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { Container } from '@/types/apps';
+import { Container } from '@yacht/types';
 import { ref } from 'vue';
 interface Props {
     app: Container

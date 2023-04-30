@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { Container } from '@/types/apps';
+import { Container } from '@yacht/types';
 import VueMarkdown from '@/helpers/render/markdown.vue'
 interface Props {
     app: Container

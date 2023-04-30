@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { Container, YachtContainerStat } from '@/types/apps';
+import { Container, YachtContainerStat } from '@yacht/types';
 interface Props {
     app: Container,
     stats: YachtContainerStat,

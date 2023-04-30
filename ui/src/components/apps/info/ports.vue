@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { Container } from '@/types/apps';
+import { Container } from '@yacht/types';
 interface Props {
     app: Container
 }

@@ -37,7 +37,7 @@ import { useDisplay } from 'vuetify';
 import { useAppStore } from '@/stores/apps'
 import { storeToRefs } from 'pinia';
 import { Ref, onMounted, ref } from 'vue';
-import { Container } from '@/types/apps';
+import { Container } from '@yacht/types';
 
 // Props
 const props = defineProps(['name'])

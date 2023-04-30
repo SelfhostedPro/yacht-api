@@ -1,4 +1,4 @@
-import { Container, YachtContainerStats } from "@/types/apps"
+import { Container, YachtContainerStats } from "@yacht/types"
 import { defineStore } from "pinia"
 import { useEventSource } from "@vueuse/core"
 import { useAuthFetch } from "@/helpers/auth/fetch"

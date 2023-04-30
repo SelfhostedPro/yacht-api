@@ -17,8 +17,7 @@
       "node",
       "vuetify",
       "vite-plugin-vue-layouts/client",
-      "vite-plugin-pages/client",
-      "dockerode"
+      "vite-plugin-pages/client"
     ],
     "paths": {
       "@/*": ["src/*"]
