@@ -42,9 +42,10 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
             type=semver,pattern={{version}}
             type=sha
+            type=ref,event=branch
+
           labels: |
             org.opencontainers.image.title=Yacht
             org.opencontainers.image.url=https://github.com/SelfhostedPro/yacht-api/pkgs/container/yacht-api
