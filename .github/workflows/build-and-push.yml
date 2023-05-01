@@ -52,6 +52,7 @@ jobs:
             org.opencontainers.image.description=A web interface for managing docker containers with an emphasis on making selfhosting easy
             org.opencontainers.image.documentation=https://yacht.sh/docs/
             org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.base.name=ghcr.io/selfhostedpro/yacht-api:main
             sh.yacht.icon=https://yacht.sh/img/logo.svg
             sh.yacht.self=true
             sh.yacht.ports.3000=WebUI
