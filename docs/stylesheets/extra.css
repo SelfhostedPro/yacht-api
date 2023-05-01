@@ -1,0 +1,11 @@
+[data-md-color-scheme="yacht-dark"] {
+    --md-primary-fg-color: #41b883;
+    --md-primary-fg-color--light: #41b883;
+    --md-primary-fg-color--dark: #41b883;
+    --md-primary-bg-color: #323232;
+    --md-primary-bg-color--light: #323232;
+    --md-accent-fg-color: #424242;
+    --md-accent-fg-color--transparent: #424242;
+    --md-accent-bg-color: #323232;
+    --md-accent-bg-color--light: #323232;
+}
