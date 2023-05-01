@@ -13,7 +13,12 @@ Yacht is a container management UI with a focus on making selfhosting easy.
 ## Installation:
 ```bash
 docker volume create yacht_data
-docker run -d -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock -v /config:yacht_data --restart unless-stopped --name yacht ghcr.io/selfhostedpro/yacht-api:main
+docker run -d --name yacht \
+        --restart unless-stopped \
+        -p 3000:3000 \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v /config:yacht_data \
+        ghcr.io/selfhostedpro/yacht-api:main
 ```
 
 ## Features So Far:
