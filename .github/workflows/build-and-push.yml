@@ -43,7 +43,6 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}}
-            type=sha
             type=ref,event=branch
 
           labels: |
