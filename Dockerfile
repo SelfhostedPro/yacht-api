@@ -24,33 +24,14 @@ RUN pnpm -r exec rm -rf node_modules && \
         pnpm --filter @yacht/server --prod deploy pruned
 
 # Deployment stage
-FROM ghcr.io/linuxserver/baseimage-alpine:3.16 as deploy
-
-# Set label args
-ARG BUILD_DATE
-ARG VERSION
-ARG YACHT_VERSION
-ARG REVISION
-
-# set OCI info
-LABEL org.opencontainers.image.title = "Yacht"
-LABEL org.opencontainers.image.authors = "SelfhostedPro"
-LABEL org.opencontainers.image.vendor = "SelfhostedPro"
-LABEL org.opencontainers.image.description = "Container management platform"
-LABEL org.opencontainers.image.source = "https://github.com/selfhostedpro/yacht-api"
-LABEL org.opencontainers.image.documentation = "https://yacht.sh/docs/"
-LABEL org.opencontainers.image.version = "${YACHT_VERSION}-alpha"
-LABEL org.opencontainers.image.revision = "${REVISION}"
-
-
-
+FROM ghcr.io/linuxserver/baseimage-alpine:3.17 as deploy
 
 LABEL build_version="Yacht version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="SelfhostedPro"
 
-
-
 WORKDIR /app
+RUN apk add --no-cache \
+        nodejs
 COPY --from=base /app/server/package.json /app/pnpm-lock.yaml ./
 COPY --from=base /app/pruned/node_modules ./node_modules
 COPY --from=base /app/dist/ .
