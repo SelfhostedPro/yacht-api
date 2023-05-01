@@ -37,9 +37,10 @@ export class ContainersService {
       restart: () => container.restart(),
     };
     if (action in actions) {
-      this.logger.log(`Action: ${action} used on container: ${id}`);
+      const containerInfo = await normalizeContainer(await container.inspect())
+      this.logger.log(`Action: ${action} used on container ${containerInfo.name}: ${containerInfo.shortId}`);
       await actions[action]();
-      return await normalizeContainer(await container.inspect());
+      return containerInfo;
     } else {
       throw new Error('Error: Action not found.');
     }

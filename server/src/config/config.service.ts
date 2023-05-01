@@ -34,9 +34,9 @@ export class ConfigService {
   // yacht env
   public configPath =
     process.env.UIX_CONFIG_PATH ||
-    path.resolve(os.homedir(), '.yacht/config.yaml');
+    path.resolve('../config/config.yaml');
   public storagePath =
-    process.env.UIX_STORAGE_PATH || path.resolve(os.homedir(), '.yacht/storage');
+    process.env.UIX_STORAGE_PATH || path.resolve('../config/storage');
   public customPluginPath = process.env.UIX_CUSTOM_PLUGIN_PATH;
   public strictPluginResolution =
     process.env.UIX_STRICT_PLUGIN_RESOLUTION === '1';
@@ -192,7 +192,7 @@ export class ConfigService {
     this.yachtInsecureMode = Boolean(process.env.yacht_INSECURE === '1');
     this.ui.log = {
       method: 'file',
-      path: '/yacht/logs/yacht.log',
+      path: '/config/logs/yacht.log',
     };
 
     // these options can be overridden using the config.json file

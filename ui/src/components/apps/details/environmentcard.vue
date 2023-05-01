@@ -4,23 +4,23 @@
             <v-toolbar-title>configuration</v-toolbar-title>
         </v-toolbar>
         <v-tabs v-model="tab" color="primary">
-            <v-tab rounded="0" value="0" title="environment" />
-            <v-tab rounded="0" value="1" title="labels" />
+            <v-tab rounded="0" value="0"> environment</v-tab>
+            <v-tab rounded="0" value="1">labels</v-tab>
         </v-tabs>
         <v-window v-model="tab">
             <v-window-item value="0">
-                <v-list v-if="app.env && app.env[0]">
+                <v-list v-if="app.env && app.env.length">
                     <v-list-item v-for="env in app.env" :key="env.split('=')[0]" class="text-no-wrap">
-                        <v-list-item-title>{{ env.split('=')[0]  }}</v-list-item-title>
+                        <v-list-item-title>{{ env.split('=')[0] }}</v-list-item-title>
                         <v-list-item-subtitle>{{ env.split('=')[1] }}</v-list-item-subtitle>
                     </v-list-item>
                 </v-list>
                 <v-card-text v-else>No environment variables configured.</v-card-text>
             </v-window-item>
             <v-window-item value="1">
-                <v-list v-if="app.labels">
-                    <v-list-item v-for="value,label in app.labels" :key="label" class="text-no-wrap">
-                        <v-list-item-title>{{ label  }}</v-list-item-title>
+                <v-list v-if="app.labels && Object.keys(app.labels).length">
+                    <v-list-item v-for="value, label in app.labels" :key="label" class="text-no-wrap">
+                        <v-list-item-title>{{ label }}</v-list-item-title>
                         <v-list-item-subtitle>{{ value }}</v-list-item-subtitle>
                     </v-list-item>
                 </v-list>

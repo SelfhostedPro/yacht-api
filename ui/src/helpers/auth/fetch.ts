@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/stores/auth";
 import { useNotifyStore } from "@/stores/notifications";
-import { createFetch } from "@vueuse/core";
+import { createFetch, useFetch } from "@vueuse/core";
 
 
 export const useAuthFetch = createFetch({
@@ -17,7 +17,7 @@ export const useAuthFetch = createFetch({
             const authStore = useAuthStore()
             if (data['statusCode'] === 401) {
                 await authStore.refresh()
-                const { data, response, error } = await useAuthFetch(ctx.response.url).json()
+                const { data, response, error } = await useFetch(ctx.response.url).json()
                 return { data: data.value, response: response.value, error: error.value }
             } else {
                 const notify = useNotifyStore()

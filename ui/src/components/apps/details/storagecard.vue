@@ -4,7 +4,7 @@
             <v-toolbar-title>storage</v-toolbar-title>
         </v-toolbar>
         <v-tabs v-model="tab" color="primary">
-            <v-tab rounded="0" value="0" title="mounts" />
+            <v-tab rounded="0" value="0">mounts</v-tab>
         </v-tabs>
         <v-window v-model="tab">
             <v-window-item value="0">

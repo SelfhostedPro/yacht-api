@@ -13,7 +13,7 @@ import { cwd } from 'process';
 export async function getStartupConfig() {
   const logger = new Logger();
   console.log(__dirname)
-  const configPath = path.resolve(os.homedir(), 'config.yaml');
+  const configPath = path.resolve('../config/config.yaml');
   const defaultConfig: YachtConfig = {
     base: {
       name: 'Yacht',
@@ -31,7 +31,7 @@ export async function getStartupConfig() {
     logger.log('Config Exists!');
   } catch (e) {
     if (e.code == 'ENOENT') {
-      fs.mkdirSync(path.resolve(os.homedir(), '.yacht/storage/templates'), { recursive: true})
+      fs.mkdirSync(path.resolve('../config/storage/templates'), { recursive: true})
       fs.writeFileSync(configPath, yaml.dump(defaultConfig), { flag: 'w' });
       logger.log('Config Created!');
     } else {

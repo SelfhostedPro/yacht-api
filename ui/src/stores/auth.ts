@@ -37,12 +37,12 @@ export const useAuthStore = defineStore('auth', {
         },
         async userRegister(creds: LoginCreds) {
             const { error, data } = await useAuthFetch('/api/setup-wizard/create-first-user').post(creds).json()
-            if (!error) {
+            if (!error.value) {
                 useStorage('first-setup', false)
                 localStorage.removeItem('auth-token')
                 delete data.value.admin
-                this.user = data.value
-                router.push('/login')
+                this.returnUrl = '/'
+                await this.userLogin(creds)
             }
         },
         async authCheck() {

@@ -4,9 +4,9 @@
             <v-toolbar-title>networking</v-toolbar-title>
         </v-toolbar>
         <v-tabs v-model="tab" color="primary">
-            <v-tab rounded="0" value="0" title="ports" />
-            <v-tab rounded="0" value="1" title="networks" />
-            <v-tab rounded="0" value="2" title="advanced" />
+            <v-tab rounded="0" value="0">ports</v-tab>
+            <v-tab rounded="0" value="1">networks</v-tab>
+            <v-tab rounded="0" value="2">advanced</v-tab>
         </v-tabs>
         <v-window v-model="tab">
             <v-window-item value="0">
@@ -24,7 +24,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody v-if="app.ports">
                         <tr v-for="port of app.ports" :key="port.containerPort">
                             <td class="text-left">{{ port.containerPort }}</td>
                             <td v-if="port.hostIP" class="text-center">{{
@@ -36,14 +36,16 @@
                             <td v-else class="text-right">-</td>
                         </tr>
                     </tbody>
+                    <v-card-text> {{ app.name }} {{ app.status !== 'running' ? 'is not running' : 'has no ports forwarded' }} </v-card-text>
                 </v-table>
             </v-window-item>
             <v-window-item value="1">
                 <v-list>
                     <v-list-item v-for="network, name in app.config.network.networks" :key="name">
                         <v-list-item-title>{{ name }}</v-list-item-title>
-                        <v-list-item-subtitle>ip address: {{ network.IPAddress + '/' + network.IPPrefixLen }}</v-list-item-subtitle>
-                        <v-list-item-subtitle>gateway: {{ network.Gateway+'/'+network.IPPrefixLen }}</v-list-item-subtitle>
+                        <v-list-item-subtitle>ip address: {{ network.IPAddress + '/' + network.IPPrefixLen
+                        }}</v-list-item-subtitle>
+                        <v-list-item-subtitle>gateway: {{ network.Gateway + '/' + network.IPPrefixLen }}</v-list-item-subtitle>
                         <v-list-item-subtitle>id: {{ network.NetworkID }}</v-list-item-subtitle>
                     </v-list-item>
                 </v-list>
