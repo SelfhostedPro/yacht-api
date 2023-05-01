@@ -8,7 +8,7 @@
 ## Yacht
 Yacht is a container management UI with a focus on making selfhosting easy.
 
-**This is an alpha version of Yacht that will be replacing the current version. If you're looking for something more stable please use the current [reommended version](https://github.com/SelfhostedPro/Yacht).**
+**This is an alpha version of Yacht that will be replacing the current version. If you're looking for something more stable please use the current [recommended version](https://github.com/SelfhostedPro/Yacht).**
 
 ## Installation:
 ```bash
