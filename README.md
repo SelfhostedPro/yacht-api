@@ -1,73 +1,71 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+![logo](https://raw.githubusercontent.com/SelfhostedPro/Yacht/master/readme_media/Yacht_logo_1_dark.png "templates")
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+[![Docker Hub Pulls](https://img.shields.io/docker/pulls/selfhostedpro/yacht?color=%2341B883&label=Docker%20Pulls&logo=docker&logoColor=%2341B883&style=for-the-badge)](https://hub.docker.com/r/selfhostedpro/yacht)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+[![Discord](https://img.shields.io/discord/709500370333859861.svg?color=%2341B883&labelColor=555555&logoColor=%2341B883&style=for-the-badge&label=Discord&logo=discord)](https://discord.gg/YWrKVTn "realtime support / chat with the community and the team.")
 
-## Description
+[![Docker Image Size](https://img.shields.io/docker/image-size/selfhostedpro/yacht/vue?color=%2341B883&label=Image%20Size&logo=docker&logoColor=%2341B883&style=for-the-badge)](https://hub.docker.com/r/selfhostedpro/yacht)
+[![Open Collective](https://img.shields.io/opencollective/all/selfhostedpro.svg?color=%2341B883&logoColor=%2341B883&style=for-the-badge&label=Supporters&logo=open%20collective)](https://opencollective.com/selfhostedpro "please consider helping me by either donating or contributing")
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Yacht
+Yacht is a container management UI with a focus on making selfhosting easy.
 
-## Installation
+**This is an alpha version of Yacht that will be replacing the current version. If you're looking for something more stable please use the current [reommended version](https://github.com/SelfhostedPro/Yacht).**
 
+## Installation:
 ```bash
-$ pnpm install
+docker volume create yacht_data
+docker run -d -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock -v /config:yacht_data --restart unless-stopped --name yacht ghcr.io/selfhostedpro/yacht-api:main
 ```
 
-## Running the app
+## Features So Far:
+* Basic Container Management
+* Authentication
+* Stats
+* API with documentation (/api/docs on your local instance)
 
-```bash
-# development
-$ pnpm run start
+## Planned Features:
+* Easy access to container interfaces
+* User Management
+* Multi-Server Support
+* Integration with selfhosted platforms
+* Revised templating engine
 
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+## Notes for ARM devices
+If you're on arm and graphs aren't showing up add the following to your cmdline.txt:
+```
+cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1
 ```
 
-## Test
+## Notes for installing Docker and Yacht on WSL2 platform under Windows
+If you’re running under WSL2 inside Windows, because of the difference in how permissions are handled. Your essentially inside of a Linux machine accessing a Windows file system. You will need to run after installation before adding the Yacht container:
+```
+$ sudo usermod -aG docker $USER
+```
+Additional information about this can be found in the [Post-installation steps for Linux](https://docs.docker.com/engine/install/linux-postinstall/)
 
+## Development
+All development should be done on your own fork of yacht and submitted via a PR. If you're not familiar with how to do this, there's a good article [here](https://dev.to/codesphere/how-to-start-contributing-to-open-source-projects-on-github-534n)
+
+### Anatomy
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+├── Dockerfile # Used for building the image
+├── pnpm-lock.yaml # Used for managing dependancies for all the parts of Yacht
+├── pnpm-workspace.yaml # Used for defining the different parts of Yacht
+├── root # Used to initialize the container from LSIO baseimages
+├── server # The backend API built in NestJS
+├── types # Shared info between the frontend and backend
+└── ui # Frontend UI built in Vue3
 ```
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+For information on working with each part of yacht see the respective README.md in each folder (WIP). To get it running in your environment quickly you can just do the following:
+```bash
+npm i -g pnpm
+pnpm i
+pnpm --filter @yacht/server run start:dev # Start the backend on :3000
+pnpm --filter @yacht/ui run dev # Start the frontend on :5000
+```
+*Note: when running in docker, the backend serves the frontend utilizing [serve-static](https://docs.nestjs.com/recipes/serve-static).*
 
 ## License
-
-Nest is [MIT licensed](LICENSE).
+[MIT License](LICENSE.md)
