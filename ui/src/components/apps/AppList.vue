@@ -1,5 +1,5 @@
 <template>
-    <v-card :loading="isLoading.loading">
+    <v-card :loading="isLoading.loading || loading">
         <template v-slot:loader="{ isActive }">
             <v-progress-linear :active="isActive" color="primary" height="4" indeterminate></v-progress-linear>
         </template>
@@ -8,7 +8,16 @@
             <v-tabs bg-color="surface" color="primary" align-tabs="center" v-model="serverTab">
                 <v-tab v-for="appList, i in Object.keys(apps)" :value="i" :key="i">{{ appList }} </v-tab>
             </v-tabs>
-            <v-fade-transition v-if="apps">
+            <v-fade-transition v-if="loading || isLoading.loading && isLoading.items.get('apps')">
+                <v-window>
+                    <v-row dense>
+                        <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-for="i in 12">
+                            <v-skeleton-loader class="pa-1 pb-1" type="card" />
+                        </v-col>
+                    </v-row>
+                </v-window>
+            </v-fade-transition>
+            <v-fade-transition v-else-if="apps">
                 <v-window v-model="serverTab">
                     <v-window-item v-for="(appList, server, i) in apps" :value="i" :key="i">
                         <v-container>
@@ -29,10 +38,10 @@
                                                     variant="text" color="primary"
                                                     v-on:click.prevent="revealResources[app.shortId] = !revealResources[app.shortId]">
                                                 </v-btn>
-                                                <Suspense>
-                                                    <iconstats v-if="stats[app.name] && app.status === 'running'"
-                                                        :stats="stats[app.name]" :app="app" :loading="!isLoading.loading" />
-                                                </Suspense>
+                                                <iconstats v-if="isLoading.loading == true && isLoading.items.get('stats')"
+                                                    :loading="true"></iconstats>
+                                                <iconstats v-if="stats[app.name] && app.status === 'running'"
+                                                    :stats="stats[app.name]" :loading="false" />
                                             </v-col>
                                         </v-row>
                                         <actions :app="app" :server="server" :reveal="revealActions[app.shortId]" />

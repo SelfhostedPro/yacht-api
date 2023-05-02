@@ -18,7 +18,7 @@ export async function getStartupConfig() {
       servers: [{
         name: 'local',
         options: {
-          socketPath: process.env.DOCKERHOST ?? '/var/run/docker.sock'
+          socketPath: process.env.DOCKER_HOST ?? '/var/run/docker.sock'
         }
       }],
       auth: true,

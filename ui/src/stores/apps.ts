@@ -59,7 +59,6 @@ export const useAppStore = defineStore('apps', {
                 // Assign openStats to eventSource so we can close it later
                 this.openStats = eventSource.value
             }
-
         },
         async fetchAppAction(server: string|number, id: string, action: string) {
             const loading = useLoadingStore()

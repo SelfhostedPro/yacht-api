@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import Dockerode, { Container as UsableContainer, ContainerStats } from 'dockerode';
-import { PassThrough as StreamPassThrough, Transform } from 'stream';
+import { PassThrough as StreamPassThrough, Transform, pipeline } from 'stream';
 import { ContainerProcessesDTO } from './classes';
 import { Logger } from '../logger/logger.service';
 import { ServersService } from '../servers/servers.service'
@@ -9,6 +9,8 @@ import { Observable, fromEvent, map } from 'rxjs';
 import { FixedContainerInspectInfo, normalizeContainer, normalizeContainers } from '../util/containerFormatter'
 import { Container, ServerContainers, ServerDict } from '@yacht/types';
 import { ConfigService } from 'src/config/config.service';
+import { promisify } from 'util';
+import { DockerStatsStreamer} from '../util/containerStreamers'
 
 @Injectable()
 export class ContainersService {
@@ -100,34 +102,7 @@ export class ContainersService {
   }
 
   async streamBaseContainerStats(): Promise<Observable<MessageEvent>> {
-    const statStream = new StreamPassThrough();
-    const transformStatStream = new Transform({
-      objectMode: true, transform(chunk, enc, callback) {
-        this.push(formatStats(chunk))
-        callback()
-      }
-    })
     const servers: ServerDict = await this.serversService.getServersFromConfig();
-    for (const key in servers) {
-      const docker = servers[key];
-      const containerList = await docker.listContainers()
-      for await (const app of containerList) {
-        docker.getContainer(app.Id)
-          .stats({ stream: true }, function (err, stream: any) {
-            stream
-              .pipe(transformStatStream)
-              .pipe(statStream)
-          })
-      };
-    }
-    const observable = fromEvent(statStream, 'data').pipe(
-      map(
-        (x: Buffer) =>
-        ({
-          data: `${x.toString()}`,
-        } as MessageEvent),
-      ),
-    );
-    return observable
+    return new DockerStatsStreamer(servers).streamBaseContainerStats()
   }
 }

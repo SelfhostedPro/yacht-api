@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 
-interface isLoading {
+export interface isLoading {
     loading: boolean,
     items: Map<string, boolean>
 }

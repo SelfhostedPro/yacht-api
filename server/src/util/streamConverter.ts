@@ -1,18 +1,17 @@
 import { ContainerStats } from 'dockerode'
 import { YachtContainerStat } from '@yacht/types';
-interface FixedContainerStats extends ContainerStats {
-    name: string
+export interface FixedContainerStats extends ContainerStats {
+    name?: string
 }
 
-export function formatStats(chunk: Buffer): string {
-    const stats: FixedContainerStats = JSON.parse(chunk.toString(), (key: string, value) => value);
+export function formatStats(stats: FixedContainerStats): string {
     const formattedStats: YachtContainerStat = {
-        Name: stats.name?.slice(1) ?? '',
-        MemoryPercentage: stats.memory_stats ? formatMemPercent(stats.memory_stats) : '0' ?? '0',
-        CpuUsage: stats.cpu_stats ? formatCpuPercent(stats) : '0' ?? '0',
+      Name: stats.name?.slice(1) ?? '',
+      MemoryPercentage: stats.memory_stats ? formatMemPercent(stats.memory_stats) : '0' ?? '0',
+      CpuUsage: stats.cpu_stats ? formatCpuPercent(stats) : '0' ?? '0',
     };
     return JSON.stringify(formattedStats);
-}
+  }
 
 function formatCpuPercent(data: ContainerStats): string {
     const cpuDelta = data.cpu_stats.cpu_usage.total_usage - data.precpu_stats.cpu_usage.total_usage;

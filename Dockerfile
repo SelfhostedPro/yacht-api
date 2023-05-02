@@ -32,8 +32,9 @@ LABEL maintainer="SelfhostedPro"
 WORKDIR /app
 RUN apk add --no-cache \
         nodejs
-COPY root /
 COPY --from=base /app/server/package.json /app/pnpm-lock.yaml ./
 COPY --from=base /app/pruned/node_modules ./node_modules
 COPY --from=base /app/dist/ .
-CMD node main.js
+COPY root /
+
+EXPOSE 3000

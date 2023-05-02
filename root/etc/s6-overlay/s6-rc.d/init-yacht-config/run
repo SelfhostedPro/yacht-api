@@ -2,10 +2,16 @@
 # shellcheck shell=bash
 
 # permissions
-chown -R abc:abc \
-		/app
-find /config -type d -prune -o \
-    -exec chown abc:abc {} \;
+# initial folders
+mkdir -p /data
+mkdir -p /config
+
+# permissions
+lsiown -R abc:abc \
+    /app \
+    /config
+lsiown abc:abc \
+    /data
 # non-root docker
 if [ -S /var/run/docker.sock ]; then
   DOCKER_GID=$(stat -c '%g' "/var/run/docker.sock")
