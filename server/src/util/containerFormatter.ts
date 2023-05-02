@@ -12,7 +12,7 @@ export interface ReadableContainerInfo extends ContainerInfo {
 export interface FixedContainerInspectInfo extends ContainerInspectInfo {
     Mounts: Array<{
         Name?: string | undefined;
-        Type: string;
+        Type?: string;
         Source: string;
         Destination: string;
         Driver?: string | undefined;
@@ -112,9 +112,10 @@ export async function normalizeContainer(data: ContainerInfo | FixedContainerIns
     }
 }
 
+function formatMounts(data: FixedContainerInspectInfo['Mounts'])
 function formatMounts(data: ContainerInfo['Mounts']): ContainerMount[] {
     return data.map(({ Type, Name, Source, Destination, Driver, Mode, RW, Propagation }) => ({
-        type: Type,
+        type: Type ?? null,
         name: Name ?? null,
         source: Source ?? null,
         destination: Destination ?? null,

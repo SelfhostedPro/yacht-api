@@ -2,10 +2,12 @@
   "name": "@yacht/types",
   "version": "0.0.1",
   "description": "",
-  "main": "index.ts",
+  "main": "dist/index",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "build": "tsc --incremental",
+    "start:dev": "tsc -w --incremental"
+},
   "keywords": [],
   "author": "SelfhostedPro",
   "license": "MIT",
@@ -13,6 +15,8 @@
     "dockerode": "^3.3.5"
   },
   "devDependencies": {
-    "@types/dockerode": "^3.3.16"
+    "@types/dockerode": "^3.3.16",
+    "node-ts": "^6.0.0",
+    "typescript": "^4.9.5"
   }
 }

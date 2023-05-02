@@ -1,4 +1,4 @@
-import { Container, YachtContainerStats } from "@yacht/types"
+import { Container, ServerContainers, YachtContainerStats } from "@yacht/types"
 import { defineStore } from "pinia"
 import { useEventSource } from "@vueuse/core"
 import { useAuthFetch } from "@/helpers/auth/fetch"
@@ -6,12 +6,12 @@ import { useLoadingStore } from "@/stores/loading"
 
 export const useAppStore = defineStore('apps', {
     state: () => ({
-        apps: [] as Container[],
+        apps: {} as ServerContainers,
         stats: {} as YachtContainerStats,
         openStats: null as EventSource
     }),
     getters: {
-        getApp: (state) => (idOrName: string) => state.apps.find((app) => app.id === idOrName || app.name === idOrName),
+        getApp: (state) => (serverName: string, idOrName: string) => state.apps[serverName].find((app) => app.id === idOrName || app.name === idOrName),
         getApps: (state) => state.apps,
         getStats: (state) => state.stats,
     },
@@ -33,10 +33,10 @@ export const useAppStore = defineStore('apps', {
                 loadingStore.stopLoadingItem('apps')
             }
         },
-        async fetchApp(idOrName: string) {
+        async fetchApp(serverName: string, idOrName: string) {
             const loadingStore = useLoadingStore()
             loadingStore.startLoadingItem('app')
-            const { error, data } = await useAuthFetch<Container>(`/api/containers/info/${idOrName}`).json()
+            const { error, data } = await useAuthFetch<Container>(`/api/containers/info/${serverName}/${idOrName}`).json()
             if (!error.value) {
                 this.setApp(data.value)
                 loadingStore.stopLoadingItem('app')
@@ -61,10 +61,10 @@ export const useAppStore = defineStore('apps', {
             }
 
         },
-        async fetchAppAction(id: string, action: string) {
+        async fetchAppAction(server: string|number, id: string, action: string) {
             const loading = useLoadingStore()
             loading.startLoadingItem('app')
-            const { error, data } = await useAuthFetch<Container>(`/api/containers/actions/${id}/${action}`).json()
+            const { error, data } = await useAuthFetch<Container>(`/api/containers/actions/${server}/${id}/${action}`).json()
             loading.stopLoading()
             if (!error.value) {
                 this.setApp(data.value)

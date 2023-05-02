@@ -5,45 +5,54 @@
         </template>
         <searchbar v-model:search="searchQuery" />
         <v-sheet color="foreground">
-            <v-container>
-                <v-row dense>
-                    <v-fade-transition v-if="appSearch || apps" group>
-                        <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-for="app in appSearch" :key="app.shortId">
-                            <v-card :to="'/apps/' + app.name" class="pa-1 pb-1" density="compact">
-                                <v-row dense no-gutters class="align-start">
-                                    <v-col>
-                                        <baseinfo :app="app" />
-                                        <v-btn :icon="revealActions[app.shortId] ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-                                            variant="text" color="primary"
-                                            v-on:click.prevent="revealActions[app.shortId] = !revealActions[app.shortId]">
-                                        </v-btn>
-                                        <v-btn v-if="app.mounts[0] || app.ports && app.ports[0] || app.info"
-                                            :icon="revealResources[app.shortId] ? 'mdi-information-off' : 'mdi-information'"
-                                            variant="text" color="primary"
-                                            v-on:click.prevent="revealResources[app.shortId] = !revealResources[app.shortId]">
-                                        </v-btn>
+            <v-tabs bg-color="surface" color="primary" align-tabs="center" v-model="serverTab">
+                <v-tab v-for="appList, i in Object.keys(apps)" :value="i" :key="i">{{ appList }} </v-tab>
+            </v-tabs>
+            <v-fade-transition v-if="apps">
+                <v-window v-model="serverTab">
+                    <v-window-item v-for="(appList, server, i) in apps" :value="i" :key="i">
+                        <v-container>
+                            <v-row dense>
+                                <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-for="app in appSearch(appList)"
+                                    :key="app.shortId">
+                                    <v-card :to="`/apps/${server}/${app.name}`" class="pa-1 pb-1" density="compact">
+                                        <v-row dense no-gutters class="align-start">
+                                            <v-col>
+                                                <baseinfo :app="app" />
+                                                <v-btn
+                                                    :icon="revealActions[app.shortId] ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                                                    variant="text" color="primary"
+                                                    v-on:click.prevent="revealActions[app.shortId] = !revealActions[app.shortId]">
+                                                </v-btn>
+                                                <v-btn v-if="app.mounts[0] || app.ports && app.ports[0] || app.info"
+                                                    :icon="revealResources[app.shortId] ? 'mdi-information-off' : 'mdi-information'"
+                                                    variant="text" color="primary"
+                                                    v-on:click.prevent="revealResources[app.shortId] = !revealResources[app.shortId]">
+                                                </v-btn>
+                                                <Suspense>
+                                                    <iconstats v-if="stats[app.name] && app.status === 'running'"
+                                                        :stats="stats[app.name]" :app="app" :loading="!isLoading.loading" />
+                                                </Suspense>
+                                            </v-col>
+                                        </v-row>
+                                        <actions :app="app" :server="server" :reveal="revealActions[app.shortId]" />
                                         <Suspense>
-                                            <iconstats v-if="stats[app.name] && app.status === 'running'"
-                                                :stats="stats[app.name]" :app="app" :loading="!isLoading.loading" />
+                                            <resourcetab :app="app" :reveal="revealResources[app.shortId]" />
                                         </Suspense>
-                                    </v-col>
-                                </v-row>
-                                <actions :app="app" :reveal="revealActions[app.shortId]" />
-                                <Suspense>
-                                    <resourcetab :app="app" :reveal="revealResources[app.shortId]" />
-                                </Suspense>
-                            </v-card>
-                        </v-col>
-                    </v-fade-transition>
-                </v-row>
-            </v-container>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-window-item>
+                </v-window>
+            </v-fade-transition>
         </v-sheet>
     </v-card>
 </template>
 
 <script setup lang="ts">
 import { useAppStore } from '@/stores/apps'
-import { ref, computed, Ref, ComputedRef } from 'vue';
+import { ref, Ref } from 'vue';
 // Import custom components
 import searchbar from '@/components/apps/info/search.vue'
 import baseinfo from '@/components/apps/info/base.vue'
@@ -58,6 +67,7 @@ import { Container } from '@yacht/types';
 // Card expansion variables
 const revealActions = ref({})
 const revealResources = ref({})
+const serverTab = ref(0)
 // Store variables
 const loading = ref(true)
 const loadingStore = useLoadingStore()
@@ -67,9 +77,9 @@ const { apps, stats } = storeToRefs(appStore)
 // Initialize Search Variable
 const searchQuery: Ref<string> = ref('')
 // Filter apps by search variable
-const appSearch: ComputedRef<Container[]> = computed(() => {
+const appSearch = (appList: Container[]) => {
     const searchQueryLowerCase = searchQuery.value.toLowerCase();
-    return apps.value.filter((app) => {
+    return appList.filter((app) => {
         // These fields are strings
         const stringFields = [
             app.name,
@@ -88,7 +98,7 @@ const appSearch: ComputedRef<Container[]> = computed(() => {
         const arrayMatch = arrayFields.some((fieldArray) => fieldArray.some((field) => field?.toString().toLowerCase().includes(searchQueryLowerCase)));
         return stringMatch || arrayMatch;
     });
-});
+};
 // Fetch Apps
 onMounted(async () => {
     loading.value = isLoading.value.loading

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
-import { Container } from '@yacht/types';
+import { Container, ServerContainers } from '@yacht/types';
 import { ContainerInfoDTO, ContainerProcessesDTO } from './classes';
 import { ContainersService } from './containers.service';
 import { PassThrough as StreamPassThrough } from 'stream';
@@ -28,9 +28,10 @@ export class ContainersController {
     description: 'List all containers.',
     type: [ContainerInfoDTO],
   })
-  async getContainers(): Promise<Container[]> {
+  async getContainers(): Promise<ServerContainers> {
     try {
-      return await this.containersService.getContainers();
+      const containers = await this.containersService.getContainers()
+      return containers;
     } catch (err) {
       // Error Handling
       if (err.statusCode) {
@@ -53,15 +54,14 @@ export class ContainersController {
       }
     }
   }
-
-  @Get('info/:id')
+  @Get('info/:server/:id')
   @ApiCreatedResponse({
     description: 'Get inspect information of one container.',
     type: ContainerInfoDTO,
   })
-  async getContainerByName(@Param('id') id: string): Promise<Container> {
+  async getContainerByName(@Param('server') server: string, @Param('id') id: string): Promise<Container> {
     try {
-      return await this.containersService.getContainer(id);
+      return await this.containersService.getContainer(server, id);
     } catch (err) {
       // Error Handling
       if (err.statusCode) {
@@ -71,16 +71,17 @@ export class ContainersController {
       }
     }
   }
-  @Get('info/:id/processes')
+  @Get('info/:server/:id/processes')
   @ApiCreatedResponse({
     description: 'Get processes in container.',
     type: ContainerProcessesDTO,
   })
   async getContainerProcesses(
+    @Param('server') server: string,
     @Param('id') id: string,
   ): Promise<ContainerProcessesDTO> {
     try {
-      return await this.containersService.getContainerProcess(id);
+      return await this.containersService.getContainerProcess(server, id);
     } catch (err) {
       // Error Handling
       if (err.statusCode) {
@@ -90,16 +91,17 @@ export class ContainersController {
       }
     }
   }
-  @Get('info/:id/static_stats')
+  @Get('info/:server/:id/static_stats')
   @ApiCreatedResponse({
     description: 'Get processes in container.',
     type: ContainerProcessesDTO,
   })
   async getContainerStats(
+    @Param('server') server: string,
     @Param('id') id: string,
   ): Promise<any> {
     try {
-      return await this.containersService.getContainerStats(id);
+      return await this.containersService.getContainerStats(server, id);
     } catch (err) {
       // Error Handling
       if (err.statusCode) {
@@ -109,8 +111,9 @@ export class ContainersController {
       }
     }
   }
-  @Sse('info/:id/logs')
+  @Sse('info/:server/:id/logs')
   async streamContainerLogs(
+    @Param('server') server: string,
     @Param('id') id: string,
   ): Promise<Observable<MessageEvent>> {
     try {
@@ -133,16 +136,17 @@ export class ContainersController {
       }
     }
   }
-  @Get('actions/:id/:action')
+  @Get('actions/:server/:id/:action')
   @ApiCreatedResponse({
     description: 'Get inspect information of one container.',
   })
   async containerAction(
+    @Param('server') server: string,
     @Param('id') id: string,
     @Param('action') action: string,
   ): Promise<Container> {
     try {
-      return await this.containersService.getContainerAction(id, action);
+      return await this.containersService.getContainerAction(server, id, action);
     } catch (err) {
       // Error Handling
       if (err.statusCode) {

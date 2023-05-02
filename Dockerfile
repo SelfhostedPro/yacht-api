@@ -11,9 +11,9 @@ COPY server/package.json server/
 COPY ui/package.json ui/
 # Fetch packages and install all dependencies
 RUN pnpm -r fetch
-RUN pnpm -r install --offline
-# Fetch Apps Source
 COPY types types
+RUN pnpm --filter @yacht/types install && pnpm --filter @yacht/types run build && pnpm -r install --offline
+# Fetch Apps Source
 COPY server server
 COPY ui ui
 # Build apps
@@ -32,6 +32,7 @@ LABEL maintainer="SelfhostedPro"
 WORKDIR /app
 RUN apk add --no-cache \
         nodejs
+COPY root /
 COPY --from=base /app/server/package.json /app/pnpm-lock.yaml ./
 COPY --from=base /app/pruned/node_modules ./node_modules
 COPY --from=base /app/dist/ .

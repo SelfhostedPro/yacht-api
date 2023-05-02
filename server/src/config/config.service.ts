@@ -5,27 +5,7 @@ import * as fs from 'fs-extra';
 import * as yaml from 'js-yaml';
 import * as crypto from 'crypto';
 import * as _ from 'lodash';
-
-export interface YachtConfig {
-  base: {
-    name: string;
-    servers: [{
-      name: string, type: string, path: string
-    }];
-    auth: boolean,
-    theme: 'dark' | 'light',
-    sessionTimeout: number,
-    templates?: {
-      url: string;
-      name: string;
-      apps?: Object[];
-    };
-    template_variables?: {
-      variable: string;
-      replacement: string;
-    };
-  };
-}
+import { YachtConfig } from '@yacht/types';
 
 @Injectable()
 export class ConfigService {

@@ -44,7 +44,7 @@ importers:
         specifier: ^9.4.0
         version: 9.4.0(@nestjs/common@9.4.0)(@nestjs/core@9.4.0)(@nestjs/platform-socket.io@9.4.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
       '@yacht/types':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../types
       argon2:
         specifier: ^0.30.3
@@ -210,6 +210,12 @@ importers:
       '@types/dockerode':
         specifier: ^3.3.16
         version: 3.3.16
+      node-ts:
+        specifier: ^6.0.0
+        version: 6.0.0
+      typescript:
+        specifier: ^4.9.5
+        version: 4.9.5
 
   ui:
     dependencies:
@@ -1514,6 +1520,12 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
+  /@rauschma/stringio@1.4.0:
+    resolution: {integrity: sha512-3uor2f/MXZkmX5RJf8r+OC3WvZVzpSme0yyL0rQDPEnatE02qRcqwEwnsgpgriEck0S/n4vWtUd6tTtrJwk45Q==}
+    dependencies:
+      '@types/node': 10.17.60
+    dev: true
+
   /@sinclair/typebox@0.25.24:
     resolution: {integrity: sha512-XJfwUVUKDHF5ugKwIcxEgc9k8b7HbznCp6eUfWgu710hMPNIO4aw4/zB5RogDQz8nd6gyCDpU9O/m6qYEWY6yQ==}
     dev: true
@@ -1912,6 +1924,10 @@ packages:
 
   /@types/ms@0.7.31:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
+    dev: true
+
+  /@types/node@10.17.60:
+    resolution: {integrity: sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==}
     dev: true
 
   /@types/node@18.15.11:
@@ -6002,6 +6018,14 @@ packages:
 
   /node-releases@2.0.10:
     resolution: {integrity: sha512-5GFldHPXVG/YZmFzJvKK2zDSzPKhEp0+ZR5SVaoSag9fsL5YgHbUHDfnG5494ISANDcK4KwPXAx2xqVEydmd7w==}
+
+  /node-ts@6.0.0:
+    resolution: {integrity: sha512-O388zUv5Ru0l5NrqGz8FwXNwZ+qcJtcwnn1WcZZMy0Y+PqYTYJJO+zqGO0SVM7iYiARaOlDrSoxYTVjqBpN7AQ==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@rauschma/stringio': 1.4.0
+      '@types/node': 18.16.3
+    dev: true
 
   /nodemon@2.0.22:
     resolution: {integrity: sha512-B8YqaKMmyuCO7BowF1Z1/mkPqLk6cs/l63Ojtd6otKjMx47Dq1utxfRxcavH1I7VSaL8n5BUaoutadnsX3AAVQ==}

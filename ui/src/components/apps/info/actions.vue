@@ -22,6 +22,7 @@ import { Container } from '@yacht/types';
 import { useAppStore } from '@/stores/apps';
 interface Props {
     app: Container,
+    server: string|number,
     reveal: any
 }
 const props = defineProps<Props>()
@@ -29,7 +30,7 @@ const { mdAndDown } = useDisplay()
 const appStore = useAppStore()
 
 const handleAction = async (action: string) => {
-    await appStore.fetchAppAction(props.app.id, action)
+    await appStore.fetchAppAction(props.server,props.app.id,action)
     appStore.fetchStats()
 }
 

@@ -40,7 +40,7 @@ import { Ref, onMounted, ref } from 'vue';
 import { Container } from '@yacht/types';
 
 // Props
-const props = defineProps(['name'])
+const props = defineProps(['server','name'])
 // Display Breakpoints
 const { mdAndUp } = useDisplay()
 
@@ -49,24 +49,24 @@ const appStore = useAppStore()
 const { apps } = storeToRefs(appStore)
 const app: Ref<Container> = ref({} as Container)
 
-if (apps.value.length > 0) {
-    app.value = appStore.getApp(props.name)
+if (Object.keys(apps.value).length > 0) {
+    app.value = appStore.getApp(props.server,props.name)
 }
 
 // Fetch App Details
 onMounted(async () => {
-    await appStore.fetchApp(props.name)
-    app.value = appStore.getApp(props.name)
+    await appStore.fetchApp(props.server,props.name)
+    app.value = appStore.getApp(props.server,props.name)
 })
 
 const handleRefresh = async () => {
-    await appStore.fetchApp(props.name)
-    app.value = appStore.getApp(props.name)
+    await appStore.fetchApp(props.server,props.name)
+    app.value = appStore.getApp(props.server,props.name)
 }
 
 // Action button functions
 const handleAction = async (action: string) => {
-    await appStore.fetchAppAction(app.value.id, action)
-    app.value = appStore.getApp(props.name)
+    await appStore.fetchAppAction(props.server, app.value.id, action)
+    app.value = appStore.getApp(props.server,props.name)
 }
 </script>

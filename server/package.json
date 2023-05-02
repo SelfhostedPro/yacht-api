@@ -30,7 +30,7 @@
     "@nestjs/serve-static": "^3.0.1",
     "@nestjs/swagger": "^6.3.0",
     "@nestjs/websockets": "^9.4.0",
-    "@yacht/types": "workspace:^",
+    "@yacht/types": "workspace:*",
     "argon2": "^0.30.3",
     "axios": "^1.4.0",
     "bash-color": "^0.0.4",

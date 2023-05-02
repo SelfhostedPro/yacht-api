@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Nest Framework",
+            "args": [
+                "${workspaceFolder}/server/src/main.ts"
+            ],
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register",
+                "-r",
+                "tsconfig-paths/register",
+                "--trace-warnings"
+            ],
+            "sourceMaps": true,
+            "envFile": "${workspaceFolder}/server/.env",
+            "cwd": "${workspaceRoot}/server",
+            "console": "integratedTerminal",
+        },
+    ]
+  }

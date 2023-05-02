@@ -6,7 +6,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "build:all": "pnpm --filter @yacht/server run build && pnpm --filter @yacht/ui run build --outDir ../dist/ui",
+    "build:all": "pnpm --filter @yacht/types run build && pnpm --filter @yacht/server run build && pnpm --filter @yacht/ui run build --outDir ../dist/ui",
     "build:docker": "pnpm --filter @yacht/server run build && pnpm --filter @yacht/ui run build",
     "test:docker": "pnpm --filter @yacht/ui run build --outDir ../dist/ui && nest start --watch"
   },

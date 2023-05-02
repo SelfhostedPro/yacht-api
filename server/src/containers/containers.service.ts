@@ -1,31 +1,53 @@
 import { Injectable } from '@nestjs/common';
-import Dockerode, { Container as UsableContainer, ContainerInfo, ContainerStats } from 'dockerode';
+import Dockerode, { Container as UsableContainer, ContainerStats } from 'dockerode';
 import { PassThrough as StreamPassThrough, Transform } from 'stream';
 import { ContainerProcessesDTO } from './classes';
 import { Logger } from '../logger/logger.service';
+import { ServersService } from '../servers/servers.service'
 import { formatStats } from '../util/streamConverter'
 import { Observable, fromEvent, map } from 'rxjs';
-import { normalizeContainer, normalizeContainers, ReadableContainerInfo } from '../util/containerFormatter'
-import { Container } from '@yacht/types';
+import { FixedContainerInspectInfo, normalizeContainer, normalizeContainers } from '../util/containerFormatter'
+import { Container, ServerContainers, ServerDict } from '@yacht/types';
+import { ConfigService } from 'src/config/config.service';
 
 @Injectable()
 export class ContainersService {
-  constructor(private readonly logger: Logger) { }
+  constructor(
+    private readonly logger: Logger,
+    private readonly serversService: ServersService,
+  ) { }
 
-  async getContainers(): Promise<Container[]> {
-    const Docker = require('dockerode');
-    const docker = new Docker();
-    return await normalizeContainers(await docker.listContainers({ all: true }));
+  async getContainers(): Promise<ServerContainers> {
+    const servers: ServerDict = await this.serversService.getServersFromConfig();
+    const serverKeys = Object.keys(servers);
+    // Get containers from all servers in config
+    const serverPromises: Promise<Container[]>[] = serverKeys.map(name =>
+      servers[name].listContainers({ all: true }).then(normalizeContainers)
+    );
+    // Wait for containers to resolve
+    const containerArrays = await Promise.all(serverPromises);
+    // Assign each container array to it's server
+    return serverKeys.reduce((acc, serverName, index) => {
+      acc[serverName] = containerArrays[index];
+      return acc;
+    }, {} as { [serverName: string]: Container[] });
   }
-  async getContainer(id: string): Promise<Container> {
+
+  async getContainer(serverName: string, id: string): Promise<Container> {
+    const server: any = await this.serversService.getServerFromConfig(serverName)
+    return await normalizeContainer(await server.getContainer(id).inspect())
+  }
+
+  async oldGetContainer(id: string): Promise<Container> {
     const Docker = require('dockerode');
     const docker = new Docker();
     return await normalizeContainer(await docker.getContainer(id).inspect());
   }
-  async getContainerAction(id: string, action: string): Promise<Container> {
-    const Docker = require('dockerode');
-    const docker = new Docker();
-    const container = docker.getContainer(id);
+
+  async getContainerAction(serverName: string, id: string, action: string): Promise<Container> {
+    // Types are messed up, server = Docker() returned by serversService
+    const server: any = await this.serversService.getServerFromConfig(serverName)
+    const container = server.getContainer(id);
 
     const actions: { [key: string]: () => Promise<any> } = {
       start: () => container.start(),
@@ -46,15 +68,13 @@ export class ContainersService {
     }
   }
 
-  async getContainerProcess(id: string): Promise<ContainerProcessesDTO> {
-    const Docker = require('dockerode');
-    const docker = new Docker();
-    return docker.getContainer(id).top();
+  async getContainerProcess(serverName: string, id: string): Promise<ContainerProcessesDTO> {
+    const server: any = await this.serversService.getServerFromConfig(serverName)
+    return server.getContainer(id).top();
   }
-  async getContainerStats(id: string): Promise<ContainerStats> {
-    const Docker = require('dockerode');
-    const docker = new Docker();
-    return docker.getContainer(id).stats({ stream: false })
+  async getContainerStats(serverName: string, id: string): Promise<ContainerStats> {
+    const server: any = await this.serversService.getServerFromConfig(serverName)
+    return server.getContainer(id).stats({ stream: false })
   }
 
   //     >>>>> Streaming Services <<<<<
@@ -87,17 +107,19 @@ export class ContainersService {
         callback()
       }
     })
-    const Docker = require('dockerode');
-    const docker: Dockerode = new Docker();
-    const containerList = await docker.listContainers()
-    for await (const app of containerList) {
-      docker.getContainer(app.Id)
-        .stats({ stream: true }, function (err, stream: any) {
-          stream
-            .pipe(transformStatStream)
-            .pipe(statStream)
-        })
-    };
+    const servers: ServerDict = await this.serversService.getServersFromConfig();
+    for (const key in servers) {
+      const docker = servers[key];
+      const containerList = await docker.listContainers()
+      for await (const app of containerList) {
+        docker.getContainer(app.Id)
+          .stats({ stream: true }, function (err, stream: any) {
+            stream
+              .pipe(transformStatStream)
+              .pipe(statStream)
+          })
+      };
+    }
     const observable = fromEvent(statStream, 'data').pipe(
       map(
         (x: Buffer) =>
