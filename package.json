@@ -8,7 +8,11 @@
   "scripts": {
     "build:all": "pnpm --filter @yacht/types run build && pnpm --filter @yacht/server run build && pnpm --filter @yacht/ui run build --outDir ../dist/ui",
     "build:docker": "pnpm --filter @yacht/server run build && pnpm --filter @yacht/ui run build",
-    "test:docker": "pnpm --filter @yacht/ui run build --outDir ../dist/ui && nest start --watch"
+    "test:docker": "pnpm --filter @yacht/ui run build --outDir ../dist/ui && nest start --watch",
+    "server": "pnpm --filter @yacht/server run start:dev",
+    "ui": "pnpm --filter @yacht/ui run dev",
+    "types": "pnpm --filter @yacht/types build",
+    "kill": "kill $(lsof -t -i:3000) & kill $(lsof -t -i:5000)"
   },
   "dependencies": {
   },

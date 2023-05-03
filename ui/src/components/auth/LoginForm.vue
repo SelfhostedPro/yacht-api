@@ -8,10 +8,10 @@
             <v-text-field v-if="registration" v-model="confirm" label="confirm" type="password" append-inner-icon="mdi-shield-key" />
         </v-form>
         <v-spacer />
-        <v-btn v-if="registration" v-on:click="submit" block color="primary" elevation="4">
+        <v-btn v-if="registration" @keyup.enter="submit" v-on:click="submit" block color="primary" elevation="4">
             register
         </v-btn>
-        <v-btn v-else v-on:click="submit" block color="primary" elevation="4">
+        <v-btn v-else @keyup.enter="submit" v-on:click="submit" block color="primary" elevation="4">
             submit
         </v-btn>
     </v-card-text>

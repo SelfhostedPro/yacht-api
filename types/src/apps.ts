@@ -113,10 +113,17 @@ export interface ContainerOciInfo {
 }
 
 export interface ContainerFormPorts {
-    label?: '',
-    host?: '',
-    container?: '',
-    protocol?: ''
+    label?: string,
+    host?: string,
+    container?: string,
+    protocol?: 'tcp' | 'udp'
+}
+
+export interface ContainerFormVolumes {
+    label?: string,
+    source?: string,
+    destination?: string,
+    read_only?: boolean,
 }
 
 export interface CreateContainerForm {
@@ -126,7 +133,7 @@ export interface CreateContainerForm {
     network?: string,
     network_mode?: string,
     mounts?: ContainerMount[],
-    ports?: ContainerPort[],
+    ports?: ContainerFormPorts[],
     env?: string[],
     labels?: {
         [label: string]: string

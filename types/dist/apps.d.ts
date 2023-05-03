@@ -102,7 +102,13 @@ export interface ContainerFormPorts {
     label?: string;
     host?: string;
     container?: string;
-    protocol?: "tcp" | "udp";
+    protocol?: 'tcp' | 'udp';
+}
+export interface ContainerFormVolumes {
+    label?: string;
+    source?: string;
+    destination?: string;
+    read_only?: boolean;
 }
 export interface CreateContainerForm {
     name?: string;
@@ -111,7 +117,7 @@ export interface CreateContainerForm {
     network?: string;
     network_mode?: string;
     mounts?: ContainerMount[];
-    ports?: ContainerPort[];
+    ports?: ContainerFormPorts[];
     env?: string[];
     labels?: {
         [label: string]: string;

@@ -7,7 +7,7 @@
                     <NetworkInfo></NetworkInfo>
                 </v-window-item>
                 <v-window-item :value="1">
-
+                    <VolumeInfo></VolumeInfo>
                 </v-window-item>
                 <v-window-item>
 
@@ -32,6 +32,7 @@ import { CreateContainerForm } from '@yacht/types';
 import { ContainerCreateOptions } from 'dockerode'
 import BaseInfo from './create/base.vue'
 import NetworkInfo from './create/network.vue'
+import VolumeInfo from './create/volumes.vue'
 
 const form: Ref<CreateContainerForm> = ref({} as CreateContainerForm)
 const currentWindow = ref(0)
