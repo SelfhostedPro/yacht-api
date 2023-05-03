@@ -18,6 +18,7 @@ import { TemplatesModule } from './templates/templates.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ServersModule } from './servers/servers.module';
+import { ResourcesModule } from './resources/resources.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ServersModule } from './servers/servers.module';
       exclude: ['/api/(.*)'],
     }),
     ServersModule,
+    ResourcesModule,
   ],
   controllers: [AppController, ContainersController, ProjectsController],
   providers: [AppService, ContainersService, ProjectsService, TemplatesService],

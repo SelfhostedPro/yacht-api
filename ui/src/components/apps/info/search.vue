@@ -7,7 +7,7 @@
             </v-col>
             <v-col cols="2" class="d-flex justify-end">
                 <v-btn icon><v-icon icon="mdi-restart" /></v-btn>
-                <v-btn icon><v-icon icon="mdi-plus" /></v-btn>
+                <v-btn icon :to="`/apps/create`" ><v-icon icon="mdi-plus" /></v-btn>
                 <v-btn @click="extended = !extended" icon class="mr-2"><v-icon icon="mdi-magnify" /></v-btn>
             </v-col>
         </v-row>

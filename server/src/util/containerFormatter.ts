@@ -44,7 +44,7 @@ export async function normalizeContainer(data: ContainerInfo | FixedContainerIns
             info: {
                 title: data.Labels["org.opencontainers.image.title"],
                 description: data.Labels["org.opencontainers.image.description"],
-                docs: data.Labels["org.opencontainers.image.docs"],
+                docs: data.Labels["org.opencontainers.image.documentation"],
                 url: data.Labels["org.opencontainers.image.url"],
                 source: data.Labels["org.opencontainers.image.source"],
                 vendor: data.Labels["org.opencontainers.image.vendor"],
@@ -183,7 +183,7 @@ async function getIconUrl(labels: Container['labels']) {
                 return labels["com.docker.desktop.extension.icon"] || null;
             }
             default: {
-                return null
+                return labels['sh.yacht.icon'] || null;
             }
         }
     } else return null

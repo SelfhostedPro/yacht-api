@@ -52,6 +52,7 @@ jobs:
             org.opencontainers.image.documentation=https://yacht.sh/docs/
             org.opencontainers.image.licenses=MIT
             org.opencontainers.image.base.name=ghcr.io/selfhostedpro/yacht-api:main
+            org.opencontainers.image.vendor=SelfhostedPro
             sh.yacht.icon=https://yacht.sh/img/logo.svg
             sh.yacht.self=true
             sh.yacht.ports.3000=WebUI
