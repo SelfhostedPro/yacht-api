@@ -12,14 +12,16 @@
     </v-card-title>
     <v-card-subtitle v-if="props.info.vendor" tag="span" class="mt-0">created by: {{ props.info.vendor
     }}</v-card-subtitle>
+    <v-card-text v-if="props.info.notes"><vue-markdown :source="props.info.notes"/></v-card-text>
     <v-card-text v-if="props.info.description"><vue-markdown :source="props.info.description" /></v-card-text>
 </template>
 
 <script setup lang="ts">
 import VueMarkdown from '@/helpers/render/markdown.vue'
-import { Container } from '@yacht/types';
+import { ContainerOciInfo } from '@yacht/types';
+import { router } from '@/plugins';
 interface Props {
-    info: Container['info']
+    info: ContainerOciInfo
 }
 const props = defineProps<Props>()
 </script>

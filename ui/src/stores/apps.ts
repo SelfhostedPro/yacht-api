@@ -16,8 +16,9 @@ export const useAppStore = defineStore('apps', {
         getStats: (state) => state.stats,
     },
     actions: {
-        async setApp(data: Container) {
-            const idx = this.apps.findIndex((app) => app.id === data.id)
+        async setApp(serverName: string, data: Container) {
+            console.log(`Setting app from ${serverName}`)
+            const idx = this.apps[serverName].findIndex((app: Container) => app.id === data.id)
             if (idx < 0) {
                 this.apps.push(data)
             } else {
@@ -38,7 +39,10 @@ export const useAppStore = defineStore('apps', {
             loadingStore.startLoadingItem('app')
             const { error, data } = await useAuthFetch<Container>(`/api/containers/info/${serverName}/${idOrName}`).json()
             if (!error.value) {
-                this.setApp(data.value)
+                if (!this.apps || !this.apps[serverName]) {
+                    await this.fetchApps()
+                }
+                this.setApp(serverName, data.value)
                 loadingStore.stopLoadingItem('app')
             }
         },
@@ -60,7 +64,7 @@ export const useAppStore = defineStore('apps', {
                 this.openStats = eventSource.value
             }
         },
-        async fetchAppAction(server: string|number, id: string, action: string) {
+        async fetchAppAction(server: string | number, id: string, action: string) {
             const loading = useLoadingStore()
             loading.startLoadingItem('app')
             const { error, data } = await useAuthFetch<Container>(`/api/containers/actions/${server}/${id}/${action}`).json()

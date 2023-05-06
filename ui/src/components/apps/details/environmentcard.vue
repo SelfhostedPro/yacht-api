@@ -9,6 +9,7 @@
         </v-tabs>
         <v-window v-model="tab">
             <v-window-item value="0">
+                {{ app }}
                 <v-list v-if="app.env && app.env.length">
                     <v-list-item v-for="env in app.env" :key="env.split('=')[0]" class="text-no-wrap">
                         <v-list-item-title>{{ env.split('=')[0] }}</v-list-item-title>

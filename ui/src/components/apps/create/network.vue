@@ -1,14 +1,16 @@
 <template>
-    <v-card color="foreground">
-        <v-card-title class="text-center"> networking </v-card-title>
+    <v-card :rounded="0" color="foreground">
+        <v-toolbar :rounded="0" color="surface">
+            <v-toolbar-title class="text-center"> network </v-toolbar-title>
+        </v-toolbar>
         <v-card-text>
             <v-slide-x-transition>
-                <v-combobox v-show="networkMode === 'none' || !networkMode" :items="['bridge', 'host', 'something', 'none']"
-                    label="network" v-model="network" required></v-combobox>
+                <v-combobox clearable v-show="networkMode === 'none' || !networkMode" :items="networkItems" label="network"
+                    v-model="network" required></v-combobox>
             </v-slide-x-transition>
             <v-slide-x-transition>
-                <v-select v-show="network === 'none' || !network" :items="['bridge', 'host', 'none']" label="network mode"
-                    v-model="networkMode" required></v-select>
+                <v-select clearable v-show="network === 'none' || !network" :items="['bridge', 'host', 'none']"
+                    label="network mode" v-model="networkMode" required></v-select>
             </v-slide-x-transition>
             <v-slide-x-transition group>
                 <v-row align="center" no-gutters class="my-2" v-if="networkMode === 'bridge' || network === 'bridge'"
@@ -43,11 +45,8 @@
                 </v-row>
             </v-slide-x-transition>
         </v-card-text>
-        <v-slide-y-reverse-transition>
-            <v-btn v-if="networkMode === 'bridge' || network === 'bridge'"
-                :color="ports.length === 0 ? 'warning' : 'surface'" @click="addPort()" size="x-large" flat rounded="0"
-                class="float-right"><v-icon icon="mdi-plus" /></v-btn>
-        </v-slide-y-reverse-transition>
+        <addbutton v-if="networkMode === 'bridge' || network === 'bridge'" :resources="ports" name="port"
+            @add="addPort()" />
     </v-card>
 </template>
 
@@ -55,8 +54,13 @@
 import { ContainerFormPorts } from '@yacht/types'
 import { Ref, ref } from 'vue';
 import { useDisplay } from 'vuetify';
+import addbutton from './shared/addButton.vue'
+import { useResourceStore } from '@/stores/resources';
+import { onMounted } from 'vue';
+const resourceStore = useResourceStore()
 const { smAndDown } = useDisplay()
-const network = ref('')
+const networkItems = ref([])
+const network = ref('bridge')
 const networkMode = ref('')
 const ports: Ref<ContainerFormPorts[]> = ref([] as ContainerFormPorts[])
 const delPort = (idx: number) => {
@@ -81,4 +85,14 @@ const formCols = (field: 'label' | 'host' | 'container' | 'protocol' | 'card' | 
     };
     return smAndDown.value === true ? cols[field].sm : cols[field].other;
 };
+onMounted(async () => {
+    await resourceStore.fetchResources('networks').then(() => {
+        for (const [, value] of Object.entries(resourceStore.networks)) {
+            for (const network of value) {
+                networkItems.value.push(network.Name);
+            }
+        }
+    });
+
+})
 </script>

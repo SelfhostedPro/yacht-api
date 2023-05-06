@@ -50,6 +50,7 @@ const { apps } = storeToRefs(appStore)
 const app: Ref<Container> = ref({} as Container)
 
 if (Object.keys(apps.value).length > 0) {
+    console.log(`Server: ${props.server}`)
     app.value = appStore.getApp(props.server,props.name)
 }
 

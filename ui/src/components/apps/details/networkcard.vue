@@ -36,7 +36,7 @@
                             <td v-else class="text-right">-</td>
                         </tr>
                     </tbody>
-                    <v-card-text> {{ app.name }} {{ app.status !== 'running' ? 'is not running' : 'has no ports forwarded' }} </v-card-text>
+                    <v-card-text v-else> {{ app.name }} {{ app.status !== 'running' ? 'is not running' : 'has no ports forwarded' }} </v-card-text>
                 </v-table>
             </v-window-item>
             <v-window-item value="1">

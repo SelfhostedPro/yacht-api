@@ -1,5 +1,5 @@
 import Docker, { VolumeInspectInfo } from 'dockerode';
-import { Container } from './apps';
+import { Container } from './apps/apps';
 
 export type ServerDict = {
     [key: string]: Docker

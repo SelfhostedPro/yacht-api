@@ -3,15 +3,15 @@
     <v-card-title v-else class="text-center"> login </v-card-title>
     <v-card-text>
         <v-form fast-fail>
-            <v-text-field v-model="username" label="username" append-inner-icon="mdi-account-circle" />
-            <v-text-field v-model="password" label="password" type="password" append-inner-icon="mdi-shield-key" />
-            <v-text-field v-if="registration" v-model="confirm" label="confirm" type="password" append-inner-icon="mdi-shield-key" />
+            <v-text-field @keyup.enter="submit" v-model="username" label="username" append-inner-icon="mdi-account-circle" />
+            <v-text-field @keyup.enter="submit" v-model="password" label="password" type="password" append-inner-icon="mdi-shield-key" />
+            <v-text-field @keyup.enter="submit" v-if="registration" v-model="confirm" label="confirm" type="password" append-inner-icon="mdi-shield-key" />
         </v-form>
         <v-spacer />
         <v-btn v-if="registration" @keyup.enter="submit" v-on:click="submit" block color="primary" elevation="4">
             register
         </v-btn>
-        <v-btn v-else @keyup.enter="submit" v-on:click="submit" block color="primary" elevation="4">
+        <v-btn v-else v-on:click="submit" block color="primary" elevation="4">
             submit
         </v-btn>
     </v-card-text>
