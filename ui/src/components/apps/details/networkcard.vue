@@ -30,13 +30,19 @@
                             <td v-if="port.hostIP" class="text-center">{{
                                 port.hostIP }}</td>
                             <td v-else class="text-center">-</td>
-                            <td v-if="port.hostPort" class="text-right"><v-btn color="primary"><v-icon
-                                        icon="mdi-link-variant" /> {{
-                                            port.hostPort }}</v-btn></td>
+                            <td v-if="port.hostPort" class="text-right">
+                                <v-tooltip :text="port.hostPort.toString()">
+                                    <template v-slot:activator="{ props }">
+                                        <v-btn v-bind="props" prepend-icon="mdi-link-variant" color="primary">{{
+                                            app.labels[`sh.yacht.${port.hostPort}`] ||
+                                            port.hostPort }}</v-btn>
+                                    </template> 
+                                </v-tooltip>
+                            </td>
                             <td v-else class="text-right">-</td>
                         </tr>
                     </tbody>
-                    <v-card-text v-else> {{ app.name }} {{ app.status !== 'running' ? 'is not running' : 'has no ports forwarded' }} </v-card-text>
+                    <v-card-text v-else> {{ app.name }} {{ app.status !== 'running' ? 'is not running' : 'has no portsforwarded' }} </v-card-text>
                 </v-table>
             </v-window-item>
             <v-window-item value="1">
@@ -45,7 +51,8 @@
                         <v-list-item-title>{{ name }}</v-list-item-title>
                         <v-list-item-subtitle>ip address: {{ network.IPAddress + '/' + network.IPPrefixLen
                         }}</v-list-item-subtitle>
-                        <v-list-item-subtitle>gateway: {{ network.Gateway + '/' + network.IPPrefixLen }}</v-list-item-subtitle>
+                        <v-list-item-subtitle>gateway: {{ network.Gateway + '/' + network.IPPrefixLen
+                        }}</v-list-item-subtitle>
                         <v-list-item-subtitle>id: {{ network.NetworkID }}</v-list-item-subtitle>
                     </v-list-item>
                 </v-list>

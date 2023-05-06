@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Logger } from 'src/logger/logger.service';
 import { ConfigService } from 'src/config/config.service';
-import { ServerDict } from '@yacht/types';
+import { ServerDict, YachtConfig } from '@yacht/types';
 const Docker = require('dockerode')
 
 @Injectable()
@@ -19,5 +19,8 @@ export class ServersService {
     }
     async getServerFromConfig(name: string): Promise<ServerDict> {
         return new Docker(this.configService.yachtConfig.base.servers.find(x => x.name === name).options)
+    }
+    async getServerConfig(): Promise<YachtConfig['base']['servers']> {
+        return this.configService.yachtConfig.base.servers
     }
 }

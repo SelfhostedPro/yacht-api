@@ -69,7 +69,7 @@ export interface ContainerGeneralConfig {
 }
 
 export interface ContainerMount {
-    type: string
+    type: "volume" | "bind" | "tmpfs"
     name?: string
     source: string
     destination: string

@@ -12,7 +12,7 @@
                 </v-col>
                 <v-col>
                     <v-select label="permissions" :items="['r', 'w', 'm', 'mw', 'rm', 'rwm', 'rw']"
-                        :value="devices.permissions" @input="setPermissions($event.target.value)"
+                        v-model="devices.permissions" @update:model-value="setPermissions($event)"
                         hide-details="auto"></v-select>
                 </v-col>
             </v-row>

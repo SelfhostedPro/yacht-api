@@ -10,7 +10,6 @@ import { YachtConfig } from '@yacht/types';
  */
 export async function getStartupConfig() {
   const logger = new Logger();
-  console.log(__dirname)
   const configPath = path.resolve('../config/config.yaml');
   const defaultConfig: YachtConfig = {
     base: {

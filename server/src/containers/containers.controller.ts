@@ -5,10 +5,12 @@ import {
   HttpException,
   Sse,
   UseGuards,
+  Post,
+  Body,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
-import { Container, ServerContainers } from '@yacht/types';
+import { Container, CreateContainerForm, ServerContainers } from '@yacht/types';
 import { ContainerInfoDTO, ContainerProcessesDTO } from './classes';
 import { ContainersService } from './containers.service';
 import { PassThrough as StreamPassThrough } from 'stream';
@@ -41,6 +43,26 @@ export class ContainersController {
       }
     }
   }
+  @Post('/create')
+  @ApiCreatedResponse({
+    description: 'Create a new container.',
+    type: ContainerInfoDTO,
+  })
+  async createContainer(
+    @Body() body: CreateContainerForm,
+  ): Promise<Container> {
+    try {
+      return await this.containersService.createContainer(body.server,body);
+    } catch (err) {
+      // Error Handling
+      if (err.statusCode) {
+        throw new HttpException(err.message, err.statusCode);
+      } else {
+        throw new HttpException(err.message, 500);
+      }
+    }
+  }
+
   @Sse('/stats')
   async streamContainerStats(): Promise<Observable<MessageEvent>> {
     try {

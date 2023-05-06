@@ -6,8 +6,8 @@ import { Logger } from '../logger/logger.service';
 import { ServersService } from '../servers/servers.service'
 import { formatStats } from '../util/streamConverter'
 import { Observable, fromEvent, map } from 'rxjs';
-import { FixedContainerInspectInfo, normalizeContainer, normalizeContainers } from '../util/containerFormatter'
-import { Container, ServerContainers, ServerDict } from '@yacht/types';
+import { FixedContainerInspectInfo, normalizeContainer, normalizeContainers, normalizeCreate } from '../util/containerFormatter'
+import { Container, ServerContainers, ServerDict, CreateContainerForm } from '@yacht/types';
 import { ConfigService } from 'src/config/config.service';
 import { promisify } from 'util';
 import { DockerStatsStreamer} from '../util/containerStreamers'
@@ -44,6 +44,15 @@ export class ContainersService {
     const Docker = require('dockerode');
     const docker = new Docker();
     return await normalizeContainer(await docker.getContainer(id).inspect());
+  }
+
+  async createContainer(serverName: string, form: CreateContainerForm) {
+    const server: any = await this.serversService.getServerFromConfig(serverName)
+    const test = await normalizeCreate(form)
+    console.log(test)
+    const complete = await server.createContainer(await normalizeCreate(form))
+    console.log(complete)
+    return await normalizeContainer(await server.getContainer(form.name).inspect())
   }
 
   async getContainerAction(serverName: string, id: string, action: string): Promise<Container> {

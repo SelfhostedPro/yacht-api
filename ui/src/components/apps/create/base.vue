@@ -1,13 +1,22 @@
 <template>
     <v-toolbar color="surface" dark>
-        <v-toolbar-title class="text-center">info</v-toolbar-title>
-        <v-toolbar-items>
-            <v-tooltip text="preview">
-                <template v-slot:activator="{ props }">
-                    <v-btn @click="infoPreview = !infoPreview" v-bind="props" variant="text" icon="mdi-file-code-outline" />
-                </template>
-            </v-tooltip>
-        </v-toolbar-items>
+        <v-row>
+            <v-col cols="1">
+            </v-col>
+            <v-col>
+                <v-toolbar-title class="text-center">info</v-toolbar-title>
+            </v-col>
+            <v-col cols="1">
+                <v-toolbar-items class="float-right">
+                    <v-tooltip text="preview">
+                        <template v-slot:activator="{ props }">
+                            <v-btn @click="infoPreview = !infoPreview" v-bind="props" variant="text"
+                                icon="mdi-form-select" />
+                        </template>
+                    </v-tooltip>
+                </v-toolbar-items>
+            </v-col>
+        </v-row>
     </v-toolbar>
     <v-card-text>
         <v-row>
@@ -16,6 +25,7 @@
                 <v-text-field label="image" v-model="modelValue.image" placeholder="image:my-image" required></v-text-field>
                 <v-select :items="['always', 'on-failure', 'unless-stopped', 'none']" v-model="modelValue.restart"
                     label="restart policy" required></v-select>
+                <v-select :items="servers" v-model="modelValue.server" label="server" required />
             </v-col>
             <v-divider :vertical="!mdAndDown"></v-divider>
             <v-col v-if="infoPreview === true" :cols="!mdAndDown == true ? 6 : 12">
@@ -45,7 +55,6 @@
                 <v-text-field label="title" v-model="modelValue.info.title" placeholder="My Container" required />
                 <v-textarea label="notes" auto-grow :placeholder="defaultPreview.notes" v-model="modelValue.info.notes" />
             </v-col>
-
         </v-row>
     </v-card-text>
 </template>
@@ -62,9 +71,10 @@ const defaultPreview = {
     notes: '## Notes\n Some notes about this section: \n\n - *Markdown is supported* \n\n - [links](https://yacht.sh) are super easy to add \n\n - The container will need to be restarted to edit this (limitation of docker)',
 }
 interface Props {
-    modelValue: CreateContainerForm
+    modelValue: CreateContainerForm,
+    servers: string[],
 }
-defineProps<Props>()
+const props = defineProps<Props>()
 defineEmits(['update:modelValue'])
 const { mdAndDown } = useDisplay()
 </script>

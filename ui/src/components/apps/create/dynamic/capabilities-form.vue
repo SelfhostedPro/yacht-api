@@ -3,12 +3,12 @@
         <v-card-text>
             <v-row :dense="mdAndDown" align="center">
                 <v-col>
-                    <v-select label="add" :items="addable" :value="capabilities.add" @input="setName($event.target.value)"
+                    <v-select label="add" :items="addable" v-model="capabilities.add" @update:model-value="setName($event)"
                         hide-details="auto" multiple />
                 </v-col>
                 <v-col>
-                    <v-select label="drop" :items="dropable" :value="capabilities.drop"
-                        @input="setValue($event.target.value)" hide-details="auto" multiple />
+                    <v-select label="drop" :items="dropable" v-model="capabilities.drop"
+                        @update:model-value="setValue($event)" hide-details="auto" multiple />
                 </v-col>
             </v-row>
         </v-card-text>
@@ -34,6 +34,9 @@ const capabilities = computed({
         emit('update:modelValue', capabilities)
     }
 })
+
+console.log(capabilities)
+
 
 const setName = (value) => {
     emit('update:modelValue', { ...capabilities.value, add: value })

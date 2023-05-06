@@ -1,4 +1,4 @@
-import { ContainerMount, ContainerOciInfo } from "./apps";
+import { ContainerOciInfo } from "./apps";
 export interface KeyValue {
     key: string;
     value: string;
@@ -24,9 +24,10 @@ export interface CreateContainerForm {
     image: string;
     info?: ContainerOciInfo;
     restart?: string;
+    server: string;
     network?: string;
     network_mode?: string;
-    mounts?: ContainerMount[];
+    mounts?: ContainerFormVolumes[];
     ports?: ContainerFormPorts[];
     env?: KeyValue[];
     labels?: KeyValue[];

@@ -5,16 +5,17 @@
         </v-toolbar>
         <v-card-text>
             <v-slide-x-transition>
-                <v-combobox clearable v-show="networkMode === 'none' || !networkMode" :items="networkItems" label="network"
-                    v-model="network" required></v-combobox>
+                <v-select clearable v-show="!modelValue.network_mode" :items="networks[modelValue.server]" item-title="Name"
+                    item-value="Name" label="network" v-model="modelValue.network" required></v-select>
             </v-slide-x-transition>
             <v-slide-x-transition>
-                <v-select clearable v-show="network === 'none' || !network" :items="['bridge', 'host', 'none']"
-                    label="network mode" v-model="networkMode" required></v-select>
+                <v-select clearable v-show="!modelValue.network" :items="['bridge', 'host', 'none']" label="network mode"
+                    v-model="modelValue.network_mode" required></v-select>
             </v-slide-x-transition>
             <v-slide-x-transition group>
-                <v-row align="center" no-gutters class="my-2" v-if="networkMode === 'bridge' || network === 'bridge'"
-                    v-for="port, i in ports" :key="i">
+                <v-row align="center" no-gutters class="my-2"
+                    v-if="modelValue.network_mode === 'bridge' || modelValue.network === 'bridge'"
+                    v-for="port, i in modelValue.ports" :key="i">
                     <v-col :cols="formCols('card')">
                         <v-card>
                             <v-card-text>
@@ -45,29 +46,32 @@
                 </v-row>
             </v-slide-x-transition>
         </v-card-text>
-        <addbutton v-if="networkMode === 'bridge' || network === 'bridge'" :resources="ports" name="port"
-            @add="addPort()" />
+        <addbutton v-if="modelValue.network_mode === 'bridge' || modelValue.network === 'bridge'"
+            :resources="modelValue.ports" name="port" @add="addPort()" />
     </v-card>
 </template>
 
 <script setup lang="ts">
-import { ContainerFormPorts } from '@yacht/types'
+import { ContainerFormPorts, CreateContainerForm, ServerNetworks } from '@yacht/types'
 import { Ref, ref } from 'vue';
 import { useDisplay } from 'vuetify';
 import addbutton from './shared/addButton.vue'
 import { useResourceStore } from '@/stores/resources';
 import { onMounted } from 'vue';
-const resourceStore = useResourceStore()
+import { storeToRefs } from 'pinia';
+interface Props {
+    modelValue: CreateContainerForm,
+    networks: ServerNetworks
+}
+const props = defineProps<Props>()
+defineEmits(['update:modelValue'])
 const { smAndDown } = useDisplay()
-const networkItems = ref([])
-const network = ref('bridge')
-const networkMode = ref('')
-const ports: Ref<ContainerFormPorts[]> = ref([] as ContainerFormPorts[])
+// const ports: Ref<ContainerFormPorts[]> = ref([] as ContainerFormPorts[])
 const delPort = (idx: number) => {
-    ports.value.splice(idx, 1)
+    props.modelValue.ports.splice(idx, 1)
 }
 const addPort = () => {
-    ports.value.push({
+    props.modelValue.ports.push({
         label: '',
         host: '',
         container: '',
@@ -85,14 +89,4 @@ const formCols = (field: 'label' | 'host' | 'container' | 'protocol' | 'card' | 
     };
     return smAndDown.value === true ? cols[field].sm : cols[field].other;
 };
-onMounted(async () => {
-    await resourceStore.fetchResources('networks').then(() => {
-        for (const [, value] of Object.entries(resourceStore.networks)) {
-            for (const network of value) {
-                networkItems.value.push(network.Name);
-            }
-        }
-    });
-
-})
 </script>

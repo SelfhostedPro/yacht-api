@@ -1,6 +1,6 @@
 import { format, parseISO } from 'date-fns'
-import { ContainerInfo, ContainerInspectInfo, Port } from 'dockerode'
-import { Container, ContainerMount, ContainerPort } from '@yacht/types'
+import { ContainerCreateOptions, ContainerInfo, ContainerInspectInfo, Port } from 'dockerode'
+import { Container, ContainerMount, ContainerPort, CreateContainerForm } from '@yacht/types'
 
 export interface ReadableContainerInfo extends ContainerInfo {
     CreatedDate?: string | number,
@@ -12,7 +12,19 @@ export interface ReadableContainerInfo extends ContainerInfo {
 export interface FixedContainerInspectInfo extends ContainerInspectInfo {
     Mounts: Array<{
         Name?: string | undefined;
-        Type?: string;
+        Type?: "volume" | "bind" | "tmpfs";
+        Source: string;
+        Destination: string;
+        Driver?: string | undefined;
+        Mode: string;
+        RW: boolean;
+        Propagation: string;
+    }>;
+}
+export interface FixedContainerInfo extends ContainerInfo {
+    Mounts: Array<{
+        Name?: string | undefined;
+        Type: "volume" | "bind" | "tmpfs";
         Source: string;
         Destination: string;
         Driver?: string | undefined;
@@ -22,7 +34,7 @@ export interface FixedContainerInspectInfo extends ContainerInspectInfo {
     }>;
 }
 
-function isContainerInfo(obj: any): obj is ContainerInfo {
+function isContainerInfo(obj: any): obj is FixedContainerInfo {
     return typeof obj.State === "string"
 }
 function isContainerInspectInfo(obj: any): obj is FixedContainerInspectInfo {
@@ -30,8 +42,8 @@ function isContainerInspectInfo(obj: any): obj is FixedContainerInspectInfo {
 }
 
 export async function normalizeContainer(data: FixedContainerInspectInfo): Promise<Container>
-export async function normalizeContainer(data: ContainerInfo): Promise<Container>
-export async function normalizeContainer(data: ContainerInfo | FixedContainerInspectInfo): Promise<Container> {
+export async function normalizeContainer(data: FixedContainerInfo): Promise<Container>
+export async function normalizeContainer(data: FixedContainerInfo | FixedContainerInspectInfo): Promise<Container> {
     if (isContainerInfo(data)) {
         const container: Container = {
             name: data.Names[0].slice(1),
@@ -113,7 +125,7 @@ export async function normalizeContainer(data: ContainerInfo | FixedContainerIns
 }
 
 function formatMounts(data: FixedContainerInspectInfo['Mounts'])
-function formatMounts(data: ContainerInfo['Mounts']): ContainerMount[] {
+function formatMounts(data: FixedContainerInfo['Mounts']): ContainerMount[] {
     return data.map(({ Type, Name, Source, Destination, Driver, Mode, RW, Propagation }) => ({
         type: Type ?? null,
         name: Name ?? null,
@@ -192,4 +204,62 @@ async function getIconUrl(labels: Container['labels']) {
 export async function normalizeContainers(data: ContainerInfo[]): Promise<Container[]> {
     const promises = data.map(normalizeContainer);
     return Promise.all(promises);
-}  
+}
+
+export async function normalizeCreate(data: CreateContainerForm): Promise<ContainerCreateOptions> {
+    const {
+        name,
+        image,
+        restart,
+        network,
+        network_mode,
+        mounts,
+        ports,
+        env,
+        command,
+        devices,
+        sysctls,
+        capabilities,
+        limits,
+    } = data;
+
+    const transformedLabels = await transformInfo(data);
+
+    const containerCreateOptions: ContainerCreateOptions = {
+        name,
+        Image: image,
+        HostConfig: {
+            RestartPolicy: { Name: restart },
+            NetworkMode: network_mode || network,
+            Binds: mounts.map(({ source, destination, read_only }) => `${source}:${destination}${ read_only ? ':ro' : ''}`),
+            Devices: devices,
+            PortBindings: ports.reduce((acc, { container, host, protocol }) => {
+                acc[container+'/'+protocol] = [{ HostPort: host }];
+                return acc;
+            }, {} as { [index: string]: object }),
+            Sysctls: sysctls.reduce((acc, { key, value }) => {
+                acc[key] = value;
+                return acc;
+            }, {} as { [index: string]: string }),
+            CapAdd: capabilities.add,
+            CapDrop: capabilities.drop,
+            CpuShares: limits.cpus,
+            Memory: limits.mem_limit,
+        },
+        Env: env.map(({ key, value }) => `${key}=${value}`),
+        Labels: transformedLabels,
+        Cmd: command,
+    };
+
+    return containerCreateOptions;
+}
+
+export async function transformInfo(data: CreateContainerForm) {
+    const { labels, info, ports } = data;
+    const baseLabels = Object.fromEntries(labels.map(({ key, value }) => [key, value]));
+    const infoLabels = Object.fromEntries(Object.entries(info).map(([key, value]) => [`sh.yacht.${key}`, value]));
+    const portLabels = Object.fromEntries(ports.map((port) => [`sh.yacht.${port.host}`, port.label]));
+    const transformedLabels = Object.assign({}, baseLabels, infoLabels, portLabels);
+
+    return transformedLabels;
+}

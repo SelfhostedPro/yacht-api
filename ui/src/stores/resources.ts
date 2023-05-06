@@ -21,7 +21,6 @@ export const useResourceStore = defineStore('resources', {
     },
     actions: {
         async setResource(serverName: string, data: NetworkInspectInfo | ImageInspectInfo | VolumeInspectInfo, resource: 'networks' | 'images' | 'volumes') {
-            console.log(`Setting ${resource} from ${serverName}`)
             const idx = this[resource][serverName].findIndex((resource: NetworkInspectInfo | ImageInspectInfo | VolumeInspectInfo) => [resource]['Id'] === data['Id'] || [resource]['Name'] === data['Name']) 
             if (idx < 0) {
                 this.apps.push(data)

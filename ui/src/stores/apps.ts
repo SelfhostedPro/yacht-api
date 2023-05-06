@@ -1,4 +1,4 @@
-import { Container, ServerContainers, YachtContainerStats } from "@yacht/types"
+import { Container, CreateContainerForm, ServerContainers, YachtContainerStats } from "@yacht/types"
 import { defineStore } from "pinia"
 import { useEventSource } from "@vueuse/core"
 import { useAuthFetch } from "@/helpers/auth/fetch"
@@ -17,12 +17,11 @@ export const useAppStore = defineStore('apps', {
     },
     actions: {
         async setApp(serverName: string, data: Container) {
-            console.log(`Setting app from ${serverName}`)
             const idx = this.apps[serverName].findIndex((app: Container) => app.id === data.id)
             if (idx < 0) {
-                this.apps.push(data)
+                this.apps[serverName].push(data)
             } else {
-                this.apps[idx] = data
+                this.apps[serverName][idx] = data
             }
         },
         async fetchApps() {
@@ -37,12 +36,21 @@ export const useAppStore = defineStore('apps', {
         async fetchApp(serverName: string, idOrName: string) {
             const loadingStore = useLoadingStore()
             loadingStore.startLoadingItem('app')
+            if (!this.apps || !this.apps[serverName]) {
+                await this.fetchApps()
+            }
             const { error, data } = await useAuthFetch<Container>(`/api/containers/info/${serverName}/${idOrName}`).json()
             if (!error.value) {
-                if (!this.apps || !this.apps[serverName]) {
-                    await this.fetchApps()
-                }
                 this.setApp(serverName, data.value)
+                loadingStore.stopLoadingItem('app')
+            }
+        },
+        async createApp(form: CreateContainerForm) {
+            const loadingStore = useLoadingStore()
+            loadingStore.startLoadingItem('deploy')
+            const {error,data} = await useAuthFetch<any>(`/api/containers/create`).post(form).json()
+            if (!error.value) {
+                this.setApp(form.server, data.value)
                 loadingStore.stopLoadingItem('app')
             }
         },
