@@ -54,7 +54,8 @@ export async function normalizeContainer(data: FixedContainerInfo | FixedContain
             status: data.State,
             state: data.Status,
             info: {
-                title: data.Labels["org.opencontainers.image.title"],
+                title: data.Labels["sh.yacht.title"] || data.Labels["org.opencontainers.image.title"],
+                notes: data.Labels["sh.yacht.notes"],
                 description: data.Labels["org.opencontainers.image.description"],
                 docs: data.Labels["org.opencontainers.image.documentation"],
                 url: data.Labels["org.opencontainers.image.url"],
@@ -86,7 +87,8 @@ export async function normalizeContainer(data: FixedContainerInfo | FixedContain
                 count: data.RestartCount
             },
             info: {
-                title: data.Config.Labels["org.opencontainers.image.title"],
+                title: data.Config.Labels["sh.yacht.title"] || data.Config.Labels["org.opencontainers.image.title"],
+                notes: data.Config.Labels["sh.yacht.notes"],
                 description: data.Config.Labels["org.opencontainers.image.description"],
                 docs: data.Config.Labels["org.opencontainers.image.documentation"],
                 url: data.Config.Labels["org.opencontainers.image.url"],
@@ -174,22 +176,37 @@ function formatInspectPorts(data: ContainerInspectInfo): ContainerPort[] {
 }
 
 function formatInfoPorts(data: Port[]): ContainerPort[] {
-    return data.map(({ PrivatePort, PublicPort = null, IP = null, Type = null }) => ({
-        ...{ containerPort: PrivatePort, hostPort: PublicPort, hostIP: IP, type: Type }
-    }));
+    return data.reduce((acc: ContainerPort[], { PrivatePort, PublicPort = null, IP = null, Type = null }) => {
+        if (IP !== '::1') {
+            acc.push({ containerPort: PrivatePort, hostPort: PublicPort, hostIP: IP, type: Type });
+        }
+        return acc;
+    }, []);
+}
+
+const DEFAULT_IMAGE_URL = 'https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/linuxserver-ls-logo.png';
+
+async function checkUrl(url: string): Promise<string> {
+    try {
+        new URL(url);
+        const response = await fetch(url);
+        return (response.ok && response.status !== 404) ? url : DEFAULT_IMAGE_URL;
+    } catch {
+        return DEFAULT_IMAGE_URL;
+    }
 }
 
 async function getIconUrl(labels: Container['labels']) {
+    if (labels['sh.yacht.icon']) {
+        return checkUrl(labels['sh.yacht.icon'])
+    }
     if (labels["org.opencontainers.image.vendor"] && labels["org.opencontainers.image.title"]) {
         const vendor = labels["org.opencontainers.image.vendor"]?.toLowerCase();
         const title = labels["org.opencontainers.image.title"]?.toLowerCase();
         switch (vendor) {
             case 'linuxserver.io': {
                 const url = `https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/${title}-logo.png`
-                const response = await fetch(url)
-                if (response.ok && response.status != 404) {
-                    return url
-                } else return 'https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/linuxserver-ls-logo.png'
+                checkUrl(url)
             }
             case 'portainer.io': {
                 return labels["com.docker.desktop.extension.icon"] || null;
@@ -231,10 +248,10 @@ export async function normalizeCreate(data: CreateContainerForm): Promise<Contai
         HostConfig: {
             RestartPolicy: { Name: restart },
             NetworkMode: network_mode || network,
-            Binds: mounts.map(({ source, destination, read_only }) => `${source}:${destination}${ read_only ? ':ro' : ''}`),
+            Binds: mounts.map(({ source, destination, read_only }) => `${source}:${destination}${read_only ? ':ro' : ''}`),
             Devices: devices,
             PortBindings: ports.reduce((acc, { container, host, protocol }) => {
-                acc[container+'/'+protocol] = [{ HostPort: host }];
+                acc[container + '/' + protocol] = [{ HostPort: host }];
                 return acc;
             }, {} as { [index: string]: object }),
             Sysctls: sysctls.reduce((acc, { key, value }) => {

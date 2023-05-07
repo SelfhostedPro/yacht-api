@@ -36,9 +36,9 @@
 </template>
 
 <script setup lang="ts">
-import portinfo from '@/components/apps/info/ports.vue'
-import mountinfo from '@/components/apps/info/mounts.vue'
-import info from '@/components/apps/info/info.vue';
+import portinfo from '@/components/apps/list/ports.vue'
+import mountinfo from '@/components/apps/list/mounts.vue'
+import info from '@/components/apps/list/info.vue';
 import { ref } from 'vue';
 const tab = ref(0)
 import { Container } from '@yacht/types';

@@ -63,11 +63,11 @@
 import { useAppStore } from '@/stores/apps'
 import { ref, Ref } from 'vue';
 // Import custom components
-import searchbar from '@/components/apps/info/search.vue'
-import baseinfo from '@/components/apps/info/base.vue'
-import resourcetab from '@/components/apps/info/resourcetab.vue'
-import actions from '@/components/apps/info/actions.vue'
-import iconstats from '@/components/apps/info/stats.vue'
+import searchbar from '@/components/apps/list/search.vue'
+import baseinfo from '@/components/apps/list/base.vue'
+import resourcetab from '@/components/apps/list/resourcetab.vue'
+import actions from '@/components/apps/list/actions.vue'
+import iconstats from '@/components/apps/list/stats.vue'
 // Import store utilities
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';

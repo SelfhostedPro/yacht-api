@@ -6,8 +6,8 @@
       <v-container fluid>
         <router-view></router-view>
       </v-container>
+      <snackbar />
     </v-main>
-    <snackbar />
     <!-- <nav-drawer ref="drawer" :links="links" /> -->
   </v-app>
 </template>

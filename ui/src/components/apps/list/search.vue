@@ -18,7 +18,7 @@
                                 </v-toolbar-items>
                             </v-toolbar>
                             <v-card-text class="ma-0 pa-0" tag="span">
-                                <appform />
+                                <appform @created="isActive.value=false" />
                             </v-card-text>
                         </v-card>
                     </template>

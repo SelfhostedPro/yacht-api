@@ -19,7 +19,6 @@
 <script setup lang="ts">
 import VueMarkdown from '@/helpers/render/markdown.vue'
 import { ContainerOciInfo } from '@yacht/types';
-import { router } from '@/plugins';
 interface Props {
     info: ContainerOciInfo
 }

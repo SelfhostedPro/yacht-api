@@ -1,16 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import Dockerode, { Container as UsableContainer, ContainerStats } from 'dockerode';
-import { PassThrough as StreamPassThrough, Transform, pipeline } from 'stream';
+import { PassThrough as StreamPassThrough } from 'stream';
 import { ContainerProcessesDTO } from './classes';
 import { Logger } from '../logger/logger.service';
 import { ServersService } from '../servers/servers.service'
-import { formatStats } from '../util/streamConverter'
-import { Observable, fromEvent, map } from 'rxjs';
-import { FixedContainerInspectInfo, normalizeContainer, normalizeContainers, normalizeCreate } from '../util/containerFormatter'
+import { Observable } from 'rxjs';
+import { normalizeContainer, normalizeContainers, normalizeCreate } from '../util/containerFormatter'
 import { Container, ServerContainers, ServerDict, CreateContainerForm } from '@yacht/types';
-import { ConfigService } from 'src/config/config.service';
-import { promisify } from 'util';
-import { DockerStatsStreamer} from '../util/containerStreamers'
+import { DockerStatsStreamer } from '../util/containerStreamers'
 
 @Injectable()
 export class ContainersService {
@@ -48,10 +45,14 @@ export class ContainersService {
 
   async createContainer(serverName: string, form: CreateContainerForm) {
     const server: any = await this.serversService.getServerFromConfig(serverName)
-    const test = await normalizeCreate(form)
-    console.log(test)
-    const complete = await server.createContainer(await normalizeCreate(form))
-    console.log(complete)
+    const pullStream = await server.pull(form.image)
+    await new Promise(res => server.modem.followProgress(pullStream, res))
+    const test = await server.createContainer(await normalizeCreate(form)).catch(err => {
+      throw err
+    })
+    await server.getContainer(form.name).start().catch(err => {
+      throw err
+    })
     return await normalizeContainer(await server.getContainer(form.name).inspect())
   }
 
@@ -60,20 +61,20 @@ export class ContainersService {
     const server: any = await this.serversService.getServerFromConfig(serverName)
     const container = server.getContainer(id);
 
-    const actions: { [key: string]: () => Promise<any> } = {
-      start: () => container.start(),
-      stop: () => container.stop(),
-      pause: () => container.pause(),
-      unpause: () => container.unpause(),
-      kill: () => container.kill(),
-      remove: () => container.remove({ force: true }),
-      restart: () => container.restart(),
+    const actions: { [key: string]: (res) => Promise<any> } = {
+      start: (res) => container.start(res),
+      stop: (res) => container.stop(res),
+      pause: (res) => container.pause(res),
+      unpause: (res) => container.unpause(res),
+      kill: (res) => container.kill(res),
+      remove: (res) => container.remove({ force: true }, res),
+      restart: (res) => container.restart(res),
     };
     if (action in actions) {
+      await new Promise(res => actions[action](res))
       const containerInfo = await normalizeContainer(await container.inspect())
       this.logger.log(`Action: ${action} used on container ${containerInfo.name}: ${containerInfo.shortId}`);
-      await actions[action]();
-      return containerInfo;
+      return containerInfo
     } else {
       throw new Error('Error: Action not found.');
     }

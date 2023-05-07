@@ -1,26 +1,24 @@
 <template>
     <v-card color="background" roudned="false">
-        <v-row v-if="app && app.name" no-gutters>
-            <v-col sm="12" md="6">
+        <v-row v-if="app && app.name" dense>
+            <v-col cols="12">
                 <Suspense>
-                    <namecard @refresh="handleRefresh" class="mb-1" :app="app" />
-                </Suspense>
-                <Suspense>
-                    <actioncard @action="handleAction" class="mb-1" :app="app" />
-                </Suspense>
-                <Suspense v-show="mdAndUp">
-                    <environmentcard class="mb-1" v-show="mdAndUp" :app="app" />
+                    <namecard @refresh="handleRefresh" @action="handleAction" :app="app" />
                 </Suspense>
             </v-col>
-            <v-col sm="12" md="6">
+            <v-col :cols="mdAndDown ? 12 : 6">
                 <Suspense>
-                    <networkcard :class="mdAndUp ? 'mb-1 ml-1' : 'mb-1'" :app="app" />
+                    <networkcard :app="app" />
                 </Suspense>
+            </v-col>
+            <v-col :cols="mdAndDown ? 12 : 6">
                 <Suspense>
-                    <storagecard :class="mdAndUp ? 'mb-1 ml-1' : 'mb-1'" :app="app" />
+                    <storagecard :app="app" />
                 </Suspense>
+            </v-col>
+            <v-col :cols="mdAndDown ? 12 : 6">
                 <Suspense>
-                    <environmentcard :class="mdAndUp ? 'mb-1 ml-1' : 'mb-1'" v-show="!mdAndUp" :app="app" />
+                    <environmentcard :app="app" />
                 </Suspense>
             </v-col>
         </v-row>
@@ -40,9 +38,9 @@ import { Ref, onMounted, ref } from 'vue';
 import { Container } from '@yacht/types';
 
 // Props
-const props = defineProps(['server','name'])
+const props = defineProps(['server', 'name'])
 // Display Breakpoints
-const { mdAndUp } = useDisplay()
+const { mdAndDown } = useDisplay()
 
 // Store variables
 const appStore = useAppStore()
@@ -50,23 +48,23 @@ const { apps } = storeToRefs(appStore)
 const app: Ref<Container> = ref({} as Container)
 
 if (Object.keys(apps.value).length > 0) {
-    app.value = appStore.getApp(props.server,props.name)
+    app.value = appStore.getApp(props.server, props.name)
 }
 
 // Fetch App Details
 onMounted(async () => {
-    await appStore.fetchApp(props.server,props.name)
-    app.value = appStore.getApp(props.server,props.name)
+    await appStore.fetchApp(props.server, props.name)
+    app.value = appStore.getApp(props.server, props.name)
 })
 
 const handleRefresh = async () => {
-    await appStore.fetchApp(props.server,props.name)
-    app.value = appStore.getApp(props.server,props.name)
+    await appStore.fetchApp(props.server, props.name)
+    app.value = appStore.getApp(props.server, props.name)
 }
 
 // Action button functions
 const handleAction = async (action: string) => {
     await appStore.fetchAppAction(props.server, app.value.id, action)
-    app.value = appStore.getApp(props.server,props.name)
+    app.value = appStore.getApp(props.server, props.name)
 }
 </script>

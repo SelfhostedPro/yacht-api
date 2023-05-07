@@ -19,7 +19,8 @@
                 <v-spacer />
                 <v-btn v-if="!(currentWindow === 0)" @click="prev">Previous</v-btn>
                 <v-btn v-if="currentWindow < 2" variant="text" color="primary" @click="next">Next</v-btn>
-                <v-btn v-else variant="text" color="primary" @click="submit">Submit</v-btn>
+                <v-btn v-else variant="text" color="primary" :loading="isLoading.items.has('deploy')"
+                    @click="submit">Submit</v-btn>
             </v-card-actions>
         </v-card>
         <v-divider />
@@ -74,12 +75,17 @@ import Dynamic from './create/dynamic.vue'
 import { storeToRefs } from 'pinia';
 import { useSettingsStore } from '@/stores/settings';
 import { useResourceStore } from '@/stores/resources';
+import { useLoadingStore } from '@/stores/loading'
 import { useAppStore } from '@/stores/apps';
 import { onBeforeUnmount } from 'vue';
 
 const appStore = useAppStore()
 const resourceStore = useResourceStore()
+const loadingStore = useLoadingStore()
+const { isLoading } = storeToRefs(loadingStore)
 const { networks } = storeToRefs(resourceStore)
+
+const emit = defineEmits(['created'])
 
 const servers = ref([])
 const settingStore = useSettingsStore()
@@ -137,7 +143,10 @@ const prev = () => {
 const submit = async () => {
     await appStore.createApp(form.value)
         .then(() => {
-            console.log('success')
+            emit('created')
+        })
+        .catch((e) => {
+            return
         })
 }
 onBeforeUnmount(() => {

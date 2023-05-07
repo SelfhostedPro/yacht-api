@@ -9,7 +9,7 @@ export default defineComponent({
   name: 'VueMarkdown',
   props: {
     source: {
-      type: String,
+      type: String || undefined,
       required: true,
     },
     options: {
@@ -20,17 +20,18 @@ export default defineComponent({
   },
   setup(props, { attrs }) {
     const md = new MarkdownIt(props.options)
-
-    const content = computed(() => {
-      const src = props.source
-      return sanitizeHtml(md?.render(src))
-    })
-
-    return () =>
-      h('div', {
-        ...attrs,
-        innerHTML: content.value,
+    if (props.source !== undefined) {
+      const content = computed(() => {
+        const src = props.source
+        return sanitizeHtml(md?.render(src))
       })
+
+      return () =>
+        h('div', {
+          ...attrs,
+          innerHTML: content.value,
+        })
+    }
   },
 })
 </script>

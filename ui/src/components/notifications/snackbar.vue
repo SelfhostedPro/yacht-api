@@ -1,5 +1,5 @@
 <template>
-  <v-snackbar :model-value="notification.visible" :color="notification.color" :timeout="notification.timeout || -1" :location="notification.location">
+  <v-snackbar :z-index="5000" :model-value="notification.visible" :color="notification.color" :timeout="notification.timeout || -1" :location="notification.location">
     {{ notification.content }}
     <template v-slot:actions>
       <v-btn icon variant="text" :color="notification.btnColor" @click="clearSnack()">
@@ -18,12 +18,13 @@ import { storeToRefs } from 'pinia';
 const notifyStore = useNotifyStore()
 const { notification } = storeToRefs(notifyStore)
 
+
 // Used to prevent snackbar style from being reset before it closes fully
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 const clearSnack = (async () => {
   notification.value.visible = false
   await sleep(100)
-  notifyStore.notificationReset()
+  notifyStore.$reset()
 })
 
 </script>
