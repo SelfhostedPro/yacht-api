@@ -10,7 +10,7 @@
         <template v-slot:loader="{ isActive }">
             <v-progress-linear :active="isActive" color="primary" height="4" indeterminate></v-progress-linear>
         </template>
-        <v-card-text v-if="!logs || logs.length === 0" class="logtext">
+        <v-card-text v-if="logs.length === 0" class="logtext">
             Fetching logs for {{ name }} on {{ server }}
         </v-card-text>
         <v-virtual-scroll v-else class="keep-whitespace" :item-height="8" :items="logs">
