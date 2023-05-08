@@ -100,7 +100,7 @@ export class ContainersService {
     const container: UsableContainer = await docker.getContainer(id);
 
     container.logs(
-      { follow: true, stdout: true, stderr: true },
+      { follow: true, stdout: true, stderr: true, timestamps: false },
       function (err: any, stream: any) {
         container.modem.demuxStream(stream, logStream, logStream);
         stream.on('end', function () {

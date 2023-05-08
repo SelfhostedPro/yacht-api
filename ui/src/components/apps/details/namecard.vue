@@ -34,6 +34,19 @@
                 </v-tooltip>
                 {{ ' ' + app.name }}
             </v-toolbar-title>
+            <v-dialog fullscreen transition="dialog-bottom-transition">
+                    <template v-slot:activator="{ props }">
+                        <v-btn :rounded="0" v-bind="props" prepend-icon="mdi-note-text-outline">logs</v-btn>
+                    </template>
+                    <template v-slot:default="{ isActive }">
+                        <v-card color="background">
+                            <v-card-text class="ma-0 pa-0" tag="span">
+                                <logs @close="isActive.value=false" :server="server" :name="app.name" :closable="true" />
+                            </v-card-text>
+                        </v-card>
+                    </template>
+                </v-dialog>
+
             <v-btn :rounded="0" variant="text" icon>
                 <v-icon icon="mdi-console-line" />
             </v-btn>
@@ -47,7 +60,6 @@
                 :vertical="!mdAndDown" />
             <v-col :cols="!mdAndDown && Object.keys(app.info).length !== 1 ? 6 : 12">
                 <v-list-item>
-                    {{ Object.keys(app.info).length }}
                     <v-list-item-title> image </v-list-item-title>
                     <v-list-item-subtitle>{{ app.image }}</v-list-item-subtitle>
                 </v-list-item>
@@ -73,6 +85,7 @@
 import { Container } from '@yacht/types';
 import ocilabels from "@/components/apps/details/ocilabels.vue"
 import actioncard from './actioncard.vue';
+import logs from '../shared/logs.vue'
 import { ref } from 'vue';
 import { useLoadingStore } from '@/stores/loading';
 import { storeToRefs } from 'pinia';
@@ -89,7 +102,8 @@ const { isLoading } = storeToRefs(loadingStore)
 loading.value = isLoading.value.loading
 
 interface Props {
-    app: Container
+    app: Container,
+    server: string
 }
 const props = defineProps<Props>()
 const handleAction = (action) => {

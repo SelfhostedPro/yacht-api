@@ -74,7 +74,7 @@ export const useAppStore = defineStore('apps', {
         async fetchStats() {
             const loadingStore = useLoadingStore()
             loadingStore.startLoadingItem('stats')
-            const { eventSource, error } = useEventSource(`/api/containers/stats`, ['message'], { withCredentials: true })
+            const { eventSource, error, data } = useEventSource(`/api/containers/stats`, ['message'], { withCredentials: true })
             if (!error.value) {
                 eventSource.value.onopen = () => {
                     loadingStore.stopLoadingItem('stats')
@@ -84,6 +84,10 @@ export const useAppStore = defineStore('apps', {
                         const stat = JSON.parse(message.data)
                         this.stats[stat.Name] = JSON.parse(message.data)
                     }
+                })
+                eventSource.value.addEventListener('error', async () => {
+                    await new Promise(f => setTimeout(f, 1000));
+                    this.fetchStats()
                 })
                 // Assign openStats to eventSource so we can close it later
                 this.openStats = eventSource.value

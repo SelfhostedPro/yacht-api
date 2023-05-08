@@ -3,7 +3,7 @@
         <v-row v-if="app && app.name" dense>
             <v-col cols="12">
                 <Suspense>
-                    <namecard @refresh="handleRefresh" @action="handleAction" :app="app" />
+                    <namecard @refresh="handleRefresh" @action="handleAction" :app="app" :server="server" />
                 </Suspense>
             </v-col>
             <v-col :cols="mdAndDown ? 12 : 6">
@@ -31,6 +31,7 @@ import actioncard from '@/components/apps/details/actioncard.vue';
 import networkcard from '@/components/apps/details/networkcard.vue';
 import storagecard from '@/components/apps/details/storagecard.vue';
 import environmentcard from '@/components/apps/details/environmentcard.vue';
+import logs from '@/components/apps/shared/logs.vue'
 import { useDisplay } from 'vuetify';
 import { useAppStore } from '@/stores/apps'
 import { storeToRefs } from 'pinia';

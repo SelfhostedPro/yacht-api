@@ -8,7 +8,7 @@
             <v-tabs bg-color="surface" color="primary" align-tabs="center" v-model="serverTab">
                 <v-tab v-for="appList, i in Object.keys(apps)" :value="i" :key="i">{{ appList }} </v-tab>
             </v-tabs>
-            <v-fade-transition v-if="loading || isLoading.loading && isLoading.items.get('apps')">
+            <v-fade-transition v-if="isLoading.items.get('apps')">
                 <v-window>
                     <v-row dense>
                         <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-for="i in 12">
