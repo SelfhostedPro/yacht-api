@@ -74,6 +74,7 @@ export const useAppStore = defineStore('apps', {
         async fetchStats() {
             const loadingStore = useLoadingStore()
             loadingStore.startLoadingItem('stats')
+            let retries = 0
             const { eventSource, error, data } = useEventSource(`/api/containers/stats`, ['message'], { withCredentials: true })
             if (!error.value) {
                 eventSource.value.onopen = () => {
@@ -87,7 +88,10 @@ export const useAppStore = defineStore('apps', {
                 })
                 eventSource.value.addEventListener('error', async () => {
                     await new Promise(f => setTimeout(f, 1000));
-                    this.fetchStats()
+                    if (retries < 10) {
+                        retries += 1
+                        this.fetchStats()
+                    }
                 })
                 // Assign openStats to eventSource so we can close it later
                 this.openStats = eventSource.value

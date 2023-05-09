@@ -62,7 +62,7 @@ const links = [
     ]
   },
   {
-    to: "/settings/info",
+    to: "/settings",
     icon: "mdi-cog",
     text: "Settings"
   }

@@ -19,6 +19,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ServersModule } from './servers/servers.module';
 import { ResourcesModule } from './resources/resources.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ResourcesModule } from './resources/resources.module';
     }),
     ServersModule,
     ResourcesModule,
+    SettingsModule,
   ],
   controllers: [AppController, ContainersController, ProjectsController],
   providers: [AppService, ContainersService, ProjectsService, TemplatesService],

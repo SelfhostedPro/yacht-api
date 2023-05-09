@@ -6,9 +6,12 @@ import * as yaml from 'js-yaml';
 import * as crypto from 'crypto';
 import * as _ from 'lodash';
 import { YachtConfig } from '@yacht/types';
+import { Logger } from '../logger/logger.service';
 
 @Injectable()
 export class ConfigService {
+  private readonly logger = new Logger(ConfigService.name);
+
   public name = 'yacht';
 
   // yacht env
@@ -121,6 +124,13 @@ export class ConfigService {
     this.instanceId = this.getInstanceId();
 
     this.freezeUiSettings();
+  }
+
+  public writeConfig(yachtConfig: YachtConfig) {
+    fs.writeFileSync(this.configPath, yaml.dump(this.yachtConfig), { flag: 'w' });
+    this.logger.log('Config Updated!');
+    this.parseConfig(yachtConfig);
+    return this.yachtConfig
   }
 
   /**

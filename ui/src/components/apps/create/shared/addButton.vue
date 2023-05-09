@@ -11,8 +11,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue';
-import { defineEmits } from 'vue';
 interface Props {
     resources?: any[],
     name?: string,

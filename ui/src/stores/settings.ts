@@ -7,6 +7,7 @@ import { YachtConfig } from "@yacht/types"
 export const useSettingsStore = defineStore('settings', {
     state: () => ({
         servers: {} as YachtConfig['base']['servers'],
+        settings: {} as YachtConfig,
     }),
     getters: {
         getServers: (state) => state.servers,
@@ -21,5 +22,14 @@ export const useSettingsStore = defineStore('settings', {
                 loadingStore.stopLoadingItem('servers')
             }
         },
+        async fetchSettings() {
+            const loadingStore = useLoadingStore()
+            loadingStore.startLoadingItem('settings')
+            const { error, data } = await useAuthFetch<string>(`/api/settings/`).json()
+            if (!error.value) {
+                this.settings = data.value
+                loadingStore.stopLoadingItem('servers')
+            }
+        }
     }
 })
