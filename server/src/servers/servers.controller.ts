@@ -1,8 +1,9 @@
-import { Controller, UseGuards, Get, HttpException } from '@nestjs/common';
+import { Controller, UseGuards, Get, HttpException, Post, Body } from '@nestjs/common';
 import { ServersService } from './servers.service';
 import { ApiBearerAuth, ApiTags, ApiCreatedResponse } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../common/guards/accessToken.guard';
 import { YachtConfig } from '@yacht/types';
+import { NewServer } from './servers.dto';
 
 @ApiTags('Servers')
 @ApiBearerAuth()
@@ -13,9 +14,9 @@ export class ServersController {
 
     @Get()
     @ApiCreatedResponse({
-        description: 'List all containers.',
+        description: 'List all servers.',
     })
-    async getContainers(): Promise<YachtConfig['base']['servers']> {
+    async getServers(): Promise<YachtConfig['base']['servers']> {
         try {
             const servers = await this.serversService.getServerConfig()
             return servers;
@@ -28,5 +29,23 @@ export class ServersController {
             }
         }
     }
-
+    @Post()
+    @ApiCreatedResponse({
+        description: 'Add a new server.',
+    })
+    async writeSettings(
+        @Body() server: NewServer,
+    ): Promise<YachtConfig> {
+        try {
+            const added = await this.serversService.addServerToConfig(server.name, server.options)
+            return added
+        } catch (err) {
+            // Error Handling
+            if (err.statusCode) {
+                throw new HttpException(err.message, err.statusCode);
+            } else {
+                throw new HttpException(err.message, 500);
+            }
+        }
+    }
 }

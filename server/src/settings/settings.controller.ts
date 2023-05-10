@@ -30,7 +30,7 @@ export class SettingsController {
         }
     }
     @Post()
-    async createContainer(
+    async writeSettings(
         @Body() YachtConfig: updateSettingsDto,
     ): Promise<YachtConfig> {
         try {

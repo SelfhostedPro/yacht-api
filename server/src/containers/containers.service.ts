@@ -20,6 +20,8 @@ export class ContainersService {
     const servers: ServerDict = await this.serversService.getServersFromConfig();
     const serverKeys = Object.keys(servers);
     // Get containers from all servers in config
+    const test = await servers['test'].listContainers({all: true})
+    console.log(test)
     const serverPromises: Promise<Container[]>[] = serverKeys.map(name =>
       servers[name].listContainers({ all: true }).then(normalizeContainers)
     );

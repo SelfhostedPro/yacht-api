@@ -36,6 +36,7 @@ export async function getStartupConfig() {
   } else {
     try {
       fs.mkdirSync(path.resolve('../config/storage/templates'), { recursive: true })
+      fs.mkdirSync(path.resolve('../config/storage/.ssh'), { recursive: true })
       fs.writeFileSync(configPath, yaml.dump(defaultConfig), { flag: 'w' });
       logger.log('Config Created!');
     } catch (e) {
