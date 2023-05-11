@@ -101,7 +101,7 @@ export class ServersService {
 
     return this.configService.writeConfig(currentConfig);
   }
-  async removeServerFromConfig(name: string, removeLocalKey: boolean, removeRemoteKey: boolean): Promise<YachtConfig> {
+  async removeServerFromConfig(name: string, removeRemoteKey: boolean): Promise<YachtConfig> {
     const servers = await this.getServerConfig();
     // Check for existing servers
     let serverExists = false;
@@ -115,10 +115,7 @@ export class ServersService {
     if (serverExists) {
       throw new Error('Server not found');
     }
-    if (servers[name].options.protocol === 'ssh' && removeLocalKey) {
-      await keyManager.removePublicKeyFromRemoteServer(servers[name].key, servers[name].options.host, servers[name].options.port, servers[name].options.username);
-      await keyManager.removeSSHKey(servers[name].key);
-    } else if (servers[name].options.protocol === 'ssh' && !removeLocalKey && removeRemoteKey) {
+    if (servers[name].options.protocol === 'ssh' && removeRemoteKey) {
       await keyManager.removeSSHKey(servers[name].key);
     }
     delete servers[name];

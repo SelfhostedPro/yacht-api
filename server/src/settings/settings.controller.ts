@@ -47,6 +47,7 @@ export class SettingsController {
     } catch (err) {
       // Error Handling
       if (err.statusCode) {
+        console.log(err)
         throw new HttpException(err.message, err.statusCode);
       } else {
         throw new HttpException(err.message, 500);
