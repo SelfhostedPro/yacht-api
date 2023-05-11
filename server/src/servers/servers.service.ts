@@ -29,7 +29,7 @@ export class ServersService {
           sshOptions: { privateKey: privateKey },
         });
       } else if (server.options.protocol === 'ssh' && !server.key) {
-        throw new Error(`SSH key not found for ${server.name} please try removing and re-adding the server`);
+        this.logger.log(`SSH key not found for ${server.name} please try removing and re-adding the server`);
       }
       else {
         result[server.name] = new Docker(server.options);
