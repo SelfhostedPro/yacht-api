@@ -9,18 +9,18 @@ export class RefreshTokenStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor(
-    configService: ConfigService,
-  ) {
+  constructor(configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([RefreshTokenStrategy.extractCookies]),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        RefreshTokenStrategy.extractCookies,
+      ]),
       secretOrKey: configService.secrets.refreshSecret,
       passReqToCallback: true,
     });
   }
 
   validate(req: RequestType, payload: any) {
-    let refreshToken = req.cookies['refresh-token']
+    let refreshToken = req.cookies['refresh-token'];
     return { ...payload, refreshToken };
   }
 

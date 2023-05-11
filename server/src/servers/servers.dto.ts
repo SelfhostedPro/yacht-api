@@ -1,23 +1,35 @@
-import { KeyObject } from "docker-modem";
-
-export class NewServer {
-    name: string
-    options: NewServerOptions
+import { NewServer } from "@yacht/types";
+export class NewServerDto implements NewServer {
+  name: string;
+  options: NewServerOptions;
+  keyname?: string;
+  copyToServer?: boolean;
 }
 
 export class NewServerOptions {
-    socketPath?: string | undefined;
-    host?: string | undefined;
-    port?: number | string | undefined;
-    username?: string | undefined;
-    password?: string;
-    headers?: { [name: string]: string };
-    ca?: string | string[] | Buffer | Buffer[] | undefined;
-    cert?: string | string[] | Buffer | Buffer[] | undefined;
-    key?: string | string[] | Buffer | Buffer[] | KeyObject[] | undefined;
-    protocol?: 'https' | 'http' | 'ssh' | undefined;
-    timeout?: number | undefined;
-    version?: string | undefined;
-    sshAuthAgent?: string | undefined;
-    Promise?: typeof Promise | undefined;
+  socketPath?: string | undefined;
+  host?: string | undefined;
+  port?: number | string | undefined;
+  username?: string | undefined;
+  password?: string;
+  headers?: { [name: string]: string };
+  ca?: string | string[] | Buffer | Buffer[] | undefined;
+  cert?: string | string[] | Buffer | Buffer[] | undefined;
+  key?: string | string[] | Buffer | Buffer[] | KeyObject[] | undefined;
+  protocol?: 'https' | 'http' | 'ssh' | undefined;
+  timeout?: number | undefined;
+  version?: string | undefined;
+  sshAuthAgent?: string | undefined;
+  Promise?: typeof Promise | undefined;
+}
+
+interface KeyObject {
+  pem: string | Buffer;
+  passphrase?: string | undefined;
+}
+
+export class DeleteServerDto {
+  name: string;
+  removeLocalKey: boolean
+  removeRemoteKey: boolean
 }

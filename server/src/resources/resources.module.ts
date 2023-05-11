@@ -14,6 +14,6 @@ import { ServersModule } from '../servers/servers.module';
     ServersModule,
   ],
   controllers: [ResourcesController],
-  providers: [ResourcesService]
+  providers: [ResourcesService],
 })
 export class ResourcesModule {}

@@ -37,7 +37,7 @@ export class UpdateUserDto {
 
   @Equals(undefined)
   @ApiProperty()
-  refreshToken?: string
+  refreshToken?: string;
 }
 
 export class UserDto {
@@ -75,7 +75,7 @@ export class UserDto {
 
   @Equals(undefined)
   @ApiProperty()
-  refreshToken?: string
+  refreshToken?: string;
 }
 
 export class UserUpdatePasswordDto {

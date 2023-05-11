@@ -1,38 +1,21 @@
-export interface YachtConfig {
-    base: {
-        name: string;
-        servers: serverConfig[]
-        auth: boolean;
-        theme: 'dark' | 'light';
-        sessionTimeout: number;
-        templates?: {
-            url: string;
-            name: string;
-            apps?: Object[];
-        };
-        template_variables?: {
-            variable: string;
-            replacement: string;
-        };
-    };
-}
-
-export interface serverConfig {
+export class NewServer {
     name: string;
-    options: DockerOptions;
-    key?: string;
+    options: NewServerOptions;
+    keyname?: string;
+    copyToServer?: boolean;
 }
 
-export interface DockerOptions {
+export class NewServerOptions {
     socketPath?: string | undefined;
     host?: string | undefined;
     port?: number | string | undefined;
     username?: string | undefined;
+    password?: string;
     headers?: { [name: string]: string };
     ca?: string | string[] | Buffer | Buffer[] | undefined;
     cert?: string | string[] | Buffer | Buffer[] | undefined;
     key?: string | string[] | Buffer | Buffer[] | KeyObject[] | undefined;
-    protocol?: 'https' | 'http' | 'ssh' | undefined;
+    protocol?: 'https' | 'http' | 'ssh' | 'local' | undefined;
     timeout?: number | undefined;
     version?: string | undefined;
     sshAuthAgent?: string | undefined;

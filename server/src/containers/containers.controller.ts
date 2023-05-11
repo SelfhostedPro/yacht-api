@@ -23,7 +23,7 @@ import { AccessTokenGuard } from '../common/guards/accessToken.guard';
 @UseGuards(AccessTokenGuard)
 @Controller('containers')
 export class ContainersController {
-  constructor(private readonly containersService: ContainersService) { }
+  constructor(private readonly containersService: ContainersService) {}
 
   @Get()
   @ApiCreatedResponse({
@@ -32,7 +32,7 @@ export class ContainersController {
   })
   async getContainers(): Promise<ServerContainers> {
     try {
-      const containers = await this.containersService.getContainers()
+      const containers = await this.containersService.getContainers();
       return containers;
     } catch (err) {
       // Error Handling
@@ -48,11 +48,9 @@ export class ContainersController {
     description: 'Create a new container.',
     type: ContainerInfoDTO,
   })
-  async createContainer(
-    @Body() body: CreateContainerForm,
-  ): Promise<Container> {
+  async createContainer(@Body() body: CreateContainerForm): Promise<Container> {
     try {
-      return await this.containersService.createContainer(body.server,body);
+      return await this.containersService.createContainer(body.server, body);
     } catch (err) {
       // Error Handling
       if (err.statusCode) {
@@ -81,7 +79,10 @@ export class ContainersController {
     description: 'Get inspect information of one container.',
     type: ContainerInfoDTO,
   })
-  async getContainerByName(@Param('server') server: string, @Param('id') id: string): Promise<Container> {
+  async getContainerByName(
+    @Param('server') server: string,
+    @Param('id') id: string,
+  ): Promise<Container> {
     try {
       return await this.containersService.getContainer(server, id);
     } catch (err) {
@@ -144,9 +145,9 @@ export class ContainersController {
       return fromEvent(containerStream, 'data').pipe(
         map(
           (x: Buffer) =>
-          ({
-            data: `${x.toString()}`,
-          } as MessageEvent),
+            ({
+              data: `${x.toString()}`,
+            } as MessageEvent),
         ),
       );
     } catch (err) {
@@ -168,7 +169,11 @@ export class ContainersController {
     @Param('action') action: string,
   ): Promise<Container> {
     try {
-      return await this.containersService.getContainerAction(server, id, action);
+      return await this.containersService.getContainerAction(
+        server,
+        id,
+        action,
+      );
     } catch (err) {
       // Error Handling
       if (err.statusCode) {

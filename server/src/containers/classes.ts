@@ -46,6 +46,4 @@ export class ContainerProcessesDTO {
   Processes: string[][];
 }
 
-export class ContainerStatsDTO {
-  
-}
+export class ContainerStatsDTO {}

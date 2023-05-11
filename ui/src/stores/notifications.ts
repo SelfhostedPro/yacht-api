@@ -1,9 +1,10 @@
 import { defineStore } from "pinia"
 import { Notification } from "@/types/ui"
+import { useStorage } from "@vueuse/core"
 
 export const useNotifyStore = defineStore('notify', {
     state: () => ({
-        notification:  JSON.parse(localStorage.getItem('notification')) as Notification || { content: '' } as Notification,
+        notification: JSON.parse(localStorage.getItem('notification')) as Notification || { content: '' } as Notification,
     }),
     getters: {
         getNotification: (state) => state.notification,
@@ -17,7 +18,7 @@ export const useNotifyStore = defineStore('notify', {
             this.notification.btnIcon = "mdi-close-circle"
             this.notification.timeout = -1
             this.notification.visible = true
-            this.useStorage('notification', this.notification)
+            useStorage('notification', this.notification)
         },
         $reset() {
             localStorage.removeItem('notification')

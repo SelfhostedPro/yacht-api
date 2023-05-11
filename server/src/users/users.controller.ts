@@ -20,18 +20,14 @@ import {
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { AdminGuard } from '../common/guards/admin.guard';
-import {
-  UserDto,
-} from './users.dto';
+import { UserDto } from './users.dto';
 
 @ApiTags('User Management')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @Controller('users')
 export class UsersController {
-  constructor(
-    private usersService: UsersService
-    ) { }
+  constructor(private usersService: UsersService) {}
 
   @UseGuards(AdminGuard)
   @ApiResponse({ type: UserDto, isArray: true, status: 200 })
@@ -68,5 +64,4 @@ export class UsersController {
   deleteUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.usersService.delete(userId);
   }
-
 }

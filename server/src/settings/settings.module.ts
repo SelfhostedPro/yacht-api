@@ -5,15 +5,17 @@ import { PassportModule } from '@nestjs/passport';
 import { LoggerModule } from 'src/logger/logger.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { ConfigModule } from 'src/config/config.module';
+import { ServersModule } from 'src/servers/servers.module';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     LoggerModule,
     AuthModule,
-    ConfigModule
+    ConfigModule,
+    ServersModule,
   ],
   providers: [SettingsService],
-  controllers: [SettingsController]
+  controllers: [SettingsController],
 })
 export class SettingsModule {}

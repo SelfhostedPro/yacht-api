@@ -12,7 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log'],
   });
-  app.setGlobalPrefix('api')
+  app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
     .setTitle('Yacht API')

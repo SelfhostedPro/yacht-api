@@ -14,15 +14,17 @@ export async function getStartupConfig() {
   const defaultConfig: YachtConfig = {
     base: {
       name: 'Yacht',
-      servers: [{
-        name: 'local',
-        options: {
-          socketPath: process.env.DOCKER_HOST ?? '/var/run/docker.sock'
-        }
-      }],
+      servers: [
+        {
+          name: 'local',
+          options: {
+            socketPath: process.env.DOCKER_HOST ?? '/var/run/docker.sock',
+          },
+        },
+      ],
       auth: true,
       theme: 'dark',
-      sessionTimeout: 3600
+      sessionTimeout: 3600,
     },
   };
   let config;
@@ -31,18 +33,19 @@ export async function getStartupConfig() {
       config = yaml.load(fs.readFileSync(configPath, 'utf8'));
       logger.log('Config Exists!');
     } catch (e) {
-      logger.error(e)
+      logger.error(e);
     }
   } else {
     try {
-      fs.mkdirSync(path.resolve('../config/storage/templates'), { recursive: true })
-      fs.mkdirSync(path.resolve('../config/storage/.ssh'), { recursive: true })
+      fs.mkdirSync(path.resolve('../config/storage/templates'), {
+        recursive: true,
+      });
+      fs.mkdirSync(path.resolve('../config/storage/.ssh'), { recursive: true });
       fs.writeFileSync(configPath, yaml.dump(defaultConfig), { flag: 'w' });
       logger.log('Config Created!');
     } catch (e) {
-      logger.log(e)
+      logger.log(e);
     }
-
   }
 
   return config;

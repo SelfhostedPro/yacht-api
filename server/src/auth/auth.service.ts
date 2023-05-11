@@ -73,7 +73,7 @@ export class AuthService {
         this.logger.warn('Failed login attempt');
         this.logger.warn(
           "If you've forgotten your password you can reset to the default " +
-          `of admin/admin by deleting the "auth.json" file (${this.configService.authPath}) and then restarting Yacht.`,
+            `of admin/admin by deleting the "auth.json" file (${this.configService.authPath}) and then restarting Yacht.`,
         );
         throw e;
       }
@@ -91,19 +91,31 @@ export class AuthService {
    * @param username
    * @param password
    */
-  async signIn(username: string, password: string, otp?: string): Promise<UserTokensDto> {
+  async signIn(
+    username: string,
+    password: string,
+    otp?: string,
+  ): Promise<UserTokensDto> {
     const user = await this.authenticate(username, password, otp);
-    const tokens: TokensDto = await this.getTokens(user.id, user.username, user.admin);
+    const tokens: TokensDto = await this.getTokens(
+      user.id,
+      user.username,
+      user.admin,
+    );
     await this.updateRefreshToken(user.id, tokens.refreshToken);
-    return { username: user.username, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken };
+    return {
+      username: user.username,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
   }
 
   /**
    * Logout user and remove refresh token
    */
   async logout(id: number) {
-    await this.usersService.update(id, { refreshToken: null })
-    return 'ok'
+    await this.usersService.update(id, { refreshToken: null });
+    return 'ok';
   }
 
   /**
@@ -112,9 +124,7 @@ export class AuthService {
    */
   async addUser(user): Promise<any> {
     // Check if user exists
-    const userExists = await this.usersService.findByUsername(
-      user.username
-    );
+    const userExists = await this.usersService.findByUsername(user.username);
     if (userExists) {
       throw new BadRequestException('User already exists');
     }
@@ -124,7 +134,11 @@ export class AuthService {
       ...user,
       password: hash,
     });
-    const tokens = await this.getTokens(newUser.id, newUser.username, newUser.admin);
+    const tokens = await this.getTokens(
+      newUser.id,
+      newUser.username,
+      newUser.admin,
+    );
     await this.updateRefreshToken(newUser.id, tokens.refreshToken);
     return tokens;
   }
@@ -150,8 +164,8 @@ export class AuthService {
   }
   /**
    * Give user a new refresh token in our auth file
-   * @param userId 
-   * @param refreshToken 
+   * @param userId
+   * @param refreshToken
    */
   async updateRefreshToken(id: number, refreshToken: string) {
     const hashedRefreshToken = await this.hashData(refreshToken);
@@ -165,7 +179,10 @@ export class AuthService {
    * This will throw an error if the credentials are incorrect.
    */
   private async checkPassword(user: UserDto, loginPassword: string) {
-    const passwordMatches = await argon2.verify(user.hashedPassword, loginPassword);
+    const passwordMatches = await argon2.verify(
+      user.hashedPassword,
+      loginPassword,
+    );
 
     if (passwordMatches) {
       return user;
@@ -215,14 +232,14 @@ export class AuthService {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
-      maxAge: 1000 * 60 * 15
-    })
+      maxAge: 1000 * 60 * 15,
+    });
     res.cookie('refresh-token', tokens.refreshToken, {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 7
-    })
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
   }
 
   /**
@@ -277,7 +294,6 @@ export class AuthService {
     }
   }
 
-
   /**
    * Setup the first user
    */
@@ -293,7 +309,7 @@ export class AuthService {
     // first user must be admin
     user.admin = true;
 
-    user.hashedPassword = await this.hashData(user.password)
+    user.hashedPassword = await this.hashData(user.password);
 
     await fs.writeJson(this.configService.authPath, []);
 
@@ -331,8 +347,6 @@ export class AuthService {
     };
   }
 
-
-
   /**
    * Change a users own password
    */
@@ -355,15 +369,15 @@ export class AuthService {
     const hashedPassword = await this.hashData(newPassword);
 
     return await this.usersService.update(user.id, {
-      hashedPassword: hashedPassword
-    })
+      hashedPassword: hashedPassword,
+    });
   }
 
   /**
    * Generate an OTP secret for a user
    */
   async setupOtp(username: string) {
-    return this.usersService.setupOtp(username)
+    return this.usersService.setupOtp(username);
   }
 
   /**
@@ -379,7 +393,7 @@ export class AuthService {
     if (!user.otpSecret) {
       throw new BadRequestException('2FA has not been setup.');
     }
-    return await this.usersService.activateOtp(username, code)
+    return await this.usersService.activateOtp(username, code);
   }
 
   /**

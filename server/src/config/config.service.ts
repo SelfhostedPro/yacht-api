@@ -16,15 +16,14 @@ export class ConfigService {
 
   // yacht env
   public configPath =
-    process.env.UIX_CONFIG_PATH ||
-    path.resolve('../config/config.yaml');
+    process.env.UIX_CONFIG_PATH || path.resolve('../config/config.yaml');
   public storagePath =
     process.env.UIX_STORAGE_PATH || path.resolve('../config/storage');
   public customPluginPath = process.env.UIX_CUSTOM_PLUGIN_PATH;
   public strictPluginResolution =
     process.env.UIX_STRICT_PLUGIN_RESOLUTION === '1';
   public secretPath = path.resolve(this.storagePath, '.uix-secrets');
-  public sshKeyPath = path.resolve(this.storagePath, '.ssh')
+  public sshKeyPath = path.resolve(this.storagePath, '.ssh');
   public authPath = path.resolve(this.storagePath, 'auth.json');
   public accessoryLayoutPath = path.resolve(
     this.storagePath,
@@ -81,7 +80,7 @@ export class ConfigService {
     passphraseSecret: {
       key: string;
       iv: string;
-    }
+    };
   };
 
   public instanceId: string;
@@ -139,29 +138,40 @@ export class ConfigService {
     const existingYachtConfig = yaml.load(existingConfig);
 
     // Compare the existing configuration with the new configuration
-    const updatedYachtConfig = this.compareConfigs(existingYachtConfig, yachtConfig);
+    const updatedYachtConfig = this.compareConfigs(
+      existingYachtConfig,
+      yachtConfig,
+    );
 
     // Write the updated configuration to the file
-    fs.writeFileSync(this.configPath, yaml.dump(updatedYachtConfig), { flag: 'w' });
+    fs.writeFileSync(this.configPath, yaml.dump(updatedYachtConfig), {
+      flag: 'w',
+    });
 
     this.logger.log('Config Updated!');
     this.parseConfig(updatedYachtConfig);
     return updatedYachtConfig;
   }
-  private compareConfigs(existingConfig: any, newConfig: YachtConfig): YachtConfig {
+  private compareConfigs(
+    existingConfig: any,
+    newConfig: YachtConfig,
+  ): YachtConfig {
     // Find the differing properties
-    const diff = _.reduce(newConfig, (result, value, key) => {
-      if (!_.isEqual(value, existingConfig[key])) {
-        result[key] = value;
-      }
-      return result;
-    }, {});
+    const diff = _.reduce(
+      newConfig,
+      (result, value, key) => {
+        if (!_.isEqual(value, existingConfig[key])) {
+          result[key] = value;
+        }
+        return result;
+      },
+      {},
+    );
     // Update the existing configuration with the new values only if they are defined and different
     const updatedConfig = { ...existingConfig, ...diff };
 
     return updatedConfig;
   }
-
 
   /**
    * Settings that are sent to the UI
@@ -238,7 +248,11 @@ export class ConfigService {
     if (fs.pathExistsSync(this.secretPath)) {
       try {
         const secrets = fs.readJsonSync(this.secretPath);
-        if (!secrets.accessSecret || !secrets.refreshSecret || !secrets.passphraseSecret) {
+        if (
+          !secrets.accessSecret ||
+          !secrets.refreshSecret ||
+          !secrets.passphraseSecret
+        ) {
           return this.generateSecretTokens();
         } else {
           return secrets;
@@ -261,7 +275,7 @@ export class ConfigService {
       passphraseSecret: {
         key: crypto.randomBytes(32).toString('base64'),
         iv: crypto.randomBytes(16).toString('base64'),
-      }
+      },
     };
 
     fs.writeJsonSync(this.secretPath, secrets);

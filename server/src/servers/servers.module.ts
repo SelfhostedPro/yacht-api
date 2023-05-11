@@ -11,10 +11,10 @@ import { ServersController } from './servers.controller';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     LoggerModule,
     AuthModule,
-    ConfigModule
+    ConfigModule,
   ],
   providers: [ServersService],
   controllers: [ServersController],
-  exports: [ServersService]
+  exports: [ServersService],
 })
 export class ServersModule {}

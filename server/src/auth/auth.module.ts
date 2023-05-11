@@ -29,9 +29,17 @@ import { UsersService } from '../users/users.service';
     }),
     ConfigModule,
     LoggerModule,
-    UsersModule
+    UsersModule,
   ],
-  providers: [AuthService, UsersService, AccessTokenStrategy, RefreshTokenStrategy, WsGuard, WsAdminGuard, AdminGuard],
+  providers: [
+    AuthService,
+    UsersService,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
+    WsGuard,
+    WsAdminGuard,
+    AdminGuard,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { ResourcesService } from './resources.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../common/guards/accessToken.guard';
@@ -22,7 +31,7 @@ export class ResourcesController {
 
   @Get('images/:server/:id')
   getImage(@Param('server') server: string, @Param('id') id: string) {
-    return this.resourcesService.getImage(server,id);
+    return this.resourcesService.getImage(server, id);
   }
 
   @Get('volumes')
@@ -32,7 +41,7 @@ export class ResourcesController {
 
   @Get('volumes/:server/:id')
   getVolume(@Param('server') server: string, @Param('id') id: string) {
-    return this.resourcesService.getVolume(server,id);
+    return this.resourcesService.getVolume(server, id);
   }
 
   @Get('networks')
@@ -42,7 +51,7 @@ export class ResourcesController {
 
   @Get('networks/:server/:id')
   getNetwork(@Param('server') server: string, @Param('id') id: string) {
-    return this.resourcesService.getNetwork(server,id);
+    return this.resourcesService.getNetwork(server, id);
   }
 
   // @Patch(':id')
