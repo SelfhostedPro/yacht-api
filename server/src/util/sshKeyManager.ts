@@ -1,7 +1,7 @@
 import { generateKeyPairSync } from 'crypto';
 import { createCipheriv, createDecipheriv } from 'crypto';
 import { promises as fs } from 'fs';
-import { pathExists, readJSON, writeJSON, writeFileSync, removeSync } from 'fs-extra';
+import { pathExists, readJSON, writeJSON, writeFileSync, removeSync, outputFileSync } from 'fs-extra';
 import { parseKey, parsePrivateKey } from 'sshpk';
 import * as path from 'path';
 import { ConfigService } from '../config/config.service';
@@ -54,8 +54,8 @@ export class SSHKeyManager {
 
     // Write the keys to the filesystem
     if (!privateKeyExists && !publicKeyExists) {
-      writeFileSync(privateKeyPath, privateKey.toString());
-      writeFileSync(publicKeyPath, publicKey.toString());
+      outputFileSync(privateKeyPath, privateKey.toString());
+      outputFileSync(publicKeyPath, publicKey.toString());
       this.logger.log(`SSH key ${keyName} created`);
     }
 
@@ -103,21 +103,25 @@ export class SSHKeyManager {
           conn.exec(
             `sed -i '/${publicKey}/d' ~/.ssh/authorized_keys`,
             (err, stream) => {
-              if (err) throw err;
+              if (err) reject(err);
               stream
                 .on('close', () => {
-                  console.log('SSH key removed');
+                  this.logger.log('SSH key removed');
                   conn.end();
                   resolve();
                 })
                 .on('data', (data) => {
-                  console.log('STDOUT: ' + data);
+                  this.logger.log('STDOUT: ' + data);
                 })
                 .stderr.on('data', (data) => {
-                  console.log('STDERR: ' + data);
+                  this.logger.log('STDERR: ' + data);
                 });
             },
           );
+        })
+        .on('error', (err) => {
+          this.logger.log(`Connection error: \${err}`);
+          reject(err);
         })
         .connect({
           host: remoteHost,
@@ -149,28 +153,32 @@ export class SSHKeyManager {
           conn.exec(
             `mkdir -p ~/.ssh/ && echo "${convertedPublicKey}" >> ~/.ssh/authorized_keys`,
             (err, stream) => {
-              if (err) throw err;
+              if (err) reject(err);
               stream
                 .on('close', () => {
-                  console.log('SSH key copied');
+                  this.logger.log('SSH key copied');
                   conn.end();
                   resolve();
                 })
                 .on('data', (data) => {
-                  console.log('STDOUT: ' + data);
+                  this.logger.log('STDOUT: ' + data);
                 })
                 .stderr.on('data', (data) => {
-                  console.log('STDERR: ' + data);
+                  this.logger.log('STDERR: ' + data);
                 });
             },
           );
+        })
+        .on('error', (err) => {
+          this.logger.log(`Connection error: \${err}`);
+          reject(err);
         })
         .connect({
           host: remoteHost,
           port: port,
           username: username,
           password: password,
-        });
+        })
     });
   }
 

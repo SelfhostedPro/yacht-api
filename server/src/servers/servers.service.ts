@@ -23,13 +23,17 @@ export class ServersService {
       if (server.options.protocol === 'ssh' && server.key) {
         const privateKey = await keyManager.getPrivateKey(server.key);
         // @ts-ignore
-        result[server.name] = new Docker({
-          protocol: 'ssh',
-          host: server.options.host,
-          port: server.options.port,
-          username: server.options.username,
-          sshOptions: { privateKey: privateKey },
-        });
+        try {
+          result[server.name] = new Docker({
+            protocol: 'ssh',
+            host: server.options.host,
+            port: server.options.port,
+            username: server.options.username,
+            sshOptions: { privateKey: privateKey }
+          });
+        } catch (e) {
+          this.logger.log(`Error connecting to ${server.name}: ${e}`)
+        }
       } else if (server.options.protocol === 'ssh' && !server.key) {
         this.logger.log(`SSH key not found for ${server.name} please try removing and re-adding the server`);
       }
@@ -73,13 +77,19 @@ export class ServersService {
       this.logger.log(`Generating SSH key for ${name}`);
       await keyManager.createSSHKey(keyName, randomBytes(32).toString('hex'));
       this.logger.log(`Copying SSH key to ${name}`);
-      await keyManager.copyPublicKeyToRemoteServer(
-        keyName,
-        options.host,
-        options.port,
-        options.username,
-        options.password,
-      );
+      try {
+        await keyManager.copyPublicKeyToRemoteServer(
+          keyName,
+          options.host,
+          options.port,
+          options.username,
+          options.password,
+        );
+      } catch (e) {
+        this.logger.log(`Error copying SSH key to ${name}: ${e}`)
+        keyManager.removeSSHKey(keyName)
+        throw new Error(`Error copying SSH key to ${name}: ${e}`)
+      }
     }
 
     else if (options.protocol === 'ssh' && keyName && !keyExists && !copyToServer) {
@@ -87,14 +97,20 @@ export class ServersService {
       await keyManager.createSSHKey(keyName, randomBytes(32).toString('hex'));
     }
 
-    else if (options.protocol === 'ssh' && keyName && keyExists && copyToServer) {
-      await keyManager.copyPublicKeyToRemoteServer(
-        keyName,
-        options.host,
-        options.port,
-        options.username,
-        options.password,
-      );
+    else if (options.protocol === 'ssh' && keyName && copyToServer) {
+      try {
+        await keyManager.copyPublicKeyToRemoteServer(
+          keyName,
+          options.host,
+          options.port,
+          options.username,
+          options.password,
+        );
+      } catch (e) {
+        this.logger.log(`Error copying SSH key to ${name}: ${e}`)
+        keyManager.removeSSHKey(keyName)
+        throw new Error(`Error copying SSH key to ${name}: ${e}`)
+      }
     }
     delete options.password;
     servers.push({ name, options, key: keyName });
@@ -102,7 +118,7 @@ export class ServersService {
     currentConfig.base.servers = servers;
 
     return this.configService.writeConfig(currentConfig);
-  } 
+  }
   async removeServerFromConfig(name: string, removeRemoteKey: boolean, removeLocalKey: boolean): Promise<YachtConfig> {
     const servers = await this.getServerConfig();
     // Check for existing servers
