@@ -11,13 +11,13 @@
                     <v-card>
                         <v-row>
                             <v-col><v-card-title>{{ server.name }} </v-card-title></v-col>
-                            <v-col cols="2"><v-btn @click="serverRemoveModal = true" icon="mdi-close"></v-btn></v-col>
+                            <v-col cols="2"><v-btn variant="plain" @click="serverRemoveModal[server.name] = true" icon="mdi-close"></v-btn></v-col>
                         </v-row>
                         <v-card-subtitle v-if="server.options.protocol == 'ssh' && server.key">key: {{ server.key
                         }}</v-card-subtitle>
                         <v-card-text> {{ server.options }}</v-card-text>
-                        <v-dialog v-model="serverRemoveModal" :width="500">
-                            <delServer @close="serverRemoveModal = false" :server="server" :servers="servers" />
+                        <v-dialog v-model="serverRemoveModal[server.name]" :width="500">
+                            <delServer @close="serverRemoveModal[server.name] = false" :server="server" :servers="servers" />
                         </v-dialog>
                     </v-card>
                 </v-col>
@@ -43,8 +43,8 @@ import addServer from './addServer.vue'
 import delServer from './delServer.vue';
 import { useSettingsStore } from '@/stores/settings';
 import { storeToRefs } from 'pinia';
+const serverRemoveModal = ref({})
 const serverAddModal = ref(false)
-const serverRemoveModal = ref(false)
 const settingStore = useSettingsStore()
 const { settings, servers } = storeToRefs(settingStore)
 

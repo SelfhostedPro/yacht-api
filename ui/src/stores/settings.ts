@@ -50,10 +50,10 @@ export const useSettingsStore = defineStore('settings', {
                 loadingStore.stopLoadingItem('servers')
             }
         },
-        async removeServer(keyName: string, removeRemoteKey: boolean) {
+        async removeServer(name: string, removeRemoteKey: boolean, removeLocalKey: boolean) {
             const loadingStore = useLoadingStore()
             loadingStore.startLoadingItem('servers')
-            const { error, data } = await useAuthFetch<string>(`/api/servers/`).delete({ keyName, removeRemoteKey }).json()
+            const { error, data } = await useAuthFetch<string>(`/api/servers/`).delete({ name, removeRemoteKey, removeLocalKey }).json()
             if (!error.value) {
                 this.servers = data.value
                 loadingStore.stopLoadingItem('servers')

@@ -69,11 +69,15 @@ export class SSHKeyManager {
 
   public async removeSSHKey(keyName: string): Promise<void> {
     const { privateKeyPath, publicKeyPath } = await this.getSSHKeyInfo(keyName);
-    await Promise.all([
-      removeSync(privateKeyPath),
-      removeSync(publicKeyPath),
-      this.removePassphrase(keyName),
-    ]);
+    if (await pathExists(privateKeyPath) && await pathExists(publicKeyPath)) {
+      await Promise.all([
+        removeSync(privateKeyPath),
+        removeSync(publicKeyPath),
+        this.removePassphrase(keyName),
+      ]);
+    } else {
+      this.logger.log('SSH key does not exist');
+    }
   }
 
   public async removePublicKeyFromRemoteServer(
@@ -83,6 +87,10 @@ export class SSHKeyManager {
     username: string,
   ): Promise<void> {
     const { publicKeyPath } = await this.getSSHKeyInfo(keyName);
+    if (!(await pathExists(publicKeyPath))) {
+      this.logger.log('SSH key does not exist');
+      return;
+    }
     const publicKey = await fs.readFile(publicKeyPath, 'utf8');
     const privateKey = await this.getPrivateKey(keyName);
     const conn = new Client();
@@ -217,7 +225,7 @@ export class SSHKeyManager {
       );
     } else {
       this.logger.log(`No passphrase found for ${keyName}`);
-      
+
     }
 
   }
@@ -234,9 +242,9 @@ export class SSHKeyManager {
     const fileExists = await pathExists(passphraseFilePath);
     const passphraseFile = fileExists
       ? {
-          ...(await readJSON(passphraseFilePath)),
-          [keyName]: encryptedPassphrase,
-        }
+        ...(await readJSON(passphraseFilePath)),
+        [keyName]: encryptedPassphrase,
+      }
       : { [keyName]: encryptedPassphrase };
     await writeJSON(passphraseFilePath, passphraseFile, { spaces: 4 });
   }

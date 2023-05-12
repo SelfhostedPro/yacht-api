@@ -69,6 +69,7 @@ export class ServersController {
             const deleted = await this.serversService.removeServerFromConfig(
                 body.name,
                 body.removeRemoteKey,
+                body.removeLocalKey
             );
             return deleted;
         } catch (err) {

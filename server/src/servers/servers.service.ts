@@ -13,7 +13,7 @@ export class ServersService {
   constructor(
     private readonly logger: Logger,
     private readonly configService: ConfigService,
-  ) { 
+  ) {
     this.logger = new Logger(ServersService.name);
   }
   async getServersFromConfig(): Promise<ServerDict> {
@@ -102,27 +102,32 @@ export class ServersService {
     currentConfig.base.servers = servers;
 
     return this.configService.writeConfig(currentConfig);
-  }
-  async removeServerFromConfig(name: string, removeRemoteKey: boolean, removeLocalKey?: boolean): Promise<YachtConfig> {
+  } 
+  async removeServerFromConfig(name: string, removeRemoteKey: boolean, removeLocalKey: boolean): Promise<YachtConfig> {
     const servers = await this.getServerConfig();
     // Check for existing servers
     let serverExists = false;
+    let serverToDelete = null
     this.logger.log(`Checking if server ${name} already exists`);
     for (const server of servers) {
       if (server.name === name) {
         serverExists = true;
+        serverToDelete = server
+        const index = servers.indexOf(server)
+        servers.splice(index, 1)
         break;
       }
     }
-    if (serverExists) {
+    console.log(servers)
+    if (!serverExists) {
       throw new Error('Server not found');
     }
-    if (servers[name].options.protocol === 'ssh' && removeRemoteKey) {
-      await keyManager.removePublicKeyFromRemoteServer(servers[name].key, servers[name].options.host, servers[name].options.port, servers[name].options.username)
+    if (serverToDelete.options.protocol === 'ssh' && removeRemoteKey) {
+      await keyManager.removePublicKeyFromRemoteServer(serverToDelete.key, serverToDelete.options.host, serverToDelete.options.port, serverToDelete.options.username)
     }
 
-    if (servers[name].options.protocol === 'ssh' && removeLocalKey) {
-      await keyManager.removeSSHKey(servers[name].key);
+    if (serverToDelete.options.protocol === 'ssh' && removeLocalKey) {
+      await keyManager.removeSSHKey(serverToDelete.key);
     }
     delete servers[name];
     const currentConfig = this.configService.yachtConfig;
