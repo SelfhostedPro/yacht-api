@@ -9,7 +9,8 @@ export const useAppStore = defineStore('apps', {
     state: () => ({
         apps: {} as ServerContainers,
         stats: {} as YachtContainerStats,
-        openStats: null as EventSource
+        openStats: null as EventSource,
+        retries: 0,
     }),
     getters: {
         getApp: (state) => (serverName: string, idOrName: string) => state.apps[serverName].find((app) => app.id === idOrName || app.name === idOrName),
@@ -74,7 +75,7 @@ export const useAppStore = defineStore('apps', {
         async fetchStats() {
             const loadingStore = useLoadingStore()
             loadingStore.startLoadingItem('stats')
-            let retries = 0
+            this.retries = 0
             const { eventSource, error, data } = useEventSource(`/api/containers/stats`, ['message'], { withCredentials: true })
             if (!error.value) {
                 eventSource.value.onopen = () => {
@@ -88,8 +89,8 @@ export const useAppStore = defineStore('apps', {
                 })
                 eventSource.value.addEventListener('error', async () => {
                     await new Promise(f => setTimeout(f, 1000));
-                    if (retries < 10) {
-                        retries += 1
+                    if (this.retries < 10) {
+                        this.retries += 1
                         this.fetchStats()
                     }
                 })
