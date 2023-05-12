@@ -158,6 +158,9 @@ importers:
       '@types/js-yaml':
         specifier: ^4.0.5
         version: 4.0.5
+      '@types/lodash':
+        specifier: ^4.14.194
+        version: 4.14.194
       '@types/node':
         specifier: 18.15.11
         version: 18.15.11
@@ -1924,6 +1927,10 @@ packages:
 
   /@types/linkify-it@3.0.2:
     resolution: {integrity: sha512-HZQYqbiFVWufzCwexrvh694SOim8z2d+xJl5UNamcvQFejLY/2YUtzXHYi3cHdI7PMlS8ejH2slRAOJQ32aNbA==}
+    dev: true
+
+  /@types/lodash@4.14.194:
+    resolution: {integrity: sha512-r22s9tAS7imvBt2lyHC9B8AGwWnXaYb1tY09oyLkXDs4vArpYJzw09nj8MLx5VfciBPGIb+ZwG0ssYnEPJxn/g==}
     dev: true
 
   /@types/markdown-it@12.2.3:
