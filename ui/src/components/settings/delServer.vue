@@ -11,7 +11,7 @@
             <v-switch label="delete local key"></v-switch>
         </v-card-text>
         <v-card-actions>
-            <v-btn @click="$emit('close')">Cancel</v-btn>
+            <v-btn :disabled="keyInOtherServers()" @click="$emit('close')">Cancel</v-btn>
             <v-btn color="warning" @click="$emit('close')">Remove</v-btn>
         </v-card-actions>
     </v-card>
@@ -19,4 +19,13 @@
 
 <script setup lang="ts">
 defineEmits(['close'])
-defineProps(['server'])
+const props = defineProps(['server', 'servers'])
+
+const keyInOtherServers = () => {
+    const otherServers = props.servers.filter((s) => s.key === props.server.key)
+    if (otherServers.length > 1) {
+        return true
+    }
+    return false
+}
+</script>
