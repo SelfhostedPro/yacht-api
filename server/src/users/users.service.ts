@@ -20,6 +20,7 @@ export class UsersService {
     private readonly logger: Logger,
   ) {
     this.checkAuthFile();
+    this.logger = new Logger(UsersService.name);
   }
 
   /**

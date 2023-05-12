@@ -16,7 +16,7 @@ export class SSHKeyManager {
 
   constructor() {
     this.configService = new ConfigService();
-    this.logger = new Logger();
+    this.logger = new Logger('SSHKeyManager');
   }
   // Generate an SSH key
   async createSSHKey(keyName: string, passphrase: string) {

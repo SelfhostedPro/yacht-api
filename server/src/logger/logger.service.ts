@@ -2,17 +2,22 @@ import { ConsoleLogger } from '@nestjs/common';
 import * as color from 'bash-color';
 
 export class Logger extends ConsoleLogger {
-  private pluginName = 'Yacht';
+  moduleName: string;
+  constructor(moduleName?: string) {
+    super(moduleName);
+    this.moduleName = moduleName || 'Yacht';
+  }
+
   private useTimestamps = process.env.UIX_LOG_NO_TIMESTAMPS !== '1';
 
   private get prefix() {
     if (this.useTimestamps) {
       return (
         color.white(`[${new Date().toLocaleString()}] `) +
-        color.cyan(`[${this.pluginName}]`)
+        color.cyan(`[${this.moduleName}]`)
       );
     } else {
-      return color.cyan(`[${this.pluginName}]`);
+      return color.cyan(`[${this.moduleName}]`);
     }
   }
 

@@ -26,7 +26,9 @@ export class ContainersService {
   constructor(
     private readonly logger: Logger,
     private readonly serversService: ServersService,
-  ) {}
+  ) {
+    this.logger = new Logger(ContainersService.name)
+  }
 
   async getContainers(): Promise<ServerContainers> {
     const servers: ServerDict =

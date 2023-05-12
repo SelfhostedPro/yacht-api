@@ -13,7 +13,9 @@ export class ServersService {
   constructor(
     private readonly logger: Logger,
     private readonly configService: ConfigService,
-  ) { }
+  ) { 
+    this.logger = new Logger(ServersService.name);
+  }
   async getServersFromConfig(): Promise<ServerDict> {
     const servers = this.configService.yachtConfig.base.servers;
     const result: ServerDict = {};
