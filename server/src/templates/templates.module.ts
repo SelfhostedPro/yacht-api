@@ -4,7 +4,7 @@ import { TemplatesService } from './templates.service';
 
 import { ConfigModule } from '../config/config.module';
 import { AuthModule } from '../auth/auth.module';
-import { LoggerModule } from '../logger/logger.module';
+import { LoggerModule } from '../common/logger/logger.module';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({

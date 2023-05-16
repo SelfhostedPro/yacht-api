@@ -3,7 +3,7 @@ import { PassportModule } from '@nestjs/passport';
 
 import { UsersController } from './users.controller';
 import { ConfigModule } from '../config/config.module';
-import { LoggerModule } from '../logger/logger.module';
+import { LoggerModule } from '../common/logger/logger.module';
 import { AuthModule } from '../auth/auth.module';
 import { UsersService } from './users.service';
 

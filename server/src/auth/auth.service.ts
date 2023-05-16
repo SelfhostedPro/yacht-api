@@ -15,7 +15,7 @@ import {
 import { WsException } from '@nestjs/websockets';
 import * as NodeCache from 'node-cache';
 import { ConfigService } from '../config/config.service';
-import { Logger } from '../logger/logger.service';
+import { Logger } from '../common/logger/logger.service';
 import { UserDto } from '../users/users.dto';
 import { UsersService } from '../users/users.service';
 import { TokensDto, UserTokensDto } from './auth.dto';

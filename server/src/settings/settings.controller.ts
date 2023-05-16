@@ -12,7 +12,7 @@ import { YachtConfig } from '@yacht/types';
 import { AccessTokenGuard } from '../common/guards/accessToken.guard';
 import { ConfigService } from '../config/config.service';
 import { updateSettingsDto } from './settings.dto';
-import { SSHKeyManager } from 'src/util/sshKeyManager';
+import { SSHKeyManager } from 'src/util/sshManager';
 
 @ApiTags('Settings')
 @ApiBearerAuth()

@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Logger } from 'src/logger/logger.service';
-import { ConfigService } from 'src/config/config.service';
-import { ServerDict, YachtConfig } from '@yacht/types';
+import { Logger } from '../common/logger/logger.service';
+import { ConfigService } from '../config/config.service';
+import { ServerDict, YachtConfig, serverConfig } from '@yacht/types';
 import { randomBytes } from 'crypto';
 import { NewServerOptions } from './servers.dto';
-import { SSHKeyManager } from '../util/sshKeyManager';
-const Docker = require('dockerode');
+import { SSHKeyManager } from '../util/sshManager';
+import * as Docker from 'dockerode';
+// const Docker = require('dockerode');
+// const ssh = require('docker-modem/lib/ssh');
 const keyManager = new SSHKeyManager();
 
 @Injectable()
@@ -16,35 +18,43 @@ export class ServersService {
   ) {
     this.logger = new Logger(ServersService.name);
   }
+  async createDockerInstance(server: serverConfig, privateKey?: string): Promise<Docker | null> {
+    const options = privateKey ? { ...server.options, sshOptions: { privateKey } } : server.options;
+    const newServer = new Docker(options);
+    try {
+      await newServer.info();
+      return newServer;
+    } catch (e) {
+      this.logger.error(`Error connecting to ${server.name} (${server.options.host && server.options.port ? server.options.host + ':' + server.options.port : server.options.socketPath}) => ${e}`);
+      return null;
+    }
+  }
   async getServersFromConfig(): Promise<ServerDict> {
     const servers = this.configService.yachtConfig.base.servers;
     const result: ServerDict = {};
-    for (const server of servers) {
+    const serverPromises = servers.map(async (server) => {
       if (server.options.protocol === 'ssh' && server.key) {
         const privateKey = await keyManager.getPrivateKey(server.key);
-        // @ts-ignore
-        try {
-          result[server.name] = new Docker({
-            protocol: 'ssh',
-            host: server.options.host,
-            port: server.options.port,
-            username: server.options.username,
-            sshOptions: { privateKey: privateKey }
-          });
-        } catch (e) {
-          this.logger.log(`Error connecting to ${server.name}: ${e}`)
+        const newServer = await this.createDockerInstance(server, privateKey);
+        if (newServer) {
+          result[server.name] = newServer;
         }
       } else if (server.options.protocol === 'ssh' && !server.key) {
-        this.logger.log(`SSH key not found for ${server.name} please try removing and re-adding the server`);
+        this.logger.error(`SSH key not found for ${server.name} please try removing and re-adding the server`);
+      } else {
+        const newLocal = await this.createDockerInstance(server);
+        if (newLocal) {
+          result[server.name] = newLocal;
+        }
       }
-      else {
-        result[server.name] = new Docker(server.options);
-      }
-    }
+    });
+    await Promise.all(serverPromises);
     return result;
   }
+
   async getServerFromConfig(name: string): Promise<typeof Docker> {
     const servers = await this.getServersFromConfig();
+    // @ts-ignore
     return servers[name];
   }
   async getServerConfig(): Promise<YachtConfig['base']['servers']> {
@@ -67,6 +77,7 @@ export class ServersService {
       }
     }
     if (serverExists) {
+      this.logger.error('Server already exists')
       throw new Error('Server already exists');
     }
     const currentKeys = await keyManager.getAllKeys()
@@ -107,7 +118,7 @@ export class ServersService {
           options.password,
         );
       } catch (e) {
-        this.logger.log(`Error copying SSH key to ${name}: ${e}`)
+        this.logger.error(`Error copying SSH key to ${name}: ${e}`)
         keyManager.removeSSHKey(keyName)
         throw new Error(`Error copying SSH key to ${name}: ${e}`)
       }
@@ -124,9 +135,10 @@ export class ServersService {
     // Check for existing servers
     let serverExists = false;
     let serverToDelete = null
-    this.logger.log(`Checking if server ${name} already exists`);
+    this.logger.debug(`Checking if server ${name} already exists`);
     for (const server of servers) {
       if (server.name === name) {
+        this.logger.warn(`Removing server ${name} (${server.options.host && server.options.port ? server.options.host + ':' + server.options.port : server.options.socketPath})})`)
         serverExists = true;
         serverToDelete = server
         const index = servers.indexOf(server)
@@ -134,8 +146,8 @@ export class ServersService {
         break;
       }
     }
-    console.log(servers)
     if (!serverExists) {
+      this.logger.error('Server not found')
       throw new Error('Server not found');
     }
     if (serverToDelete.options.protocol === 'ssh' && removeRemoteKey) {
@@ -148,6 +160,7 @@ export class ServersService {
     delete servers[name];
     const currentConfig = this.configService.yachtConfig;
     currentConfig.base.servers = servers;
+    this.logger.success(`Server ${name} removed`)
     return this.configService.writeConfig(currentConfig);
   }
 }

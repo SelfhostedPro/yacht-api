@@ -5,7 +5,7 @@ import Dockerode, {
 } from 'dockerode';
 import { PassThrough as StreamPassThrough } from 'stream';
 import { ContainerProcessesDTO } from './classes';
-import { Logger } from '../logger/logger.service';
+import { Logger } from '../common/logger/logger.service';
 import { ServersService } from '../servers/servers.service';
 import { Observable } from 'rxjs';
 import {
@@ -31,21 +31,30 @@ export class ContainersService {
   }
 
   async getContainers(): Promise<ServerContainers> {
-    const servers: ServerDict =
-      await this.serversService.getServersFromConfig();
-    const serverKeys = Object.keys(servers);
-    // Get containers from all servers in config
-    const serverPromises: Promise<Container[]>[] = serverKeys.map((name) =>
-      servers[name].listContainers({ all: true }).then(normalizeContainers),
-    );
-    // Wait for containers to resolve
-    const containerArrays = await Promise.all(serverPromises);
-    // Assign each container array to it's server
-    return serverKeys.reduce((acc, serverName, index) => {
-      acc[serverName] = containerArrays[index];
-      return acc;
-    }, {} as { [serverName: string]: Container[] });
+    try {
+      const servers: ServerDict = await this.serversService.getServersFromConfig();
+      const serverKeys = Object.keys(servers);
+      // Get containers from all servers in config
+      const serverPromises: Promise<Container[]>[] = serverKeys.map(async (name) => {
+        const containers = await servers[name].listContainers({ all: true }).catch((error) => {
+          this.logger.error(`Error getting containers for server '${name}': ${error.message}`);
+          return [];
+        });
+        return normalizeContainers(containers);
+      });
+      // Wait for containers to resolve
+      const containerArrays = await Promise.all(serverPromises);
+      // Assign each container array to its server
+      return serverKeys.reduce((acc, serverName, index) => {
+        acc[serverName] = containerArrays[index];
+        return acc;
+      }, {} as { [serverName: string]: Container[] });
+    } catch (error) {
+      this.logger.error(`Error getting containers: ${error.message}`);
+      throw new Error(`Error getting containers: ${error.message}`);
+    }
   }
+
 
   async getContainer(serverName: string, id: string): Promise<Container> {
     const server: any = await this.serversService.getServerFromConfig(
@@ -156,8 +165,10 @@ export class ContainersService {
   }
 
   async streamBaseContainerStats(): Promise<Observable<MessageEvent>> {
-    const servers: ServerDict =
-      await this.serversService.getServersFromConfig();
-    return new DockerStatsStreamer(servers).streamBaseContainerStats();
+    return this.serversService.getServersFromConfig().then((servers: ServerDict) => {
+      return new DockerStatsStreamer(servers).streamBaseContainerStats();
+    }).catch((error) => {
+      throw error;
+    });
   }
 }

@@ -89,9 +89,13 @@ export const useAppStore = defineStore('apps', {
                 })
                 eventSource.value.addEventListener('error', async () => {
                     await new Promise(f => setTimeout(f, 1000));
-                    if (this.retries < 10) {
+                    if (this.retries < 3) {
                         this.retries += 1
+                        eventSource.value.close()
                         this.fetchStats()
+                    } else {
+                        eventSource.value.close()
+                        loadingStore.stopLoadingItem('stats')
                     }
                 })
                 // Assign openStats to eventSource so we can close it later

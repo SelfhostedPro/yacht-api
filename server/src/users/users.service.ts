@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { authenticator } from 'otplib';
 import { ConfigService } from '../config/config.service';
-import { Logger } from '../logger/logger.service';
+import { Logger } from '../common/logger/logger.service';
 
 @Injectable()
 export class UsersService {

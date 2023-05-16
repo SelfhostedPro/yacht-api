@@ -1,5 +1,10 @@
 lockfileVersion: '6.0'
 
+patchedDependencies:
+  docker-modem@3.0.8:
+    hash: jvlnm6gmsge26glhjvofrvyvru
+    path: patches/docker-modem@3.0.8.patch
+
 importers:
 
   .:
@@ -69,7 +74,7 @@ importers:
         version: 1.0.2
       docker-modem:
         specifier: ^3.0.8
-        version: 3.0.8
+        version: 3.0.8(patch_hash=jvlnm6gmsge26glhjvofrvyvru)
       dockerode:
         specifier: ^3.3.5
         version: 3.3.5
@@ -3619,7 +3624,7 @@ packages:
       path-type: 4.0.0
     dev: true
 
-  /docker-modem@3.0.8:
+  /docker-modem@3.0.8(patch_hash=jvlnm6gmsge26glhjvofrvyvru):
     resolution: {integrity: sha512-f0ReSURdM3pcKPNS30mxOHSbaFLcknGmQjwSfmbcdOw1XWKXVhukM3NJHhr7NpY9BIyyWQb0EBo3KQvvuU5egQ==}
     engines: {node: '>= 8.0'}
     dependencies:
@@ -3630,13 +3635,14 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: false
+    patched: true
 
   /dockerode@3.3.5:
     resolution: {integrity: sha512-/0YNa3ZDNeLr/tSckmD69+Gq+qVNhvKfAHNeZJBnp7EOP6RGKV8ORrJHkUn20So5wU+xxT7+1n5u8PjHbfjbSA==}
     engines: {node: '>= 8.0'}
     dependencies:
       '@balena/dockerignore': 1.0.2
-      docker-modem: 3.0.8
+      docker-modem: 3.0.8(patch_hash=jvlnm6gmsge26glhjvofrvyvru)
       tar-fs: 2.0.1
     transitivePeerDependencies:
       - supports-color

@@ -3,7 +3,7 @@ import { ContainersController } from './containers.controller';
 import { ContainersService } from './containers.service';
 import { AuthModule } from '../auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
-import { LoggerModule } from '../logger/logger.module';
+import { LoggerModule } from '../common/logger/logger.module';
 import { ServersModule } from 'src/servers/servers.module';
 
 @Module({

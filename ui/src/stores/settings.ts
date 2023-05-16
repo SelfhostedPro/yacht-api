@@ -29,7 +29,7 @@ export const useSettingsStore = defineStore('settings', {
             const { error, data } = await useAuthFetch<string>(`/api/settings/`).json()
             if (!error.value) {
                 this.settings = data.value
-                loadingStore.stopLoadingItem('servers')
+                loadingStore.stopLoadingItem('settings')
             }
         },
         async fetchKeys() {

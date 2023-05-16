@@ -8,21 +8,15 @@ export class Logger extends ConsoleLogger {
     this.moduleName = moduleName || 'Yacht';
   }
 
-  private useTimestamps = process.env.UIX_LOG_NO_TIMESTAMPS !== '1';
-
   private get prefix() {
-    if (this.useTimestamps) {
-      return (
-        color.white(`[${new Date().toLocaleString()}] `) +
-        color.cyan(`[${this.moduleName}]`)
-      );
-    } else {
-      return color.cyan(`[${this.moduleName}]`);
-    }
+    return (
+      color.cyan(`[${this.moduleName}] `) +
+      color.white(`[${new Date().toLocaleString()}]`)
+    );
   }
 
   log(...args) {
-    console.log(this.prefix, ...args);
+    console.log(this.prefix, ...args.map((x) => color.blue(x)));
   }
 
   error(...args) {
@@ -33,8 +27,12 @@ export class Logger extends ConsoleLogger {
     console.warn(this.prefix, ...args.map((x) => color.yellow(x)));
   }
 
+  success(...args) {
+    console.log(this.prefix, ...args.map((x) => color.green(x)));
+  }
+
   debug(...args) {
-    if (process.env.UIX_DEBUG_LOGGING === '1') {
+    if (process.env.DEBUG === '1') {
       console.debug(this.prefix, ...args.map((x) => color.green(x)));
     }
   }

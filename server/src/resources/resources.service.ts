@@ -6,7 +6,7 @@ import {
   NetworkInspectInfo,
   VolumeInspectInfo,
 } from 'dockerode';
-import { Logger } from '../logger/logger.service';
+import { Logger } from '../common/logger/logger.service';
 import { ServersService } from '../servers/servers.service';
 import {
   ServerDict,

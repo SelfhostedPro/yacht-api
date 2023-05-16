@@ -6,7 +6,7 @@ import * as yaml from 'js-yaml';
 import * as crypto from 'crypto';
 import * as _ from 'lodash';
 import { YachtConfig } from '@yacht/types';
-import { Logger } from '../logger/logger.service';
+import { Logger } from '../common/logger/logger.service';
 
 @Injectable()
 export class ConfigService {

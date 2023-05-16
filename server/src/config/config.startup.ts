@@ -1,15 +1,15 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as yaml from 'js-yaml';
-
-import { Logger } from '../logger/logger.service';
 import { YachtConfig } from '@yacht/types';
+import { Logger } from '../common/logger/logger.service';
 //
 /**
  * Return config required to start the console server
  */
-export async function getStartupConfig() {
-  const logger = new Logger();
+export function getStartupConfig(): YachtConfig {
+  const logger = new Logger('ConfigStartup')
+  logger.log('Getting startup config...');
   const configPath = path.resolve('../config/config.yaml');
   const defaultConfig: YachtConfig = {
     base: {
@@ -42,9 +42,9 @@ export async function getStartupConfig() {
       });
       fs.mkdirSync(path.resolve('../config/storage/.ssh'), { recursive: true });
       fs.writeFileSync(configPath, yaml.dump(defaultConfig), { flag: 'w' });
-      logger.log('Config Created!');
+      logger.success('Config Created!');
     } catch (e) {
-      logger.log(e);
+      logger.error(e);
     }
   }
 

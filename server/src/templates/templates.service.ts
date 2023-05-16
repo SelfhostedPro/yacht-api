@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
-import { Logger } from '../logger/logger.service';
+import { Logger } from '../common/logger/logger.service';
 import { TemplateUrlDTO } from './classes';
 import * as fs from 'fs-extra';
 import { map, catchError, reduce, lastValueFrom } from 'rxjs';

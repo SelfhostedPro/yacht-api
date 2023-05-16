@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { LoggerModule } from '../logger/logger.module';
+import { LoggerModule } from '../common/logger/logger.module';
 import { ConfigModule } from '../config/config.module';
 import { ConfigService } from '../config/config.service';
 import { AccessTokenStrategy } from './jwt.strategy';

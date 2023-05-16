@@ -5,7 +5,7 @@ import { pathExists, readJSON, writeJSON, writeFileSync, removeSync, outputFileS
 import { parseKey, parsePrivateKey } from 'sshpk';
 import * as path from 'path';
 import { ConfigService } from '../config/config.service';
-import { Logger } from '../logger/logger.service';
+import { Logger } from '../common/logger/logger.service';
 const { Client } = require('ssh2');
 
 type PassphraseFile = Map<string, string>;

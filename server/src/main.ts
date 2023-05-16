@@ -5,12 +5,12 @@ import { getStartupConfig } from './config/config.startup';
 import * as cookieParser from 'cookie-parser';
 
 import helmet from 'helmet';
-import { Logger } from './logger/logger.service';
+import { Logger } from './common/logger/logger.service';
 
 async function bootstrap() {
-  await getStartupConfig();
+  getStartupConfig();
   const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn', 'log'],
+    logger: new Logger('Server'),
   });
   app.setGlobalPrefix('api');
 
@@ -44,9 +44,7 @@ async function bootstrap() {
 
   const logger = new Logger();
   await app.listen(3000, '0.0.0.0', function () {
-    logger.log('Listening to port: ' + 3000);
+    logger.success('Listening to port: ' + 3000);
   });
 }
 bootstrap();
-
-export const viteNodeApp = NestFactory.create(AppModule);

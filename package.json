@@ -14,10 +14,13 @@
     "types": "pnpm --filter @yacht/types build",
     "kill": "kill $(lsof -t -i:3000) & kill $(lsof -t -i:5000)"
   },
-  "dependencies": {
-  },
   "devDependencies": {
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "docker-modem@3.0.8": "patches/docker-modem@3.0.8.patch"
+    }
   }
 }

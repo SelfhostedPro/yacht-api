@@ -12,7 +12,7 @@ import { TerminalModule } from './terminal/terminal.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from './config/config.module';
 import { SetupWizardModule } from './setup-wizard/setup-wizard.module';
-import { LoggerModule } from './logger/logger.module';
+import { LoggerModule } from './common/logger/logger.module';
 import { TemplatesService } from './templates/templates.service';
 import { TemplatesModule } from './templates/templates.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
