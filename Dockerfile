@@ -5,6 +5,9 @@ WORKDIR /app
 RUN npm install -g pnpm@latest-7
 # Copy pnpm requirements
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+
+# Copy Patches
+COPY patches patches
 # Copy App Requirements
 COPY types/package.json types/
 COPY server/package.json server/
