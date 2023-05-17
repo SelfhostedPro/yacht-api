@@ -43,7 +43,6 @@ export class ServersController {
     })
     async writeSettings(@Body() body: NewServerDto): Promise<YachtConfig> {
         try {
-            console.log(body)
             const added = await this.serversService.addServerToConfig(
                 body.name,
                 body.options,

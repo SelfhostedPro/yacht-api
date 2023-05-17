@@ -35,9 +35,6 @@ const capabilities = computed({
     }
 })
 
-console.log(capabilities)
-
-
 const setName = (value) => {
     emit('update:modelValue', { ...capabilities.value, add: value })
 }

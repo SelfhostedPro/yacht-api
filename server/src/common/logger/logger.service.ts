@@ -1,16 +1,18 @@
-import { ConsoleLogger } from '@nestjs/common';
+import { ConsoleLogger, Inject, Injectable, Scope } from '@nestjs/common';
+import { NotificationsService } from '../notifications/notifications.service';
 import * as color from 'bash-color';
 
+@Injectable({ scope: Scope.TRANSIENT })
 export class Logger extends ConsoleLogger {
-  moduleName: string;
-  constructor(moduleName?: string) {
-    super(moduleName);
-    this.moduleName = moduleName || 'Yacht';
+  @Inject(NotificationsService) private notificationsService: NotificationsService
+  constructor(
+  ) {
+    super()
   }
 
   private get prefix() {
     return (
-      color.cyan(`[${this.moduleName}] `) +
+      color.cyan(`[${this.context || 'Server'}] `) +
       color.white(`[${new Date().toLocaleString()}]`)
     );
   }
@@ -20,10 +22,12 @@ export class Logger extends ConsoleLogger {
   }
 
   error(...args) {
+    this.notificationsService.error(args.toString())
     console.error(this.prefix, ...args.map((x) => color.red(x)));
   }
 
   warn(...args) {
+    this.notificationsService.warn(args.toString())
     console.warn(this.prefix, ...args.map((x) => color.yellow(x)));
   }
 
@@ -36,7 +40,6 @@ export class Logger extends ConsoleLogger {
       console.debug(this.prefix, ...args.map((x) => color.green(x)));
     }
   }
-
   verbose(...args) {
     console.debug(this.prefix, ...args);
   }

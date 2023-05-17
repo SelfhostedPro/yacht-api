@@ -87,12 +87,11 @@ export const useAppStore = defineStore('apps', {
                         this.stats[stat.Name] = JSON.parse(message.data)
                     }
                 })
-                eventSource.value.addEventListener('error', async () => {
+                eventSource.value.addEventListener('error', async (error) => {
                     await new Promise(f => setTimeout(f, 1000));
                     if (this.retries < 3) {
                         this.retries += 1
                         eventSource.value.close()
-                        this.fetchStats()
                     } else {
                         eventSource.value.close()
                         loadingStore.stopLoadingItem('stats')

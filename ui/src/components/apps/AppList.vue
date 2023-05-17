@@ -112,8 +112,11 @@ const appSearch = (appList: Container[]) => {
 onMounted(async () => {
     loading.value = isLoading.value.loading
     if (!apps.value[0] || !stats.value[0]) {
-        appStore.fetchApps()
-        appStore.fetchStats()
+        appStore.fetchApps().then(() => {
+            if (apps.value[0]) {
+                appStore.fetchStats()
+            }
+        })
     }
 })
 </script>

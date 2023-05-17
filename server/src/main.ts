@@ -10,7 +10,7 @@ import { Logger } from './common/logger/logger.service';
 async function bootstrap() {
   getStartupConfig();
   const app = await NestFactory.create(AppModule, {
-    logger: new Logger('Server'),
+    logger: new Logger(),
   });
   app.setGlobalPrefix('api');
 
@@ -43,6 +43,7 @@ async function bootstrap() {
   // }));
 
   const logger = new Logger();
+  logger.setContext('Yacht')
   await app.listen(3000, '0.0.0.0', function () {
     logger.success('Listening to port: ' + 3000);
   });

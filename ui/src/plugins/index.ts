@@ -12,7 +12,6 @@ import vuetify from '@/plugins/vuetify'
 import pinia from '@/stores'
 import { setupLayouts } from 'virtual:generated-layouts'
 import generatedRoutes from 'virtual:generated-pages'
-import MasonryWall from '@yeger/vue-masonry-wall'
 
 
 // Types
@@ -30,22 +29,21 @@ export const router = createRouter({
 router.beforeEach(async (to) => {
   // redirect to login page if not logged in and trying to access a restricted page
   const publicPage = to.meta.public
-  
+
   const authStore = useAuthStore();
   const { user, returnUrl } = storeToRefs(authStore)
-  
-  if ( !publicPage && !user.value) {
+
+  if (!publicPage && !user.value) {
     returnUrl.value = to.fullPath;
-      return '/login';
+    return '/login';
   }
 });
 
 
-export function registerPlugins (app: App) {
+export function registerPlugins(app: App) {
   loadFonts()
   app
     .use(vuetify)
     .use(router)
     .use(pinia)
-    .use(MasonryWall)
 }

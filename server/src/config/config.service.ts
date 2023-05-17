@@ -10,8 +10,7 @@ import { Logger } from '../common/logger/logger.service';
 
 @Injectable()
 export class ConfigService {
-  private readonly logger = new Logger(ConfigService.name);
-
+  private readonly logger = new Logger()
   public name = 'yacht';
 
   // yacht env
@@ -89,6 +88,7 @@ export class ConfigService {
     const yachtConfig: YachtConfig = <YachtConfig>(
       yaml.load(fs.readFileSync(this.configPath).toString())
     );
+    this.logger.setContext(ConfigService.name)
     this.parseConfig(yachtConfig);
   }
 

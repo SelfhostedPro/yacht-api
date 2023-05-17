@@ -27,7 +27,7 @@ export class ContainersService {
     private readonly logger: Logger,
     private readonly serversService: ServersService,
   ) {
-    this.logger = new Logger(ContainersService.name)
+    this.logger.setContext(ContainersService.name)
   }
 
   async getContainers(): Promise<ServerContainers> {

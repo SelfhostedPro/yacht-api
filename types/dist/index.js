@@ -19,3 +19,4 @@ __exportStar(require("./apps/create"), exports);
 __exportStar(require("./config"), exports);
 __exportStar(require("./server"), exports);
 __exportStar(require("./settings/server"), exports);
+__exportStar(require("./notifications"), exports);

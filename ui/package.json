@@ -23,6 +23,7 @@
     "markdown-it": "^13.0.1",
     "marked": "^4.3.0",
     "pinia": "^2.0.35",
+    "primevue": "^3.29.1",
     "roboto-fontface": "^0.10.0",
     "sanitize-html": "^2.10.0",
     "universal-cookie": "^4.0.4",

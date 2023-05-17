@@ -12,11 +12,11 @@ type PassphraseFile = Map<string, string>;
 
 export class SSHKeyManager {
   private readonly configService: ConfigService;
-  private readonly logger = new Logger('SSHKeyManager');
+  private readonly logger = new Logger();
 
   constructor() {
     this.configService = new ConfigService();
-    this.logger = new Logger('SSHKeyManager');
+    this.logger.setContext(SSHKeyManager.name);
   }
   // Generate an SSH key
   async createSSHKey(keyName: string, passphrase: string) {

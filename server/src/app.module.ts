@@ -20,6 +20,10 @@ import { join } from 'path';
 import { ServersModule } from './servers/servers.module';
 import { ResourcesModule } from './resources/resources.module';
 import { SettingsModule } from './settings/settings.module';
+import { NotificationsModule } from './common/notifications/notifications.module';
+import { NotificationsController } from './common/notifications/notifications.controller';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+
 
 @Module({
   imports: [
@@ -32,6 +36,7 @@ import { SettingsModule } from './settings/settings.module';
     LoggerModule,
     SetupWizardModule,
     TemplatesModule,
+    EventEmitterModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, 'ui'),
       exclude: ['/api/(.*)'],
@@ -39,8 +44,9 @@ import { SettingsModule } from './settings/settings.module';
     ServersModule,
     ResourcesModule,
     SettingsModule,
+    NotificationsModule,
   ],
-  controllers: [AppController, ContainersController, ProjectsController],
+  controllers: [AppController, ContainersController, ProjectsController, NotificationsController],
   providers: [AppService, ContainersService, ProjectsService, TemplatesService],
 })
 export class AppModule {}

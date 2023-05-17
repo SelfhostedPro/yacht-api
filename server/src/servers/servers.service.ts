@@ -16,7 +16,7 @@ export class ServersService {
     private readonly logger: Logger,
     private readonly configService: ConfigService,
   ) {
-    this.logger = new Logger(ServersService.name);
+    this.logger.setContext(ServersService.name)
   }
   async createDockerInstance(server: serverConfig, privateKey?: string): Promise<Docker | null> {
     const options = privateKey ? { ...server.options, sshOptions: { privateKey } } : server.options;

@@ -8,7 +8,8 @@ import { Logger } from '../common/logger/logger.service';
  * Return config required to start the console server
  */
 export function getStartupConfig(): YachtConfig {
-  const logger = new Logger('ConfigStartup')
+  const logger = new Logger()
+  logger.setContext('StartupConfig')
   logger.log('Getting startup config...');
   const configPath = path.resolve('../config/config.yaml');
   const defaultConfig: YachtConfig = {
