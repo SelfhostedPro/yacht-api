@@ -24,11 +24,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  private readonly logger: Logger;
   constructor(
     private readonly httpAdapterHost: HttpAdapterHost,
+    private readonly logger: Logger,
   ) {
-    this.logger = new Logger()
   }
 
   catch(exception: unknown, host: ArgumentsHost): void {

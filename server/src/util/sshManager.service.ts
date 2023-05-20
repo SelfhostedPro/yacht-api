@@ -6,17 +6,16 @@ import { parseKey, parsePrivateKey } from 'sshpk';
 import * as path from 'path';
 import { ConfigService } from '../config/config.service';
 import { Logger } from '../common/logger/logger.service';
+import { Injectable } from '@nestjs/common';
 const { Client } = require('ssh2');
-
 type PassphraseFile = Map<string, string>;
 
-export class SSHKeyManager {
-  private readonly configService: ConfigService;
-  private readonly logger = new Logger();
-
-  constructor() {
-    this.configService = new ConfigService();
-    this.logger.setContext(SSHKeyManager.name);
+@Injectable()
+export class SSHManagerService {
+  constructor(
+    private readonly logger: Logger,
+    private readonly configService: ConfigService,
+  ) {
   }
   // Generate an SSH key
   async createSSHKey(keyName: string, passphrase: string) {

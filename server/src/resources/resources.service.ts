@@ -28,7 +28,7 @@ export class ResourcesService {
     const serverKeys = Object.keys(servers);
     // Get containers from all servers in config
     const serverPromises: Promise<ImageInfo[]>[] = serverKeys.map((name) =>
-      servers[name].listImages({ all: true }),
+      servers[name].listImages({ all: true, digests: true }),
     );
     // Wait for containers to resolve
     const imageArrays = await Promise.all(serverPromises);

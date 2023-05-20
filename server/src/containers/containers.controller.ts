@@ -134,14 +134,15 @@ export class ContainersController {
       }
     }
   }
-  @Sse('info/:server/:id/logs')
+  @Sse('info/:server/:id/logs/:timestamps?')
   async streamContainerLogs(
     @Param('server') server: string,
     @Param('id') id: string,
+    @Param('timestamps') timestamps?: boolean,
   ): Promise<Observable<MessageEvent>> {
     try {
       const containerStream: StreamPassThrough =
-        await this.containersService.getContainerLogs(id);
+        await this.containersService.getContainerLogs(server,id,timestamps);
       return fromEvent(containerStream, 'data').pipe(
         map(
           (x: Buffer) =>

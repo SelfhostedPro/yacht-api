@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs-extra';
@@ -9,8 +9,9 @@ import { YachtConfig } from '@yacht/types';
 import { Logger } from '../common/logger/logger.service';
 
 @Injectable()
-export class ConfigService {
-  private readonly logger = new Logger()
+export class ConfigService implements OnModuleInit {
+  onModuleInit() { }
+
   public name = 'yacht';
 
   // yacht env
@@ -84,7 +85,9 @@ export class ConfigService {
 
   public instanceId: string;
 
-  constructor() {
+  constructor(
+    private logger: Logger,
+  ) {
     const yachtConfig: YachtConfig = <YachtConfig>(
       yaml.load(fs.readFileSync(this.configPath).toString())
     );
@@ -292,4 +295,48 @@ export class ConfigService {
       .update(this.secrets.accessSecret)
       .digest('hex');
   }
+  public getStartupConfig(): YachtConfig {
+    this.logger.setContext('StartupConfig')
+    this.logger.log('Getting startup config...');
+    const configPath = path.resolve('../config/config.yaml');
+    const defaultConfig: YachtConfig = {
+      base: {
+        name: 'Yacht',
+        servers: [
+          {
+            name: 'local',
+            options: {
+              socketPath: process.env.DOCKER_HOST ?? '/var/run/docker.sock',
+            },
+          },
+        ],
+        auth: true,
+        theme: 'dark',
+        sessionTimeout: 3600,
+      },
+    };
+    let config;
+    if (fs.existsSync(configPath)) {
+      try {
+        config = yaml.load(fs.readFileSync(configPath, 'utf8'));
+        this.logger.log('Config Exists!');
+      } catch (e) {
+        this.logger.error(e);
+      }
+    } else {
+      try {
+        fs.mkdirSync(path.resolve('../config/storage/templates'), {
+          recursive: true,
+        });
+        fs.mkdirSync(path.resolve('../config/storage/.ssh'), { recursive: true });
+        fs.writeFileSync(configPath, yaml.dump(defaultConfig), { flag: 'w' });
+        this.logger.success('Config Created!');
+      } catch (e) {
+        this.logger.error(e);
+      }
+    }
+
+    return config;
+  }
+
 }

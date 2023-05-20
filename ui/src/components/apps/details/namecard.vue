@@ -34,18 +34,16 @@
                 </v-tooltip>
                 {{ ' ' + app.name }}
             </v-toolbar-title>
-            <v-dialog fullscreen transition="dialog-bottom-transition">
-                    <template v-slot:activator="{ props }">
-                        <v-btn :rounded="0" v-bind="props" prepend-icon="mdi-note-text-outline">logs</v-btn>
-                    </template>
-                    <template v-slot:default="{ isActive }">
-                        <v-card color="background">
-                            <v-card-text class="ma-0 pa-0" tag="span">
-                                <logs @close="isActive.value=false" :server="server" :name="app.name" :closable="true" />
-                            </v-card-text>
-                        </v-card>
-                    </template>
-                </v-dialog>
+            <v-dialog scrollable :fullscreen="logsFullscreen" :max-width="logsFullscreen ? '100vw' : '70vw'"
+                transition="dialog-bottom-transition">
+                <template v-slot:activator="{ props }">
+                    <v-btn :rounded="0" v-bind="props" prepend-icon="mdi-note-text-outline">logs</v-btn>
+                </template>
+                <template v-slot:default="{ isActive }">
+                    <logs @close="isActive.value = false" @maximize="logsFullscreen = !logsFullscreen" :server="server"
+                        :name="app.name" :closable="true" />
+                </template>
+            </v-dialog>
 
             <v-btn :rounded="0" variant="text" icon>
                 <v-icon icon="mdi-console-line" />
@@ -94,7 +92,7 @@ import { useDisplay } from 'vuetify';
 const { mdAndDown } = useDisplay()
 
 const emit = defineEmits(['refresh', 'action'])
-
+const logsFullscreen = ref(false)
 const loading = ref(true)
 const loadingStore = useLoadingStore()
 const { isLoading } = storeToRefs(loadingStore)

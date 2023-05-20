@@ -4,17 +4,15 @@ import { ConfigService } from '../config/config.service';
 import { ServerDict, YachtConfig, serverConfig } from '@yacht/types';
 import { randomBytes } from 'crypto';
 import { NewServerOptions } from './servers.dto';
-import { SSHKeyManager } from '../util/sshManager';
 import * as Docker from 'dockerode';
-// const Docker = require('dockerode');
-// const ssh = require('docker-modem/lib/ssh');
-const keyManager = new SSHKeyManager();
+import { SSHManagerService } from '../util/sshManager.service';
 
 @Injectable()
 export class ServersService {
   constructor(
     private readonly logger: Logger,
     private readonly configService: ConfigService,
+    private readonly keyManager: SSHManagerService,
   ) {
     this.logger.setContext(ServersService.name)
   }
@@ -34,7 +32,7 @@ export class ServersService {
     const result: ServerDict = {};
     const serverPromises = servers.map(async (server) => {
       if (server.options.protocol === 'ssh' && server.key) {
-        const privateKey = await keyManager.getPrivateKey(server.key);
+        const privateKey = await this.keyManager.getPrivateKey(server.key);
         const newServer = await this.createDockerInstance(server, privateKey);
         if (newServer) {
           result[server.name] = newServer;
@@ -80,16 +78,16 @@ export class ServersService {
       this.logger.error('Server already exists')
       throw new Error('Server already exists');
     }
-    const currentKeys = await keyManager.getAllKeys()
+    const currentKeys = await this.keyManager.getAllKeys()
     const keyExists = currentKeys.includes(keyName)
     // Generate a new ssh key and copy it to the remote server
     if (options.protocol === 'ssh' && keyName && !keyExists && copyToServer) {
       // Generate random passphrase and create SSH key
       this.logger.log(`Generating SSH key for ${name}`);
-      await keyManager.createSSHKey(keyName, randomBytes(32).toString('hex'));
+      await this.keyManager.createSSHKey(keyName, randomBytes(32).toString('hex'));
       this.logger.log(`Copying SSH key to ${name}`);
       try {
-        await keyManager.copyPublicKeyToRemoteServer(
+        await this.keyManager.copyPublicKeyToRemoteServer(
           keyName,
           options.host,
           options.port,
@@ -98,19 +96,19 @@ export class ServersService {
         );
       } catch (e) {
         this.logger.log(`Error copying SSH key to ${name}: ${e}`)
-        keyManager.removeSSHKey(keyName)
+        this.keyManager.removeSSHKey(keyName)
         throw new Error(`Error copying SSH key to ${name}: ${e}`)
       }
     }
 
     else if (options.protocol === 'ssh' && keyName && !keyExists && !copyToServer) {
       this.logger.log(`Generating SSH key for ${name}`);
-      await keyManager.createSSHKey(keyName, randomBytes(32).toString('hex'));
+      await this.keyManager.createSSHKey(keyName, randomBytes(32).toString('hex'));
     }
 
     else if (options.protocol === 'ssh' && keyName && copyToServer) {
       try {
-        await keyManager.copyPublicKeyToRemoteServer(
+        await this.keyManager.copyPublicKeyToRemoteServer(
           keyName,
           options.host,
           options.port,
@@ -119,7 +117,7 @@ export class ServersService {
         );
       } catch (e) {
         this.logger.error(`Error copying SSH key to ${name}: ${e}`)
-        keyManager.removeSSHKey(keyName)
+        this.keyManager.removeSSHKey(keyName)
         throw new Error(`Error copying SSH key to ${name}: ${e}`)
       }
     }
@@ -151,11 +149,11 @@ export class ServersService {
       throw new Error('Server not found');
     }
     if (serverToDelete.options.protocol === 'ssh' && removeRemoteKey) {
-      await keyManager.removePublicKeyFromRemoteServer(serverToDelete.key, serverToDelete.options.host, serverToDelete.options.port, serverToDelete.options.username)
+      await this.keyManager.removePublicKeyFromRemoteServer(serverToDelete.key, serverToDelete.options.host, serverToDelete.options.port, serverToDelete.options.username)
     }
 
     if (serverToDelete.options.protocol === 'ssh' && removeLocalKey) {
-      await keyManager.removeSSHKey(serverToDelete.key);
+      await this.keyManager.removeSSHKey(serverToDelete.key);
     }
     delete servers[name];
     const currentConfig = this.configService.yachtConfig;

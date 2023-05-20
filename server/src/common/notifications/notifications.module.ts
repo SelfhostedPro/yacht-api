@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { LoggerModule } from '../logger/logger.module';
 import { PassportModule } from '@nestjs/passport';
 import { NotificationsController } from './notifications.controller';
 
+@Global()
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),

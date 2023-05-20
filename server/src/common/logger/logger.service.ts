@@ -1,11 +1,11 @@
-import { ConsoleLogger, Inject, Injectable, Scope } from '@nestjs/common';
-import { NotificationsService } from '../notifications/notifications.service';
+import { ConsoleLogger, Injectable, Scope } from '@nestjs/common';
 import * as color from 'bash-color';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class Logger extends ConsoleLogger {
-  @Inject(NotificationsService) private notificationsService: NotificationsService
   constructor(
+    private readonly notificationsService: NotificationsService,
   ) {
     super()
   }
@@ -22,12 +22,11 @@ export class Logger extends ConsoleLogger {
   }
 
   error(...args) {
-    this.notificationsService.error(args.toString())
+    this.notificationsService.error(args.join(' '))
     console.error(this.prefix, ...args.map((x) => color.red(x)));
   }
 
   warn(...args) {
-    this.notificationsService.warn(args.toString())
     console.warn(this.prefix, ...args.map((x) => color.yellow(x)));
   }
 

@@ -16,10 +16,10 @@ export default defineConfig({
     outDir: '../dist/ui'
   },
   plugins: [
-    vue({ 
-      template: { 
+    vue({
+      template: {
         transformAssetUrls,
-       }
+      }
     }),
     // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
     vuetify({

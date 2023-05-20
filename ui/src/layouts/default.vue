@@ -1,7 +1,7 @@
 <template>
   <v-app>
-    <app-bar :links="links"/>
     <sidebar :links="links" />
+    <app-bar :links="links" />
     <v-main>
       <v-container fluid>
         <router-view></router-view>

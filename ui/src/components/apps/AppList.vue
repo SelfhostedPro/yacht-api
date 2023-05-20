@@ -112,11 +112,8 @@ const appSearch = (appList: Container[]) => {
 onMounted(async () => {
     loading.value = isLoading.value.loading
     if (!apps.value[0] || !stats.value[0]) {
-        appStore.fetchApps().then(() => {
-            if (apps.value[0]) {
-                appStore.fetchStats()
-            }
-        })
+        await appStore.fetchApps()
+        appStore.fetchStats()
     }
 })
 </script>
@@ -125,3 +122,9 @@ onMounted(async () => {
     display: flex;
 }
 </style>
+
+<route lang="yaml">
+    meta:
+        title: app list 2
+        layout: default
+</route>

@@ -144,16 +144,13 @@ export class ContainersService {
 
   //     >>>>> Streaming Services <<<<<
   //
-  async getContainerLogs(id: string): Promise<StreamPassThrough> {
+  async getContainerLogs(serverName: string, id: string, timestamps: boolean): Promise<StreamPassThrough> {
     const logStream = new StreamPassThrough();
-
-    const Docker = require('dockerode');
-    const docker = new Docker();
-
-    const container: UsableContainer = await docker.getContainer(id);
+    const server: any = await this.serversService.getServerFromConfig(serverName)
+    const container: UsableContainer = await server.getContainer(id);
 
     container.logs(
-      { follow: true, stdout: true, stderr: true, timestamps: false },
+      { follow: true, stdout: true, stderr: true, timestamps: timestamps, tail: 100 },
       function (err: any, stream: any) {
         container.modem.demuxStream(stream, logStream, logStream);
         stream.on('end', function () {

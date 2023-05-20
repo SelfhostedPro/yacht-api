@@ -11,13 +11,13 @@ import { Observable } from 'rxjs';
 @UseGuards(AccessTokenGuard)
 @Controller('notifications')
 export class NotificationsController {
-    constructor(
-        private readonly notificationsService: NotificationsService,
-    ) { }
+    constructor(private readonly notificationsService: NotificationsService) { }
 
     @Sse()
     async streamNotifications(): Promise<Observable<any>> {
         try {
+            const test = this.notificationsService.getStream()
+            test.subscribe(data => console.log('test'))
             return this.notificationsService.getStream()
         } catch (err) {
             // Error Handling

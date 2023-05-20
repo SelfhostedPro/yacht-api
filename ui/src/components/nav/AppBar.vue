@@ -3,7 +3,7 @@
     <template v-slot:append>
       <v-app-bar-nav-icon v-if="mdAndDown" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
-    {{  `breakpoint: ${name}` }}
+    <!-- <v-breadcrumbs :items="items"></v-breadcrumbs> -->
     <v-app-bar-title>
       <v-img max-height="32" :src="logo" />
     </v-app-bar-title>
@@ -18,7 +18,6 @@
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" :title="link.text" :prepend-icon="link.icon" />
           </template>
-
           <v-list-item v-for="sublink in link.subLinks" :to="sublink.to" :key="sublink.text" :title="sublink.text"
             :prepend-icon="sublink.icon" exact class="mb-1" />
         </v-list-group>
@@ -32,6 +31,26 @@
 import { Logo } from "@/composables/logo"
 import { Ref, ref } from "vue";
 import { useDisplay } from 'vuetify'
+// import { useRouter } from 'vue-router';
+// import { watch } from "vue";
+// const items = ref([])
+// const router = useRouter()
+// watch(router.currentRoute, () => {
+//     breadcrumbItems()
+// })
+// const breadcrumbItems = () => {
+//     items.value = []
+//     router.currentRoute.value.matched.map((route) => {
+//         if (!items.value.some((item) => item.text === route.meta.title)) {
+//           console.log(route)
+//             items.value.push({
+//                 text: route.meta.title || 'test',
+//                 disabled: route.meta.title === router.currentRoute.value.meta.title,
+//                 to: route.path
+//             })
+//         }
+//     })
+// }
 defineProps(['links'])
 const drawer: Ref = ref(false)
 const { mdAndDown, name } = useDisplay()

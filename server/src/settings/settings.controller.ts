@@ -12,14 +12,16 @@ import { YachtConfig } from '@yacht/types';
 import { AccessTokenGuard } from '../common/guards/accessToken.guard';
 import { ConfigService } from '../config/config.service';
 import { updateSettingsDto } from './settings.dto';
-import { SSHKeyManager } from 'src/util/sshManager';
+import { SSHManagerService } from 'src/util/sshManager.service';
 
 @ApiTags('Settings')
 @ApiBearerAuth()
 @UseGuards(AccessTokenGuard)
 @Controller('settings')
 export class SettingsController {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly keyManager: SSHManagerService) { }
 
   @Get()
   @ApiCreatedResponse({
@@ -43,7 +45,7 @@ export class SettingsController {
   })
   async getKeys(): Promise<string[]> {
     try {
-      return new SSHKeyManager().getAllKeys();
+      return this.keyManager.getAllKeys();
     } catch (err) {
       // Error Handling
       if (err.statusCode) {

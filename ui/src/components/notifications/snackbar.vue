@@ -13,6 +13,7 @@
 <script setup lang="ts">
 import { useNotifyStore } from '@/stores/notifications';
 import { storeToRefs } from 'pinia';
+import { onBeforeUnmount } from 'vue';
 import { onMounted } from 'vue';
 
 
@@ -28,7 +29,9 @@ const clearSnack = (async (idx: number) => {
   await sleep(100)
   notifyStore.clearNotification(idx)
 })
-
+onBeforeUnmount(async () => {
+  await notifyStore.close()
+})
 onMounted(async () => {
   await notifyStore.listenToNotifications()
 })

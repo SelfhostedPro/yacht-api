@@ -1,17 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { getStartupConfig } from './config/config.startup';
 import * as cookieParser from 'cookie-parser';
 
 import helmet from 'helmet';
 import { Logger } from './common/logger/logger.service';
+import { ConfigService } from './config/config.service';
 
 async function bootstrap() {
-  getStartupConfig();
   const app = await NestFactory.create(AppModule, {
-    logger: new Logger(),
+    bufferLogs: true,
   });
+  app.useLogger(await app.resolve(Logger));
+  const configService = app.get(ConfigService)
+  configService.getStartupConfig();
   app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
@@ -42,10 +44,8 @@ async function bootstrap() {
   //   contentSecurityPolicy: false,
   // }));
 
-  const logger = new Logger();
-  logger.setContext('Yacht')
   await app.listen(3000, '0.0.0.0', function () {
-    logger.success('Listening to port: ' + 3000);
+    console.log('Listening to port: ' + 3000);
   });
 }
 bootstrap();

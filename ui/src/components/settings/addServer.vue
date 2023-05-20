@@ -69,7 +69,7 @@ const testForm = ref({
 
 const submit = async () => {
     testForm.value.keyname === 'new' ? testForm.value.keyname = newKeyName.value : testForm.value.keyname = testForm.value.keyname
-    console.log(testForm.value)
+    // console.log(testForm.value)
     await settingStore.addServer(testForm.value)
     emit('close')
 }

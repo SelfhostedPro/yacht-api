@@ -5,3 +5,9 @@
         </v-card-title>
     </v-card>
 </template>
+
+<route lang="yaml">
+    meta:
+        title: Dashboard
+        layout: default
+</route>

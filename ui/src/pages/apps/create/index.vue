@@ -7,3 +7,9 @@
 <script setup lang="ts">
 import AppForm from '@/components/apps/AppForm.vue';
 </script>
+
+<route lang="yaml">
+    meta:
+        title: create
+        layout: default
+</route>

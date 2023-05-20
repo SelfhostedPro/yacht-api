@@ -46,6 +46,7 @@ export const useNotifyStore = defineStore('notify', {
     state: () => ({
         notifications: JSON.parse(localStorage.getItem('notifications')) as Notification[] || [] as Notification[],
         retries: 0,
+        notificationStream: null as EventSource,
     }),
     getters: {
         getNotifications: (state) => state.notifications,
@@ -63,15 +64,20 @@ export const useNotifyStore = defineStore('notify', {
             this.retries = 0
             const { eventSource, error } = useEventSource(`/api/notifications`, ['message'], { withCredentials: true })
             if (!error.value) {
+                this.notificationStream = eventSource.value
                 eventSource.value.addEventListener('message', (event) => {
+                    console.log(event.data)
                     this.notifications.push(new Notification(JSON.parse(event.data)));
-                    const test: Notification[] = this.notifications
                 });
             } else {
                 console.log(`Notification sse error ${error.value}`)
             }
         },
+        async close() {
+            this.notificationStream?.close()
+        },
         $reset() {
+            this.notificationStream?.close()
             localStorage.removeItem('notification')
             this.notifications = [] as Notification[]
         }
