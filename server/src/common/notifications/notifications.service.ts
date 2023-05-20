@@ -19,20 +19,12 @@ export class NotificationsService {
         this.notifications.emit('message', { data: { message: message, level: 'warn', timeout: -1 } } as NotificationEvent)
     }
     error(message: string) {
-        console.group('notifications - error')
-        console.log(message)
         this.notifications.emit('message', { data: { message: message, level: 'error', timeout: -1 } } as NotificationEvent)
-        console.groupEnd()
     }
     success(message: string) {
         this.notifications.emit('message', { data: { message: message, level: 'success', timeout: -1 } } as NotificationEvent)
     }
     getStream() {
-        return fromEvent(this.notifications, 'message').pipe(map((data) => {
-            console.log('notifications - getStream')
-            console.log(data)
-            return data
-        } ))
+        return fromEvent(this.notifications, 'message')
     }
-    o
 }
