@@ -8,11 +8,17 @@ export interface YachtTemplate {
     image?: string,
     created?: string,
     type?: 'portainerv1' | 'portainerv2' | 'yachtv1' | 'yachtv2',
-    author?: string,
+    authors?: Author[],
     contact?: string,
     featured?: number[], // array of template indexes to feature
     templates: PortainerV1Template[] | PortainerV2Template['templates'] | YachtV1Template[] | YachtV2Template[]
 }
+export interface Author {
+    name: string,
+    url?: string,
+    avatar?: string,
+}
+
 export interface YachtV2Template extends YachtV1Template {
     featured_image?: string,
 }

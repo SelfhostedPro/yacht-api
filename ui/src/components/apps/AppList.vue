@@ -3,7 +3,27 @@
         <template v-slot:loader="{ isActive }">
             <v-progress-linear :active="isActive" color="primary" height="4" indeterminate></v-progress-linear>
         </template>
-        <searchbar v-model:search="searchQuery" />
+        <search-bar title="applications" color="surface" v-model:search="searchQuery">
+            <template v-slot:btns>
+                <v-btn icon @click='refresh()'>
+                    <v-icon>mdi-restart</v-icon>
+                </v-btn>
+                <v-dialog :fullscreen="maximize" transition="dialog-bottom-transition">
+                    <template v-slot:activator="{ props }">
+                        <v-btn icon color="primary" v-bind="props"><v-icon icon="mdi-plus" /></v-btn>
+                    </template>
+                    <template v-slot:default="{ isActive }">
+                        <v-card color="background">
+                            <title-bar title="Deploy new app" color="primary" @maximize="maximize = !maximize"
+                                :closable="true" @close="isActive.value = false" />
+                            <v-card-text class="ma-0 pa-0" tag="span">
+                                <app-form @created="isActive.value = false" />
+                            </v-card-text>
+                        </v-card>
+                    </template>
+                </v-dialog>
+            </template>
+        </search-bar>
         <v-sheet color="foreground">
             <v-tabs bg-color="surface" color="primary" align-tabs="center" v-model="serverTab">
                 <v-tab v-for="appList, i in Object.keys(apps)" :value="i" :key="i">{{ appList }} </v-tab>
@@ -63,7 +83,9 @@
 import { useAppStore } from '@/stores/apps'
 import { ref, Ref } from 'vue';
 // Import custom components
-import searchbar from '@/components/apps/list/search.vue'
+import SearchBar from '@/components/common/SearchBar.vue'
+import TitleBar from '../common/TitleBar.vue';
+import AppForm from './AppForm.vue';
 import baseinfo from '@/components/apps/list/base.vue'
 import resourcetab from '@/components/apps/list/resourcetab.vue'
 import actions from '@/components/apps/list/actions.vue'
@@ -73,6 +95,8 @@ import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 import { useLoadingStore } from '@/stores/loading';
 import { Container } from '@yacht/types';
+// AppForm variables
+const maximize: Ref<boolean> = ref(false)
 // Card expansion variables
 const revealActions = ref({})
 const revealResources = ref({})
@@ -108,6 +132,10 @@ const appSearch = (appList: Container[]) => {
         return stringMatch || arrayMatch;
     });
 };
+const refresh = (async () => {
+    await appStore.fetchApps()
+    appStore.fetchStats()
+})
 // Fetch Apps
 onMounted(async () => {
     loading.value = isLoading.value.loading

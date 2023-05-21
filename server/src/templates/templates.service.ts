@@ -39,7 +39,7 @@ export class TemplatesService implements OnModuleInit {
     if (!exists) {
       this.logger.log('Adding template: ' + body.name);
       try {
-        const templateType = getTemplateType(template)
+        const templateType = template['type'] || getTemplateType(template)
         const templateFile: YachtTemplate = {
           name: body.name,
           title: template.title ?? body.name,

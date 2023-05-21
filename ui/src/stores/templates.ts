@@ -14,6 +14,7 @@ export const useTemplateStore = defineStore('templates', {
     }),
     getters: {
         getTemplates: (state) => state.templates,
+        getTemplate: (state) => (name: string) => state.templates.find((template) => template.name === name)
     },
     actions: {
         async fetchTemplates() {

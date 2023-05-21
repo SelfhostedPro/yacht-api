@@ -1,37 +1,25 @@
 <template>
     <v-card color="background" class="logcontainer" :loading="isLoading.items.has('logs')">
-        <v-card-title class="pa-0">
-            <v-toolbar align-center> <v-toolbar-title>logs</v-toolbar-title>
-                <v-toolbar-items class="text-center">
-                    <v-tooltip :text="timestamps ? 'disable timestamps' : 'enable timestamps'">
-                        <template v-slot:activator="{ props }">
-                            <v-btn v-bind="props" icon @click="toggleTimestamps()">
-                                <v-icon v-if="timestamps" color="green"> mdi-clock-time-four-outline </v-icon>
-                                <v-icon v-else> mdi-clock-time-four-outline </v-icon>
-                            </v-btn>
-                        </template>
-                    </v-tooltip>
-                    <v-tooltip v-if="isSupported" :text="'copy logs to clipboard'">
-                        <template v-slot:activator="{ props }">
-                            <v-btn v-bind="props" icon @click="copy(logs.join(''))">
-                                <v-icon v-if="!copied"> mdi-content-copy </v-icon>
-                                <v-icon color="green" v-else> mdi-check </v-icon>
-                            </v-btn>
-                        </template>
-                    </v-tooltip>
-                    <v-tooltip v-if="isSupported" :text="'maximize'">
-                        <template v-slot:activator="{ props }">
-                            <v-btn v-if="closable" v-bind="props" icon @click="$emit('maximize')">
-                                <v-icon>mdi-fullscreen</v-icon>
-                            </v-btn>
-                        </template>
-                    </v-tooltip>
-                    <v-btn v-if="closable" icon @click="$emit('close')">
-                        <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                </v-toolbar-items>
-            </v-toolbar>
-        </v-card-title>
+        <title-bar :closable="true" title="logs" @maximize="$emit('maximize')" @close="$emit('close')">
+            <template v-slot:btns>
+                <v-tooltip :text="timestamps ? 'disable timestamps' : 'enable timestamps'">
+                    <template v-slot:activator="{ props }">
+                        <v-btn v-bind="props" icon @click="toggleTimestamps()">
+                            <v-icon v-if="timestamps" color="green"> mdi-clock-time-four-outline </v-icon>
+                            <v-icon v-else> mdi-clock-time-four-outline </v-icon>
+                        </v-btn>
+                    </template>
+                </v-tooltip>
+                <v-tooltip v-if="isSupported" :text="'copy logs to clipboard'">
+                    <template v-slot:activator="{ props }">
+                        <v-btn v-bind="props" icon @click="copy(logs.join(''))">
+                            <v-icon v-if="!copied"> mdi-content-copy </v-icon>
+                            <v-icon color="green" v-else> mdi-check </v-icon>
+                        </v-btn>
+                    </template>
+                </v-tooltip>
+            </template>
+        </title-bar>
         <template v-slot:loader="{ isActive }">
             <v-progress-linear :active="isActive" color="primary" height="4" indeterminate></v-progress-linear>
         </template>
@@ -47,6 +35,9 @@
     </v-card>
 </template>
 <script setup lang="ts">
+// TODO: Fix this
+//@ts-ignore
+import TitleBar from '@/components/common/TitleBar.vue'
 import { Ref, onMounted, ref } from 'vue'
 import { useClipboard } from '@vueuse/core'
 import { useEventSource } from '@vueuse/core'
@@ -63,10 +54,10 @@ interface Props {
 defineEmits(['close', 'maximize'])
 const loadingStore = useLoadingStore()
 const { isLoading } = storeToRefs(loadingStore)
-const { isSupported, copy, copied, } = useClipboard()
 const logEnd: Ref<HTMLParagraphElement | null> = ref(null)
 const props = defineProps<Props>()
 const logs: Ref<string[]> = ref([])
+const { isSupported, copy, copied, } = useClipboard()
 const logStream: Ref<EventSource | null> = ref(null)
 const timestamps: Ref<boolean> = ref(false)
 

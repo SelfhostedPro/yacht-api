@@ -36,7 +36,9 @@ import { UtilModule } from './util/util.module';
     LoggerModule,
     SetupWizardModule,
     TemplatesModule,
-    EventEmitterModule.forRoot(),
+    EventEmitterModule.forRoot({
+      verboseMemoryLeak: true,
+    }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, 'ui'),
       exclude: ['/api/(.*)'],

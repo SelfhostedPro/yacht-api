@@ -1,29 +1,14 @@
 <template>
-    <v-toolbar :extended="extended" extension-height="65" color="surface">
+    <v-toolbar :extended="extended" extension-height="65" :color="color || 'surface'">
         <v-row>
             <v-col v-if="mdAndUp" cols="2" />
             <v-col :class="mdAndUp ? 'd-flex align-center justify-space-around' : 'd-flex align-center justify-start'">
-                <v-toolbar-title :class="mdAndUp ? 'text-center' : 'text-start ml-5'">applications</v-toolbar-title>
+                <v-toolbar-title :class="mdAndUp ? 'text-center' : 'text-start ml-5'">{{ title || null }}</v-toolbar-title>
             </v-col>
             <v-col cols="2" class="d-flex justify-end">
-                <v-btn icon><v-icon icon="mdi-restart" /></v-btn>
-                <v-dialog fullscreen transition="dialog-bottom-transition">
-                    <template v-slot:activator="{ props }">
-                        <v-btn icon color="primary" v-bind="props"><v-icon icon="mdi-plus" /></v-btn>
-                    </template>
-                    <template v-slot:default="{ isActive }">
-                        <v-card color="background">
-                            <v-toolbar color="primary" title="Deploy new app">
-                                <v-toolbar-items><v-btn icon="mdi-close" @click="isActive.value = false" />
-                                </v-toolbar-items>
-                            </v-toolbar>
-                            <v-card-text class="ma-0 pa-0" tag="span">
-                                <appform @created="isActive.value=false" />
-                            </v-card-text>
-                        </v-card>
-                    </template>
-                </v-dialog>
+                <slot name="btns"></slot> <!-- Slot for additional buttons -->
                 <v-btn @click="extended = !extended" icon class="mr-2"><v-icon icon="mdi-magnify" /></v-btn>
+                <slot name="appendBtns"></slot>
             </v-col>
         </v-row>
         <template v-slot:extension v-if="extended">
@@ -38,12 +23,11 @@
 <script setup lang="ts">
 import { Ref, computed, ref } from 'vue';
 import { useDisplay } from 'vuetify'
-import appform from '../AppForm.vue'
 
 // Display variables
 const { mdAndUp } = useDisplay()
 
-const props = defineProps(['search'])
+const props = defineProps(['search', 'title', 'color'])
 const emits = defineEmits(['update:search'])
 
 const searchModel = computed({
@@ -57,7 +41,6 @@ const searchModel = computed({
         emits('update:search', searchModel)
     }
 })
-
 // Search variables
 const extended: Ref<boolean> = ref(false)
 
