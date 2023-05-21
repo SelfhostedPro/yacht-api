@@ -2,6 +2,7 @@ import { defineStore } from "pinia"
 import { useEventSource, useStorage } from "@vueuse/core"
 import { NotificationEvent } from '@yacht/types'
 import { Anchor } from "@/types/ui"
+import { toRaw } from "vue"
 
 const NotificationTypes = {
     error: {
@@ -42,19 +43,38 @@ class Notification {
     }
 }
 
+interface State {
+    notifications: Notification[]
+    retries: number
+    notificationStream: EventSource | null
+}
+
 export const useNotifyStore = defineStore('notify', {
-    state: () => ({
-        notifications: JSON.parse(localStorage.getItem('notifications')) as Notification[] || [] as Notification[],
+    state: (): State => ({
+        notifications: [] as Notification[],
         retries: 0,
         notificationStream: null as EventSource,
+
     }),
     getters: {
         getNotifications: (state) => state.notifications,
     },
     actions: {
+        setNotification(message: Notification) {
+            const existing: [] = toRaw(this.notifications)
+            if (existing.some((n: Notification) => n.content === message.content)) {
+                console.log(`supressing duplicate notification: ${message.content}`)
+            } else {
+                this.notifications.push(message);
+                localStorage.setItem('notifications', JSON.stringify(this.notifications));
+            }
+        },
         async setError(error: string) {
-            this.notifications.push(new Notification({ message: error, level: 'error', timeout: -1 }))
-            localStorage.setItem('notifications', JSON.stringify(this.notifications))
+            const newError = new Notification({ message: error, level: 'error', timeout: -1 })
+            if (!this.notifications.contains(newError)) {
+                this.notifications.push(newError);
+                localStorage.setItem('notifications', JSON.stringify(this.notifications));
+            }
         },
         async clearNotification(idx: number) {
             this.notifications.splice(idx, 1)
@@ -65,9 +85,8 @@ export const useNotifyStore = defineStore('notify', {
             const { eventSource, error } = useEventSource(`/api/notifications`, ['message'], { withCredentials: true })
             if (!error.value) {
                 this.notificationStream = eventSource.value
-                eventSource.value.addEventListener('message', (event) => {
-                    console.log(event.data)
-                    this.notifications.push(new Notification(JSON.parse(event.data)));
+                eventSource.value.addEventListener('message', async (event: MessageEvent<string>) => {
+                    this.setNotification(new Notification(JSON.parse(event.data)))
                 });
             } else {
                 console.log(`Notification sse error ${error.value}`)
