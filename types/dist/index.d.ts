@@ -4,3 +4,6 @@ export * from './config';
 export * from './server';
 export * from './settings/server';
 export * from './notifications';
+export * from './projects';
+export * from './templates/portainer';
+export * from './templates/yacht';

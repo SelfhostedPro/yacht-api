@@ -1,37 +1,62 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
 import { Logger } from '../common/logger/logger.service';
-import { TemplateUrlDTO } from './classes';
 import * as fs from 'fs-extra';
-import { map, catchError, reduce, lastValueFrom } from 'rxjs';
-// import { HttpService } from '@nestjs/axios';
+import { addYachtTemplateDTO } from './dto/templates.dto';
+import { YachtTemplate } from '@yacht/types';
+import { getTemplateType } from '../util/templateFormatter';
 
 @Injectable()
-export class TemplatesService {
+export class TemplatesService implements OnModuleInit {
+  templatePath: string;
+  onModuleInit() {
+    fs.ensureDirSync(this.templatePath);
+    this.logger.log('Template Storage initialized');
+  }
   constructor(
-    // private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly logger: Logger,
-  ) {}
-  async getTemplates() {
-    const templateList = [];
-    this.configService.storagePath;
-    fs.readdir(this.configService.storagePath, (err, files) => {
-      files.forEach((file) => {
-        templateList.push(file);
-      });
-    });
-    return templateList;
+  ) {
+    this.logger.setContext(TemplatesService.name);
+    this.templatePath = this.configService.storagePath + '/templates';
   }
-  //     async addTemplate(body: TemplateUrlDTO) {
-  //         // const request = this.httpService.get(body.url)
-  //         // .pipe(
-  //             // map((res) => res.data),
-  //             // map((data) => {
-  //                 return data
-  //             })
-  //         )
-  //         const apps = await lastValueFrom(request)
-  //         console.log(apps)
-  //     }
+  // Get list of templates
+  async getTemplates() {
+    try {
+      const templateList = fs.readdirSync(this.templatePath).map((template) => {
+        const templateJson: YachtTemplate = fs.readJSONSync(`${this.templatePath}/${template}/template.json`, 'utf8')
+        return templateJson
+      })
+      return templateList;
+    } catch (err) {
+      throw new Error(err)
+    }
+  }
+  // Add a template
+  async addTemplate(body: addYachtTemplateDTO) {
+    const template = await fetch(body.url).then((res) => res.json());
+    const exists = fs.existsSync(this.templatePath + '/' + body.name)
+    if (!exists) {
+      this.logger.log('Adding template: ' + body.name);
+      try {
+        const templateType = getTemplateType(template)
+        const templateFile: YachtTemplate = {
+          name: body.name,
+          title: template.title ?? body.name,
+          url: body.url,
+          created: new Date().toISOString(),
+          type: templateType,
+          featured: template.featured || null,
+          templates: templateType === 'yachtv2' || templateType === 'portainerv2' ? template.templates : template // if template type is yachtv2 or portainerv2 the templates are nested in the template property.
+        }
+        fs.outputFileSync(`${this.templatePath}/${body.name}/template.json`, JSON.stringify(templateFile))
+        return templateFile
+      } catch (err) {
+        throw new Error(err)
+      }
+    } else {
+      this.logger.error('Template already exists: ' + template.name)
+      throw new Error('Template already exists: ' + template.name)
+    }
+  }
 }

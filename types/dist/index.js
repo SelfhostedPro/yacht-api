@@ -20,3 +20,6 @@ __exportStar(require("./config"), exports);
 __exportStar(require("./server"), exports);
 __exportStar(require("./settings/server"), exports);
 __exportStar(require("./notifications"), exports);
+__exportStar(require("./projects"), exports);
+__exportStar(require("./templates/portainer"), exports);
+__exportStar(require("./templates/yacht"), exports);

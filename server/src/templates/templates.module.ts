@@ -5,10 +5,9 @@ import { TemplatesService } from './templates.service';
 import { ConfigModule } from '../config/config.module';
 import { AuthModule } from '../auth/auth.module';
 import { LoggerModule } from '../common/logger/logger.module';
-import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [ConfigModule, LoggerModule, AuthModule, HttpModule],
+  imports: [ConfigModule, LoggerModule, AuthModule],
   controllers: [TemplatesController],
   providers: [TemplatesService],
 })

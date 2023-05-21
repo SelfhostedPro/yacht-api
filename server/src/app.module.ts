@@ -21,9 +21,7 @@ import { ServersModule } from './servers/servers.module';
 import { ResourcesModule } from './resources/resources.module';
 import { SettingsModule } from './settings/settings.module';
 import { NotificationsModule } from './common/notifications/notifications.module';
-import { NotificationsController } from './common/notifications/notifications.controller';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { NotificationsService } from './common/notifications/notifications.service';
 import { UtilModule } from './util/util.module';
 
 
@@ -50,6 +48,6 @@ import { UtilModule } from './util/util.module';
     UtilModule,
   ],
   controllers: [AppController, ContainersController, ProjectsController],
-  providers: [AppService, ContainersService, ProjectsService, TemplatesService],
+  providers: [AppService, ContainersService, ProjectsService],
 })
 export class AppModule {}
