@@ -50,7 +50,7 @@ export class TemplatesService implements OnModuleInit {
           authors: template.authors || null,
           featured: template.featured || null,
           description: template.description || null,
-          contact: template.contact || null,
+          links: template.links || null,
           templates: templateType === 'yachtv2' || templateType === 'portainerv2' ? template.templates : template // if template type is yachtv2 or portainerv2 the templates are nested in the template property.
         }
         fs.outputFileSync(`${this.templatePath}/${body.name}/template.json`, JSON.stringify(templateFile))

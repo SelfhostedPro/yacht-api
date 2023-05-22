@@ -8,9 +8,14 @@ export interface YachtTemplate {
     created?: string;
     type?: 'portainerv1' | 'portainerv2' | 'yachtv1' | 'yachtv2';
     authors?: Author[];
-    contact?: string;
+    links?: Link[];
     featured?: number[];
     templates: PortainerV1Template[] | PortainerV2Template['templates'] | YachtV1Template[] | YachtV2Template[];
+}
+export interface Link {
+    url: string;
+    text: string;
+    icon: string;
 }
 export interface Author {
     name: string;
