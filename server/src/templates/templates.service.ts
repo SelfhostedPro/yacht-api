@@ -41,12 +41,16 @@ export class TemplatesService implements OnModuleInit {
       try {
         const templateType = template['type'] || getTemplateType(template)
         const templateFile: YachtTemplate = {
-          name: body.name,
+          name: template.name || body.name,
           title: template.title ?? body.name,
           url: body.url,
           created: new Date().toISOString(),
           type: templateType,
+          image: template.image || null,
+          authors: template.authors || null,
           featured: template.featured || null,
+          description: template.description || null,
+          contact: template.contact || null,
           templates: templateType === 'yachtv2' || templateType === 'portainerv2' ? template.templates : template // if template type is yachtv2 or portainerv2 the templates are nested in the template property.
         }
         fs.outputFileSync(`${this.templatePath}/${body.name}/template.json`, JSON.stringify(templateFile))

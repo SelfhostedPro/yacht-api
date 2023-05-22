@@ -7,7 +7,7 @@ export interface YachtTemplate {
     image?: string;
     created?: string;
     type?: 'portainerv1' | 'portainerv2' | 'yachtv1' | 'yachtv2';
-    author?: Author;
+    authors?: Author[];
     contact?: string;
     featured?: number[];
     templates: PortainerV1Template[] | PortainerV2Template['templates'] | YachtV1Template[] | YachtV2Template[];

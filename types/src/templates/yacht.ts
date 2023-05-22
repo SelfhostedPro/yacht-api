@@ -14,9 +14,9 @@ export interface YachtTemplate {
     templates: PortainerV1Template[] | PortainerV2Template['templates'] | YachtV1Template[] | YachtV2Template[]
 }
 export interface Author {
-    name: string,
-    url?: string,
-    avatar?: string,
+    name: string;
+    url?: string;
+    avatar?: string;
 }
 
 export interface YachtV2Template extends YachtV1Template {
