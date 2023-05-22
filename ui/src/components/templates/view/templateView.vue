@@ -33,9 +33,7 @@
                             <v-card-subtitle>created: {{ template.created }}</v-card-subtitle>
                             <v-card-subtitle>apps: {{ template.templates.length }}</v-card-subtitle>
                             <v-card-actions class="flex-d justify-center">
-                                <v-btn class="mx-1" prepend-icon="mdi-link" :href="template.url" target="_blank" >link</v-btn>
-                                <v-btn class="mx-1" prepend-icon="mdi-message-outline" :href="template.contact" target="_blank">contact
-                                </v-btn>
+                                <v-btn v-for="link in template.links" :color="link.color || null" :key="link.text" :prepend-icon="link.icon || 'mdi-link'" :href="link.url || null" target="_blank">{{ link.text || 'link' }}</v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-col>

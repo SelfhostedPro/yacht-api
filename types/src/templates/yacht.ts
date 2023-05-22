@@ -15,8 +15,9 @@ export interface YachtTemplate {
 }
 export interface Link {
     url: string,
-    text: string,
-    icon: string
+    text?: string,
+    icon?: string,
+    color?: string
 }
 export interface Author {
     name: string;
