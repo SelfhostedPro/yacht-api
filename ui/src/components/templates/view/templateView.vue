@@ -10,14 +10,14 @@
                                 hide-delimiters progress="primary">
                                 <v-carousel-item v-for="app in template.featured" :key="template.templates[app].title">
                                     <v-card class="text-center fill-height">
-                                        <v-img class="d-flex align-end featured-image"
+                                        <v-img height="100%" class="d-flex align-end featured-image"
                                             :src="template.templates[app]['featured_image'] ? template.templates[app]['featured_image'] : template.templates[app].logo"
                                             cover>
                                             <v-card :rounded="0" class="featured-card" flat>
                                                 <v-card-title class="text-high-emphasis">{{ template.templates[app].title ||
                                                     template.templates[app].name
                                                 }}</v-card-title>
-                                                <v-card-text class="text-high-emphasis"
+                                                <v-card-text style="max-height: 60px;" class="text-high-emphasis overflow-auto mb-2"
                                                     v-if="template.templates[app].description">{{
                                                         template.templates[app].description }}</v-card-text>
                                             </v-card>
@@ -32,9 +32,9 @@
                     <v-col class="text-center">
                         <v-fade-transition>
                             <v-card v-show="searchQuery.length < 1">
-                                <v-card-text class="text-high-emphasis px-12" style="white-space: pre-wrap;" >{{ template.description }} {{ 'testing out to see if theres a way to <br /> \n newline' }}</v-card-text>
+                                <v-card-text class="text-high-emphasis px-12" style="white-space: pre-wrap;" >{{ template.description }}</v-card-text>
                                 <v-card-subtitle>type: {{ template.type }}</v-card-subtitle>
-                                <v-card-subtitle>created: {{ template.created }}</v-card-subtitle>
+                                <v-card-subtitle>created: {{ formatDate(template.created) }}</v-card-subtitle>
                                 <v-card-subtitle>apps: {{ template.templates.length }}</v-card-subtitle>
                                 <v-card-actions class="flex-d justify-center">
                                     <v-btn v-for="link in template.links" :color="link.color || null" :key="link.text"
@@ -67,6 +67,7 @@
 import SearchBar from '@/components/common/SearchBar.vue';
 import { Ref, ref } from 'vue';
 import { YachtTemplate } from '@yacht/types'
+import { parseISO } from 'date-fns';
 interface Props {
     template: YachtTemplate
 }
@@ -95,11 +96,14 @@ const templateSearch = (templateList: YachtTemplate['templates']) => {
         return stringMatch || arrayMatch
     });
 };
+const formatDate = (date) => {
+    return parseISO(date).toLocaleString()
+}
 </script>
 
 <style>
 .featured-card {
-    background: linear-gradient(0deg, rgba(33, 33, 33, 0.9) 0%, rgba(33, 33, 33, 0.9) 10%, rgba(33, 33, 33, 0.9) 90%, rgba(33, 33, 33, 0.9) 100%);
+    background: linear-gradient(0deg, rgba(33, 33, 33, 0.8) 0%, rgba(33, 33, 33, 0.9) 10%, rgba(33, 33, 33, 0.9) 90%, rgba(33, 33, 33, 0.8) 100%);
     backdrop-filter: blur(5px) brightness(40%);
 }
 </style>
