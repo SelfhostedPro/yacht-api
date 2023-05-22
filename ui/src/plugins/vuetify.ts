@@ -7,6 +7,9 @@
 // Styles
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
+import { mdi } from 'vuetify/iconsets/mdi'
+import { aliases, fa } from 'vuetify/iconsets/fa'
+
 
 // Composables
 import { createVuetify, ThemeDefinition  } from 'vuetify'
@@ -39,6 +42,13 @@ const yachtLightTheme: ThemeDefinition = {
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
+  icons: {
+    defaultSet: 'mdi',
+    sets: {
+      mdi,
+      fa,
+    }
+  },
   components: {
     ...labs,
   },

@@ -4,6 +4,43 @@
         <v-sheet color="foreground">
             <v-container>
                 <v-row dense>
+                    <v-col>
+                        <v-carousel show-arrows="hover" height="400" hide-delimiters progress="primary">
+                            <v-carousel-item v-for="app in template.featured" :key="template.templates[app].title">
+                                <v-card class="text-center fill-height">
+                                    <v-img class="d-flex align-end featured-image"
+                                        :src="template.templates[app]['featured_image'] ? template.templates[app]['featured_image'] : template.templates[app].logo"
+                                        cover>
+                                        <v-card :rounded="0" class="featured-card" flat>
+                                            <v-card-title class="text-high-emphasis">{{ template.templates[app].title ||
+                                                template.templates[app].name
+                                            }}</v-card-title>
+                                            <v-card-text class="text-high-emphasis"
+                                                v-if="template.templates[app].description">{{
+                                                    template.templates[app].description }}</v-card-text>
+                                        </v-card>
+                                    </v-img>
+                                </v-card>
+                            </v-carousel-item>
+                        </v-carousel>
+                    </v-col>
+                </v-row>
+                <v-row dense>
+                    <v-col class="text-center">
+                        <v-card>
+                            <v-card-text class="text-high-emphasis">{{ template.description }}</v-card-text>
+                            <v-card-subtitle>type: {{ template.type }}</v-card-subtitle>
+                            <v-card-subtitle>created: {{ template.created }}</v-card-subtitle>
+                            <v-card-subtitle>apps: {{ template.templates.length }}</v-card-subtitle>
+                            <v-card-actions class="flex-d justify-center">
+                                <v-btn class="mx-1" prepend-icon="mdi-link" :href="template.url" target="_blank" >link</v-btn>
+                                <v-btn class="mx-1" prepend-icon="mdi-message-outline" :href="template.contact" target="_blank">contact
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-col>
+                </v-row>
+                <v-row dense>
                     <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-for="app in templateSearch(template.templates)"
                         :key="app.title">
                         <v-card class="overflow-auto" min-height="200" max-height="200">
@@ -11,7 +48,7 @@
                                 <v-card-subtitle class="text-primary" color="primary">{{ app.image }}</v-card-subtitle>
                             </v-card-item>
                             <v-card-text>{{ app.description || `${app.title || app.name} doesn't provide a
-                                    description.`}}</v-card-text>
+                                description.`}}</v-card-text>
                         </v-card>
                     </v-col>
                 </v-row>
@@ -54,3 +91,10 @@ const templateSearch = (templateList: YachtTemplate['templates']) => {
     });
 };
 </script>
+
+<style>
+.featured-card {
+    background: linear-gradient(0deg, rgba(33, 33, 33, 0.9) 0%, rgba(33, 33, 33, 0.9) 10%, rgba(33, 33, 33, 0.9) 90%, rgba(33, 33, 33, 0.9) 100%);
+    backdrop-filter: blur(5px) brightness(40%);
+}
+</style>
