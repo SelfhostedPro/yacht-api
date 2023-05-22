@@ -32,7 +32,7 @@
                     <v-col class="text-center">
                         <v-fade-transition>
                             <v-card v-show="searchQuery.length < 1">
-                                <v-card-text class="text-high-emphasis px-12">{{ template.description }}</v-card-text>
+                                <v-card-text class="text-high-emphasis px-12" style="white-space: pre-wrap;" >{{ template.description }} {{ 'testing out to see if theres a way to <br /> \n newline' }}</v-card-text>
                                 <v-card-subtitle>type: {{ template.type }}</v-card-subtitle>
                                 <v-card-subtitle>created: {{ template.created }}</v-card-subtitle>
                                 <v-card-subtitle>apps: {{ template.templates.length }}</v-card-subtitle>
