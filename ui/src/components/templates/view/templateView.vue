@@ -5,37 +5,44 @@
             <v-container>
                 <v-row dense>
                     <v-col>
-                        <v-carousel show-arrows="hover" height="400" hide-delimiters progress="primary">
-                            <v-carousel-item v-for="app in template.featured" :key="template.templates[app].title">
-                                <v-card class="text-center fill-height">
-                                    <v-img class="d-flex align-end featured-image"
-                                        :src="template.templates[app]['featured_image'] ? template.templates[app]['featured_image'] : template.templates[app].logo"
-                                        cover>
-                                        <v-card :rounded="0" class="featured-card" flat>
-                                            <v-card-title class="text-high-emphasis">{{ template.templates[app].title ||
-                                                template.templates[app].name
-                                            }}</v-card-title>
-                                            <v-card-text class="text-high-emphasis"
-                                                v-if="template.templates[app].description">{{
-                                                    template.templates[app].description }}</v-card-text>
-                                        </v-card>
-                                    </v-img>
-                                </v-card>
-                            </v-carousel-item>
-                        </v-carousel>
+                        <v-fade-transition>
+                            <v-carousel v-show="searchQuery.length < 1" cycle show-arrows="hover" height="400"
+                                hide-delimiters progress="primary">
+                                <v-carousel-item v-for="app in template.featured" :key="template.templates[app].title">
+                                    <v-card class="text-center fill-height">
+                                        <v-img class="d-flex align-end featured-image"
+                                            :src="template.templates[app]['featured_image'] ? template.templates[app]['featured_image'] : template.templates[app].logo"
+                                            cover>
+                                            <v-card :rounded="0" class="featured-card" flat>
+                                                <v-card-title class="text-high-emphasis">{{ template.templates[app].title ||
+                                                    template.templates[app].name
+                                                }}</v-card-title>
+                                                <v-card-text class="text-high-emphasis"
+                                                    v-if="template.templates[app].description">{{
+                                                        template.templates[app].description }}</v-card-text>
+                                            </v-card>
+                                        </v-img>
+                                    </v-card>
+                                </v-carousel-item>
+                            </v-carousel>
+                        </v-fade-transition>
                     </v-col>
                 </v-row>
                 <v-row dense>
                     <v-col class="text-center">
-                        <v-card>
-                            <v-card-text class="text-high-emphasis">{{ template.description }}</v-card-text>
-                            <v-card-subtitle>type: {{ template.type }}</v-card-subtitle>
-                            <v-card-subtitle>created: {{ template.created }}</v-card-subtitle>
-                            <v-card-subtitle>apps: {{ template.templates.length }}</v-card-subtitle>
-                            <v-card-actions class="flex-d justify-center">
-                                <v-btn v-for="link in template.links" :color="link.color || null" :key="link.text" :prepend-icon="link.icon || 'mdi-link'" :href="link.url || null" target="_blank">{{ link.text || 'link' }}</v-btn>
-                            </v-card-actions>
-                        </v-card>
+                        <v-fade-transition>
+                            <v-card v-show="searchQuery.length < 1">
+                                <v-card-text class="text-high-emphasis">{{ template.description }}</v-card-text>
+                                <v-card-subtitle>type: {{ template.type }}</v-card-subtitle>
+                                <v-card-subtitle>created: {{ template.created }}</v-card-subtitle>
+                                <v-card-subtitle>apps: {{ template.templates.length }}</v-card-subtitle>
+                                <v-card-actions class="flex-d justify-center">
+                                    <v-btn v-for="link in template.links" :color="link.color || null" :key="link.text"
+                                        :prepend-icon="link.icon || 'mdi-link'" :href="link.url || null" target="_blank">{{
+                                            link.text || 'link' }}</v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </v-fade-transition>
                     </v-col>
                 </v-row>
                 <v-row dense>
