@@ -1571,7 +1571,8 @@
         {
           "name": "PUID",
           "label": "PUID",
-          "default": "!PUID"
+          "default": "!PUID",
+          "description": "UserID for Jellyfin to run as. Use the command id <username> to find your user's UID."
         },
         {
           "name": "PGID",

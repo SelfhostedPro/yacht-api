@@ -55,7 +55,15 @@
                         <Dynamic name="limits" v-model="form.limits" />
                         <v-expansion-panel title="raw">
                             <v-expansion-panel-text>
-                                <pre>{{ form }}</pre>
+                                <v-card title="form">
+                                    <pre>{{ form }}</pre>
+                                </v-card>
+                                <v-card title="template">
+                                    <pre>{{ template }}</pre>
+                                </v-card>
+                                <v-card title="ports">
+                                    <pre>{{ formatPorts(props.template.ports) }}</pre>
+                                </v-card>
                             </v-expansion-panel-text>
                         </v-expansion-panel>
                     </v-expansion-panels>
@@ -68,7 +76,7 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref } from 'vue';
-import { CreateContainerForm } from '@yacht/types';
+import { CreateContainerForm, YachtTemplate } from '@yacht/types';
 import BaseInfo from './create/base.vue'
 import NetworkInfo from './create/network.vue'
 import Dynamic from './create/dynamic.vue'
@@ -85,25 +93,31 @@ const loadingStore = useLoadingStore()
 const { isLoading } = storeToRefs(loadingStore)
 const { networks } = storeToRefs(resourceStore)
 
+interface Props {
+    template?: YachtTemplate['templates'][0],
+}
+
 const emit = defineEmits(['created'])
+const props = defineProps<Props>()
 
 const servers = ref([])
 const settingStore = useSettingsStore()
 onMounted(async () => {
-    const storedForm = localStorage.getItem('createAppForm')
+    if (props.template) {
+        await populateFromTemplate()
+    } else if (localStorage.getItem('createAppForm')) {
+        form.value = JSON.parse(localStorage.getItem('createAppForm'))
+    }
     await resourceStore.fetchResources('networks')
     await settingStore.fetchServers().then(() => {
         for (const [, server] of Object.entries(settingStore.servers)) {
             servers.value.push(server.name);
         }
-        if (storedForm) {
-            form.value = JSON.parse(storedForm)
-        } else {
-            form.value.server = servers.value[0] || 'none'
-            form.value.network = networks.value[servers.value[0]].find((network) => network.Name === 'bridge').Name || 'none'
-        }
+        form.value.server = servers.value[0] || 'none'
+        form.value.network ? form.value.network = form.value.network : form.value.network = networks.value[servers.value[0]].find((network) => network.Name === 'bridge').Name || 'none'
     });
 })
+
 
 const form: Ref<CreateContainerForm> = ref({
     name: '',
@@ -140,6 +154,128 @@ const next = () => {
 const prev = () => {
     return currentWindow.value -= 1
 }
+
+const populateFromTemplate = async () => {
+    form.value.name = props.template.name
+    form.value.image = props.template.image
+    form.value.restart = props.template.restart_policy
+    form.value.info.icon = props.template.logo
+    form.value.info.title = props.template.title
+    form.value.network = props.template.ports ? 'bridge' : null
+    form.value.env = props.template.env.map((env) => {
+        return {
+            name: env.name,
+            value: env.default,
+            label: env.label,
+            description: env.description
+        }
+    }) || []
+    form.value.mounts = props.template.volumes.map((volume) => {
+        return {
+            source: volume.container,
+            destination: volume.bind,
+            read_only: volume.readonly || false,
+        }
+    }) || []
+    form.value.labels = props.template.labels || []
+    form.value.ports = formatPorts(props.template.ports)
+    form.value.command = props.template.command ? [props.template.command] : []
+    form.value.sysctls = props.template.sysctls || []
+    form.value.devices = props.template.devices || []
+    form.value.capabilities.add = props.template.cap_add || []
+    form.value.capabilities.drop = props.template.cap_drop || []
+    form.value.limits = props.template.limits || {
+        cpus: null,
+        mem_limit: null,
+    }
+}
+
+const formatPorts = (ports: YachtTemplate['templates'][0]['ports']): CreateContainerForm['ports'] => {
+    const portList: CreateContainerForm['ports'] = []
+    ports.forEach((port: YachtTemplate['templates'][0]['ports'][0]) => {
+        if (typeof port === 'string') {
+            if (port.includes(':')) {
+                const [host, container] = port.split(":")
+                if (container.includes('/')) {
+                    const [containerPort, protocol] = container.split('/')
+                    portList.push({
+                        label: undefined,
+                        host,
+                        container: containerPort,
+                        protocol: protocol === 'udp' ? 'udp' : 'tcp',
+                    })
+                } else {
+                    portList.push({
+                        label: undefined,
+                        host,
+                        container,
+                        protocol: 'tcp',
+                    })
+                }
+            } else {
+                if (port.includes('/')) {
+                    const [containerPort, protocol] = port.split('/')
+                    portList.push({
+                        label: undefined,
+                        host: '',
+                        container: containerPort,
+                        protocol: protocol === 'udp' ? 'udp' : 'tcp',
+                    })
+                } else {
+                    portList.push({
+                        label: undefined,
+                        host: '',
+                        container: port,
+                        protocol: 'tcp',
+                    })
+                }
+            }
+        } else if (typeof port === 'object') {
+            for (const [label, portString] of Object.entries(port)) {
+                if (portString.includes(':')) {
+                    const [host, container] = portString.split(":")
+                    if (container.includes('/')) {
+                        const [containerPort, protocol] = container.split('/')
+                        portList.push({
+                            label,
+                            host,
+                            container: containerPort,
+                            protocol: protocol === 'udp' ? 'udp' : 'tcp',
+                        })
+                    } else {
+                        portList.push({
+                            label,
+                            host,
+                            container,
+                            protocol: 'tcp',
+                        })
+                    }
+                } else {
+                    if (portString.includes('/')) {
+                        const [containerPort, protocol] = portString.split('/')
+                        portList.push({
+                            label,
+                            host: '',
+                            container: containerPort,
+                            protocol: protocol === 'udp' ? 'udp' : 'tcp',
+                        })
+                    } else {
+                        portList.push({
+                            label,
+                            host: '',
+                            container: portString,
+                            protocol: 'tcp',
+                        })
+                    }
+                }
+            }
+        }
+    })
+    return portList
+};
+
+
+
 const submit = async () => {
     await appStore.createApp(form.value)
         .then(() => {

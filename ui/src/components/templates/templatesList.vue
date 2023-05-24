@@ -3,7 +3,10 @@
         <template v-slot:loader="{ isActive }">
             <v-progress-linear :active="isActive" color="primary" height="4" indeterminate></v-progress-linear>
         </template>
-        <topbar />
+        <search-bar :title="'templates'" color="surface" v-model:search="searchQuery" />
+        <v-tabs align-tabs="center" v-model="tab" color="primary" slider-color="primary" >
+            <v-tab v-for="template, i in templates" :key="template.name" :value="i">{{ template.title }}</v-tab>
+        </v-tabs>
         <v-sheet color="foreground">
             <v-fade-transition v-if="isLoading.items.get('templates')">
                 <v-window>
@@ -15,60 +18,24 @@
                 </v-window>
             </v-fade-transition>
             <v-fade-transition v-else-if="templates">
-                <v-container>
-                    <v-row dense>
-                        <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-for="template in templates"
-                            :key="template.name">
-                            <v-card max-height="350" density="compact">
-                                <v-img :src="template.image || storePlaceholderImage" height="200" cover />
-                                <v-card-title>{{ template.title }}
-                                </v-card-title>
-                                <v-card-subtitle> {{ template.url.replace('https://raw.githubusercontent.com/', '') }}
-                                </v-card-subtitle>
-                                <v-card-subtitle>type: {{ template.type }}</v-card-subtitle>
-                                <v-card-subtitle> created: {{ template.created }}</v-card-subtitle>
-                                <v-card-subtitle> apps: {{ Object.keys(template.templates).length }}</v-card-subtitle>
-                                <v-card-actions>
-                                    <v-dialog :fullscreen="maximize" transition="dialog-bottom-transition">
-                                        <template v-slot:activator="{ props }">
-                                            <v-btn color="primary" v-bind="props">view</v-btn>
-                                        </template>
-                                        <template v-slot:default="{ isActive }">
-                                            <v-card>
-                                                <template-view :template="template" @maximize="maximize = !maximize" @close="isActive.value = false" />
-                                            </v-card>
-                                        </template>
-                                    </v-dialog>
-                                    <v-btn @click="featuredReveal[template.title] = true">featured<v-icon
-                                            :icon="featuredReveal[template.title] ? 'mdi-chevron-up' : 'mdi-chevron-down'" /></v-btn>
-                                    <v-spacer />
-                                    <authors v-if="template.authors" :authors="template.authors" />
-                                </v-card-actions>
-                                <v-expand-transition>
-                                    <featured v-show="featuredReveal[template.title]" :template="template"
-                                        @close="featuredReveal[template.title] = false" />
-                                </v-expand-transition>
-                            </v-card>
-                        </v-col>
-                    </v-row>
-                </v-container>
+                <v-window v-model="tab">
+                    <v-window-item v-for="template,i in templates" :value="i">
+                        <template-view :template="template" :templates="templateSearch(template.templates)" :searchQuery="searchQuery" />
+                    </v-window-item>
+                </v-window>
             </v-fade-transition>
         </v-sheet>
     </v-card>
 </template>
 <script setup lang="ts">
-import topbar from './list/topbar.vue';
-import featured from './list/featured.vue';
+import SearchBar from '@/components/common/SearchBar.vue';
 import templateView from './view/templateView.vue';
-import authors from './list/authors.vue';
-import storePlaceholderImage from '@/assets/store-placeholder.jpg';
 import { useLoadingStore } from '@/stores/loading';
 import { useTemplateStore } from '@/stores/templates';
 import { YachtTemplate } from '@yacht/types';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref, Ref } from 'vue';
-const maximize = ref(false)
-const featuredReveal = ref({})
+const tab = ref(0)
 const loadingStore = useLoadingStore();
 const templateStore = useTemplateStore();
 const templates: Ref<YachtTemplate[]> = storeToRefs(templateStore).templates
@@ -79,6 +46,30 @@ onMounted(async () => {
     loading.value = isLoading.value.loading
     await templateStore.fetchTemplates()
 })
+
+// Initialize Search Variable
+const searchQuery: Ref<string> = ref('')
+// Filter apps by search variable
+const templateSearch = (templateList: YachtTemplate['templates']) => {
+    const searchQueryLowerCase = searchQuery.value.toLowerCase();
+    return templateList.filter((app) => {
+        // These fields are strings
+        const stringFields = [
+            app.name,
+            app.image,
+            app.description,
+            app.title,
+            app.note
+        ];
+        // These fields are an array of strings based on the values of each of the objects in the array's properties
+        const arrayFields = [app.labels?.map((label) => label.key), app.env?.map((env) => env.name), app.categories?.map((category) => category)];
+        // Matching filters
+        const stringMatch = stringFields?.some((field) => field?.toLowerCase().includes(searchQueryLowerCase));
+        const arrayMatch = arrayFields?.some((fieldArray) => fieldArray?.some((field) => field?.toString().toLowerCase().includes(searchQueryLowerCase)));
+        return stringMatch || arrayMatch
+    });
+};
+
 </script>
 <style>
 .v-card--reveal {

@@ -1,4 +1,5 @@
 import { ContainerMount, ContainerOciInfo } from "./apps"
+import { YachtTemplateEnvironment } from "../templates/yacht"
 
 export interface KeyValue {
     key: string,
@@ -7,7 +8,8 @@ export interface KeyValue {
 
 export interface ContainerFormEnvs {
     key?: string,
-    value?: string
+    value?: string,
+    description?: string,
 }
 
 export interface ContainerFormPorts {
@@ -34,16 +36,16 @@ export interface CreateContainerForm {
     network_mode?: string,
     mounts?: ContainerFormVolumes[],
     ports?: ContainerFormPorts[],
-    env?: KeyValue[],
+    env?: ContainerFormEnvs[],
     labels?: KeyValue[],
     command?: string[],
-    devices?: Devices[],
+    devices?: string[],
     sysctls?: KeyValue[],
-    capabilities: {
+    capabilities?: {
         add?: CapAdd[],
         drop?: CapDrop[],
     },
-    limits: {
+    limits?: {
         cpus?: number,
         mem_limit?: number
     }
@@ -51,12 +53,6 @@ export interface CreateContainerForm {
 
 export interface NetworkModes {
     network_modes: "bridge" | "host" | "none"
-}
-
-export interface Devices {
-    host: string,
-    container: string,
-    permissions?: 'r' | 'w' | 'm' | 'mw' | 'rm' | 'rwm' | 'rw'
 }
 
 export interface CapDrop {

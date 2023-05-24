@@ -6,6 +6,8 @@ export interface KeyValue {
 export interface ContainerFormEnvs {
     key?: string;
     value?: string;
+    label?: string;
+    description?: string;
 }
 export interface ContainerFormPorts {
     label?: string;
@@ -29,27 +31,22 @@ export interface CreateContainerForm {
     network_mode?: string;
     mounts?: ContainerFormVolumes[];
     ports?: ContainerFormPorts[];
-    env?: KeyValue[];
+    env?: ContainerFormEnvs[];
     labels?: KeyValue[];
     command?: string[];
-    devices?: Devices[];
+    devices?: string[];
     sysctls?: KeyValue[];
-    capabilities: {
+    capabilities?: {
         add?: CapAdd[];
         drop?: CapDrop[];
     };
-    limits: {
+    limits?: {
         cpus?: number;
         mem_limit?: number;
     };
 }
 export interface NetworkModes {
     network_modes: "bridge" | "host" | "none";
-}
-export interface Devices {
-    host: string;
-    container: string;
-    permissions?: 'r' | 'w' | 'm' | 'mw' | 'rm' | 'rwm' | 'rw';
 }
 export interface CapDrop {
     option: "AUDIT_WRITE" | "CHOWN" | "DAC_OVERRIDE" | "FOWNER" | "FSETID" | "KILL" | "SETGID" | "SETUID" | "SETPCAP" | "NET_BIND_SERVICE" | "NET_RAW" | "SYS_CHROOT";

@@ -1,4 +1,5 @@
 import { PortainerV1Template, PortainerV2Template } from "./portainer";
+import { CapAdd, CapDrop, KeyValue } from "../apps/create";
 export interface YachtTemplate {
     name: string;
     url: string;
@@ -7,18 +8,18 @@ export interface YachtTemplate {
     image?: string;
     created?: string;
     type?: 'portainerv1' | 'portainerv2' | 'yachtv1' | 'yachtv2';
-    authors?: Author[];
-    links?: Link[];
+    authors?: YachtTemplateAuthor[];
+    links?: YachtTemplateLink[];
     featured?: number[];
     templates: PortainerV1Template[] | PortainerV2Template['templates'] | YachtV1Template[] | YachtV2Template[];
 }
-export interface Link {
+export interface YachtTemplateLink {
     url: string;
     text?: string;
     icon?: string;
     color?: string;
 }
-export interface Author {
+export interface YachtTemplateAuthor {
     name: string;
     url?: string;
     avatar?: string;
@@ -36,46 +37,55 @@ export interface YachtV1Template {
     image: string;
     registry?: string;
     administrator_only?: boolean;
-    access_control?: AccessControl;
+    access_control?: PortainerTemplateAccessControl;
     command?: string;
     network?: string;
-    repository?: Stack;
+    repository?: PortainerTemplateStack;
     categories?: string[];
     platform?: 'linux' | 'windows';
     restart_policy?: string;
-    ports?: YachtPorts | string[];
-    volumes?: Volume[];
-    environment?: Environment[];
-    labels?: Labels[];
+    ports?: YachtTemplatePorts[] | string[];
+    volumes?: YachtTemplateVolume[];
+    env?: YachtTemplateEnvironment[];
+    labels?: KeyValue[];
     privileged?: boolean;
     interactive?: boolean;
     hostname?: string;
-    cap_add?: string[];
-    cap_drop?: string[];
+    cap_add?: CapAdd[];
+    cap_drop?: CapDrop[];
+    sysctls?: KeyValue[];
     devices?: string[];
+    limits?: {
+        cpus?: number;
+        mem_limit?: number;
+    };
 }
-export interface YachtPorts {
+export interface YachtTemplatePorts {
     [key: string]: string;
 }
-export interface Stack {
+export interface PortainerTemplateStack {
     url: string;
     stackfile: string;
 }
-export interface AccessControl {
+export interface PortainerTemplateAccessControl {
     enabled: boolean;
 }
-export interface Environment {
+export interface YachtTemplateEnvironment {
     name: string;
     label?: string;
+    description?: string;
     default?: string;
+    preset?: boolean;
     set?: string;
+    value?: string;
 }
-export interface Volume {
+export interface YachtTemplateVolume {
     container: string;
     bind?: string;
     readonly?: boolean;
+    label?: string;
 }
-export interface Labels {
+export interface YachtTemplateLabels {
     name: string;
     value: string;
 }

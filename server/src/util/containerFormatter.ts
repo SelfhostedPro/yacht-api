@@ -307,7 +307,7 @@ export async function normalizeCreate(
       CpuShares: limits.cpus,
       Memory: limits.mem_limit,
     },
-    Env: env.map(({ key, value }) => `${key}=${value}`),
+    Env: env.map(({ key, value }) => `${name}=${value}`),
     Labels: transformedLabels,
     Cmd: command,
   };
@@ -316,7 +316,7 @@ export async function normalizeCreate(
 }
 
 export async function transformInfo(data: CreateContainerForm) {
-  const { labels, info, ports } = data;
+  const { labels, info, ports, env } = data;
   const baseLabels = Object.fromEntries(
     labels.map(({ key, value }) => [key, value]),
   );
@@ -326,11 +326,15 @@ export async function transformInfo(data: CreateContainerForm) {
   const portLabels = Object.fromEntries(
     ports.map((port) => [`sh.yacht.${port.host}`, port.label]),
   );
+  const envLabels = Object.fromEntries(
+    Object.entries(env).map(([name, env]) => [`sh.yacht.env.${name}.label`, env.label, `sh.yacht.env.${name}.description`, env.description])
+  )
   const transformedLabels = Object.assign(
     {},
     baseLabels,
     infoLabels,
     portLabels,
+    envLabels,
   );
 
   return transformedLabels;
