@@ -9,12 +9,16 @@ export interface ContainerFormEnvs {
     description?: string;
     label?: string;
 }
+export interface ContainerFormUnchangable {
+    property: 'host' | 'container' | 'protocol';
+}
 export interface ContainerFormPorts {
     label?: string;
     host?: string;
     container?: string;
     protocol?: 'tcp' | 'udp';
     description?: string;
+    unchangable?: boolean | ContainerFormUnchangable[];
 }
 export interface ContainerFormVolumes {
     label?: string;

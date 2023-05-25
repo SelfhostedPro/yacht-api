@@ -1557,7 +1557,7 @@
           "host": "8920",
           "protocol": "tcp",
           "description": "Port to access the WebUI via SSL, requires a valid SSL certificate.",
-          "unchangable": ["container"]
+          "unchangable": ["container", "protocol"]
         },
         "DNLA": {
           "container": "1900",

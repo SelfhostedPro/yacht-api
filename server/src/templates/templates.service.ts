@@ -35,9 +35,9 @@ export class TemplatesService implements OnModuleInit {
   // Add a template
   async addTemplate(body: addYachtTemplateDTO) {
     const template = await fetch(body.url).then((res) => res.json());
-    const exists = fs.existsSync(this.templatePath + '/' + body.name)
+    const exists = fs.existsSync(this.templatePath + '/' + template.name)
     if (!exists) {
-      this.logger.log('Adding template: ' + body.name);
+      this.logger.log('Adding template: ' + template.name);
       try {
         const templateType = template['type'] || getTemplateType(template)
         const templateFile: YachtTemplate = {
@@ -53,7 +53,7 @@ export class TemplatesService implements OnModuleInit {
           links: template.links || null,
           templates: templateType === 'yachtv2' || templateType === 'portainerv2' ? template.templates : template // if template type is yachtv2 or portainerv2 the templates are nested in the template property.
         }
-        fs.outputFileSync(`${this.templatePath}/${body.name}/template.json`, JSON.stringify(templateFile))
+        fs.outputFileSync(`${this.templatePath}/${template.name}/template.json`, JSON.stringify(templateFile))
         return templateFile
       } catch (err) {
         throw new Error(err)

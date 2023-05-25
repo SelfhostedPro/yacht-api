@@ -76,7 +76,7 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref } from 'vue';
-import { CreateContainerForm, YachtTemplate, YachtV2TemplatePort } from '@yacht/types';
+import { CreateContainerForm, YachtTemplate, YachtV2TemplatePort, YachtV1TemplatePort } from '@yacht/types';
 import BaseInfo from './create/base.vue'
 import NetworkInfo from './create/network.vue'
 import Dynamic from './create/dynamic.vue'
@@ -193,85 +193,77 @@ const populateFromTemplate = async () => {
 const formatPorts = (ports: YachtTemplate['templates'][0]['ports']): CreateContainerForm['ports'] => {
     console.log(JSON.stringify(ports))
     const portList: CreateContainerForm['ports'] = []
-
-    console.log(ports)
-
     const isPortainerPorts = (ports: unknown): ports is string[] => {
-        console.log(`isArray: ${Array.isArray(ports)} typeof: ${typeof ports[0]}`)
         return Array.isArray(ports) && typeof ports[0] === 'string'
     }
 
-    const isYachtV1Ports = (ports: unknown): ports is Record<string, string>[] => {
-        console.log(`isObject: ${typeof ports} isArray: ${Array.isArray(ports)}`)
-        return Array.isArray(ports) && typeof ports === 'object'
+    const isYachtV1Ports = (ports: unknown): ports is YachtV1TemplatePort[] => {
+        return Array.isArray(ports) && typeof ports[0] === 'object'
     }
 
-    const isYachtV2Ports = (ports: unknown): ports is Record<string, YachtV2TemplatePort>[] => {
-        return typeof ports === 'object'
+    const isYachtV2Ports = (ports: unknown): ports is YachtV2TemplatePort => {
+        console.log(ports)
+        return !Array.isArray(ports) && typeof ports === 'object'
     }
 
     if (isPortainerPorts(ports)) {
         console.log('isPortainerPorts')
+        for (const port in ports) {
+            ports = ports as string[]
+            const portString: string = ports[port]
+            if (portString.includes(':') && portString.includes('/')) {
+                const [host, container] = portString.split(':')
+                const [containerPort, protocol] = container.split('/')
+                portList.push({ host: host, container: containerPort, protocol: protocol === 'upd' ? 'udp' : 'tcp' })
+            } else if (portString.includes(':')) {
+                const [host, container] = portString.split(':')
+                portList.push({ host, container, protocol: 'tcp' })
+            } else if (portString.includes('/')) {
+                const [container, protocol] = portString.split('/')
+                portList.push({ container, protocol: protocol === 'upd' ? 'udp' : 'tcp' })
+            } else {
+                portList.push({ container: port, protocol: 'tcp' })
+            }
+        }
+        return portList
     } else if (isYachtV1Ports(ports)) {
         console.log('isYachtV1Ports')
+        const portObject = ports[0]
+        for (const port in portObject) {
+            const portString = portObject[port] as string
+            if (portString.includes(':') && portString.includes('/')) {
+                const [host, container] = portString.split(':')
+                const [containerPort, protocol] = container.split('/')
+                portList.push({ label: port, host: host, container: containerPort, protocol: protocol === 'upd' ? 'udp' : 'tcp' })
+            } else if (portString.includes(':')) {
+                const [host, container] = portString.split(':')
+                portList.push({ label: port, host, container, protocol: 'tcp' })
+            } else if (portString.includes('/')) {
+                const [container, protocol] = port.split('/')
+                portList.push({ label: port, container, protocol: protocol === 'upd' ? 'udp' : 'tcp' })
+            } else {
+                portList.push({ label: port, container: port, protocol: 'tcp' })
+            }
+        }
+        return portList
     } else if (isYachtV2Ports(ports)) {
         console.log('isYachtV2Ports')
+        Object.keys(ports).forEach((port) => {
+            const portObject = ports[port]
+            portList.push({
+                label: port,
+                host: portObject.host,
+                container: portObject.container,
+                protocol: portObject.protocol,
+                description: portObject.description,
+                unchangable: portObject.unchangable || false
+            })
+        })
+        return portList
     } else {
         console.log('isUnknownPorts')
     }
-
-    // const isArray = Array.isArray(ports)
-    // if (isArray) {
-    //     for (const port in ports) {
-    //         if (isPortainerV1Port(ports[port])) {
-    //             ports = ports as string[]
-    //             if (ports[port].includes(':') && ports[port].includes('/')) {
-    //                 const [host, container] = port.split(':')
-    //                 const [containerPort, protocol] = container.split('/')
-    //                 portList.push({ host: host, container: containerPort, protocol: protocol === 'upd' ? 'udp' : 'tcp' })
-    //             } else if (ports[port].includes(':')) {
-    //                 const [host, container] = ports[port].split(':')
-    //                 portList.push({ host, container, protocol: 'tcp' })
-    //             } else if (ports[port].includes('/')) {
-    //                 const [container, protocol] = ports[port].split('/')
-    //                 portList.push({ container, protocol: protocol === 'upd' ? 'udp' : 'tcp' })
-    //             } else {
-    //                 portList.push({ container: port, protocol: 'tcp' })
-    //             }
-    //         } else if (isYachtV1Port(ports[port])) {
-    //             ports = ports as Record<string, string>[]
-    //             const portString = ports[port] as string
-    //             if (portString.includes(':') && portString.includes('/')) {
-    //                 const [host, container] = port.split(':')
-    //                 const [containerPort, protocol] = container.split('/')
-    //                 portList.push({ host: host, container: containerPort, protocol: protocol === 'upd' ? 'udp' : 'tcp' })
-    //             } else if (portString.includes(':')) {
-    //                 const [host, container] = port.split(':')
-    //                 portList.push({ host, container, protocol: 'tcp' })
-    //             } else if (portString.includes('/')) {
-    //                 const [container, protocol] = port.split('/')
-    //                 portList.push({ container, protocol: protocol === 'upd' ? 'udp' : 'tcp' })
-    //             } else {
-    //                 portList.push({ container: port, protocol: 'tcp' })
-    //             }
-    //         } else if (isYachtV2Port(ports[port])) {
-    //             ports = ports as Record<string, YachtV2TemplatePort>[]
-    //             const portMap = new Map(ports)
-    //         }
-    //     }
-        return portList
-}
-
-const isPortainerV1Port = (port: unknown): port is string[] => {
-    return Array.isArray(port) && typeof port[0] === 'string'
-}
-
-const isYachtV1Port = (port: unknown): port is Record<string, string> => {
-    return typeof port === 'object' && typeof port[0] === 'string'
-}
-
-const isYachtV2Port = (port: unknown): port is Record<string, YachtV2TemplatePort> => {
-    return typeof port === 'object' && typeof port[0] === 'object'
+    return portList
 }
 
 

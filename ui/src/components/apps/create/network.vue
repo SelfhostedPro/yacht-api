@@ -25,15 +25,15 @@
                                             hide-details="auto"></v-text-field>
                                     </v-col>
                                     <v-col :cols="formCols('host')">
-                                        <v-text-field label="host" placeholder="8080" v-model="port.host"
+                                        <v-text-field :disabled="Array.isArray(port.unchangable) && port.unchangable.includes('host') || port.unchangable === true" label="host" placeholder="8080" v-model="port.host"
                                             hide-details="auto"></v-text-field>
                                     </v-col>
                                     <v-col :cols="formCols('container')">
-                                        <v-text-field label="container" placeholder="80" v-model="port.container"
+                                        <v-text-field :disabled="Array.isArray(port.unchangable) && port.unchangable.includes('container') || port.unchangable === true" label="container" placeholder="80" v-model="port.container"
                                             hide-details="auto"></v-text-field>
                                     </v-col>
                                     <v-col :cols="formCols('protocol')">
-                                        <v-select label="protocol" :items="['udp', 'tcp']" v-model="port.protocol"
+                                        <v-select :disabled="Array.isArray(port.unchangable) && port.unchangable.includes('protocol') || port.unchangable === true" label="protocol" :items="['udp', 'tcp']" v-model="port.protocol"
                                             hide-details="auto"></v-select>
                                     </v-col>
                                 </v-row>
@@ -52,13 +52,10 @@
 </template>
 
 <script setup lang="ts">
-import { ContainerFormPorts, CreateContainerForm, ServerNetworks } from '@yacht/types'
-import { Ref, ref } from 'vue';
+// @ts-nocheck
+import { CreateContainerForm, ServerNetworks } from '@yacht/types'
 import { useDisplay } from 'vuetify';
 import addbutton from './shared/addButton.vue'
-import { useResourceStore } from '@/stores/resources';
-import { onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
 interface Props {
     modelValue: CreateContainerForm,
     networks: ServerNetworks
