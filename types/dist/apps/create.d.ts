@@ -6,14 +6,15 @@ export interface KeyValue {
 export interface ContainerFormEnvs {
     key?: string;
     value?: string;
-    label?: string;
     description?: string;
+    label?: string;
 }
 export interface ContainerFormPorts {
     label?: string;
     host?: string;
     container?: string;
     protocol?: 'tcp' | 'udp';
+    description?: string;
 }
 export interface ContainerFormVolumes {
     label?: string;

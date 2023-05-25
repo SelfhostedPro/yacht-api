@@ -10,13 +10,15 @@ export interface ContainerFormEnvs {
     key?: string,
     value?: string,
     description?: string,
+    label?: string,
 }
 
 export interface ContainerFormPorts {
     label?: string,
     host?: string,
     container?: string,
-    protocol?: 'tcp' | 'udp'
+    protocol?: 'tcp' | 'udp',
+    description?: string
 }
 
 export interface ContainerFormVolumes {

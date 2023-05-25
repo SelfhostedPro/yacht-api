@@ -1545,14 +1545,35 @@
       ],
       "platform": "linux",
       "restart_policy": "unless-stopped",
-      "ports": [
-        {
-          "WebUI": "8096:8096/tcp",
-          "HTTPS WebUI": "8920:8920/tcp",
-          "DNLA": "1900:1900/udp",
-          "Discovery": "7359:7359/udp"
+      "ports": {
+        "WebUI": {
+          "container": "8096",
+          "host": "8096",
+          "protocol": "tcp",
+          "description": "Port to access the WebUI for"
+        }, 
+        "HTTPS WebUI": {
+          "container": "8920",
+          "host": "8920",
+          "protocol": "tcp",
+          "description": "Port to access the WebUI via SSL, requires a valid SSL certificate.",
+          "unchangable": ["container"]
+        },
+        "DNLA": {
+          "container": "1900",
+          "host": "1900",
+          "protocol": "udp",
+          "description": "Required for disovery of Jellyfin by DLNA clients.",
+          "unchangable": true
+        },
+        "Discovery": {
+          "container": "7359",
+          "host": "7359",
+          "protocol": "udp",
+          "description": "Allows for discovery of Jellyfin by other clients.",
+          "unchangable": true
         }
-      ],
+      },
       "volumes": [
         {
           "container": "/config",

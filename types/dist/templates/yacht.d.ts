@@ -44,7 +44,7 @@ export interface YachtV1Template {
     categories?: string[];
     platform?: 'linux' | 'windows';
     restart_policy?: string;
-    ports?: YachtTemplatePorts[] | string[];
+    ports?: Record<string, string> | Record<string, YachtV2TemplatePort>[] | string[];
     volumes?: YachtTemplateVolume[];
     env?: YachtTemplateEnvironment[];
     labels?: KeyValue[];
@@ -60,8 +60,15 @@ export interface YachtV1Template {
         mem_limit?: number;
     };
 }
-export interface YachtTemplatePorts {
-    [key: string]: string;
+export interface YachtV2TemplatePortUnchangable {
+    property: 'host' | 'container' | 'protocol';
+}
+export interface YachtV2TemplatePort {
+    host?: string;
+    container?: string;
+    protocol?: 'tcp' | 'udp';
+    description?: string;
+    unchangable?: boolean | YachtV2TemplatePortUnchangable[];
 }
 export interface PortainerTemplateStack {
     url: string;
