@@ -1,18 +1,19 @@
 <template>
-    <v-card>
+    <v-card flat>
         <v-card-text>
             <v-row :dense="mdAndDown" align="center">
                 <v-col :cols="mdAndDown == true ? 12 : undefined">
-                    <v-text-field label="sysctl" placeholder="net.ipv6.conf.all.disable_ipv6" :value="sysctls.name"
+                    <v-text-field :label="environment.label || 'name'" placeholder="PUID" v-model="environment.name"
                         @input="setName($event.target.value)" hide-details="auto"></v-text-field>
                 </v-col>
                 {{ mdAndDown == true ? null : '=' }}
                 <v-col :cols="mdAndDown == true ? 12 : undefined">
-                    <v-text-field label="value" placeholder="1" :value="sysctls.value"
+                    <v-text-field label="value" placeholder="1000" v-model="environment.value"
                         @input="setValue($event.target.value)" hide-details="auto"></v-text-field>
                 </v-col>
             </v-row>
         </v-card-text>
+        <v-card-text v-if="environment.description">{{ environment.description }}</v-card-text>
     </v-card>
 </template>
   
@@ -23,21 +24,21 @@ const props = defineProps(['modelValue'])
 const emit = defineEmits(['update:modelValue'])
 
 
-const sysctls = computed({
+const environment = computed({
     get() {
         return props.modelValue
     },
-    set(sysctls) {
-        emit('update:modelValue', sysctls)
+    set(environment) {
+        emit('update:modelValue', environment)
     }
 })
 
 const setName = (value) => {
-    emit('update:modelValue', { ...sysctls.value, name: value })
+    emit('update:modelValue', { ...environment.value, key: value })
 }
 
 const setValue = (value) => {
-    emit('update:modelValue', { ...sysctls.value, value: value })
+    emit('update:modelValue', { ...environment.value, value: value })
 }
 
 const { mdAndDown } = useDisplay()

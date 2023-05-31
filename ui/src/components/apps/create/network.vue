@@ -1,17 +1,19 @@
 <template>
-    <v-card :rounded="0" color="foreground">
-        <v-toolbar :rounded="0" color="surface">
-            <v-toolbar-title class="text-center"> network </v-toolbar-title>
-        </v-toolbar>
+    <v-card flat color="foreground">
         <v-card-text>
-            <v-slide-x-transition>
-                <v-select clearable v-show="!modelValue.network_mode" :items="networks[modelValue.server]" item-title="Name"
-                    item-value="Name" label="network" v-model="modelValue.network" required></v-select>
-            </v-slide-x-transition>
-            <v-slide-x-transition>
-                <v-select clearable v-show="!modelValue.network" :items="['bridge', 'host', 'none']" label="network mode"
-                    v-model="modelValue.network_mode" required></v-select>
-            </v-slide-x-transition>
+            <v-card :rounded="0" color="surface">
+                <v-card-text>
+                    <v-slide-x-transition>
+                        <v-select clearable v-show="!modelValue.network_mode" :items="networks[modelValue.server]"
+                            item-title="Name" item-value="Name" label="network" v-model="modelValue.network"
+                            hide-details="auto" :class="!modelValue.network ? 'mb-5' : undefined" />
+                    </v-slide-x-transition>
+                    <v-slide-x-transition>
+                        <v-select clearable v-show="!modelValue.network" :items="['bridge', 'host', 'none']"
+                            label="network mode" v-model="modelValue.network_mode" hide-details="auto" />
+                    </v-slide-x-transition>
+                </v-card-text>
+            </v-card>
             <v-slide-x-transition group>
                 <v-row align="center" no-gutters class="my-2"
                     v-if="modelValue.network_mode === 'bridge' || modelValue.network === 'bridge'"
@@ -25,15 +27,21 @@
                                             hide-details="auto"></v-text-field>
                                     </v-col>
                                     <v-col :cols="formCols('host')">
-                                        <v-text-field :disabled="Array.isArray(port.unchangable) && port.unchangable.includes('host') || port.unchangable === true" label="host" placeholder="8080" v-model="port.host"
+                                        <v-text-field
+                                            :disabled="Array.isArray(port.unchangable) && port.unchangable.includes('host') || port.unchangable === true"
+                                            label="host" placeholder="8080" v-model="port.host"
                                             hide-details="auto"></v-text-field>
                                     </v-col>
                                     <v-col :cols="formCols('container')">
-                                        <v-text-field :disabled="Array.isArray(port.unchangable) && port.unchangable.includes('container') || port.unchangable === true" label="container" placeholder="80" v-model="port.container"
+                                        <v-text-field
+                                            :disabled="Array.isArray(port.unchangable) && port.unchangable.includes('container') || port.unchangable === true"
+                                            label="container" placeholder="80" v-model="port.container"
                                             hide-details="auto"></v-text-field>
                                     </v-col>
                                     <v-col :cols="formCols('protocol')">
-                                        <v-select :disabled="Array.isArray(port.unchangable) && port.unchangable.includes('protocol') || port.unchangable === true" label="protocol" :items="['udp', 'tcp']" v-model="port.protocol"
+                                        <v-select
+                                            :disabled="Array.isArray(port.unchangable) && port.unchangable.includes('protocol') || port.unchangable === true"
+                                            label="protocol" :items="['udp', 'tcp']" v-model="port.protocol"
                                             hide-details="auto"></v-select>
                                     </v-col>
                                 </v-row>
@@ -77,10 +85,10 @@ const addPort = () => {
 }
 const formCols = (field: 'label' | 'host' | 'container' | 'protocol' | 'card' | 'button') => {
     const cols = {
-        label: { sm: '12', other: '4' },
-        host: { sm: '12', other: '3' },
-        container: { sm: '12', other: '3' },
-        protocol: { sm: '12', other: '2' },
+        label: { sm: '12', other: '12' },
+        host: { sm: '12', other: '4' },
+        container: { sm: '12', other: '4' },
+        protocol: { sm: '12', other: '4' },
         card: { sm: '10', other: '11' },
         button: { sm: '2', other: '1' }
     };

@@ -1,15 +1,16 @@
 import { Container, CreateContainerForm, ServerContainers, YachtContainerStats } from "@yacht/types"
 import { defineStore } from "pinia"
-import { useEventSource } from "@vueuse/core"
+import { useEventSource } from "@/helpers/auth/fetch"
 import { useAuthFetch } from "@/helpers/auth/fetch"
 import { useLoadingStore } from "@/stores/loading"
 import { useNotifyStore } from "./notifications"
+import { useAuthStore } from "./auth"
 
 export const useAppStore = defineStore('apps', {
     state: () => ({
         apps: {} as ServerContainers,
         stats: {} as YachtContainerStats,
-        openStats: null as EventSource,
+        openStatsController: new AbortController(),
         retries: 0,
     }),
     getters: {
@@ -76,33 +77,27 @@ export const useAppStore = defineStore('apps', {
             const loadingStore = useLoadingStore()
             loadingStore.startLoadingItem('stats')
             this.retries = 0
-            const { eventSource, error, data } = useEventSource(`/api/containers/stats`, ['message'], { withCredentials: true })
-            if (!error.value) {
-                eventSource.value.onopen = () => {
+            const signal = this.openStatsController.signal
+            try {
+                await useEventSource(`/api/containers/stats`, {
+                    onerror(err) {
+                        console.log(err)
+                    },
+                    onmessage(msg) {
+                        if (msg.data) {
+                            const stat = JSON.parse(msg.data)
+                            this.stats[stat.Name] = JSON.parse(msg.data)
+                        }
+                    },
+                    signal: signal
+                }).then(() => {
                     loadingStore.stopLoadingItem('stats')
-                }
-                eventSource.value.addEventListener('message', (message) => {
-                    if (eventSource.value.OPEN) {
-                        const stat = JSON.parse(message.data)
-                        this.stats[stat.Name] = JSON.parse(message.data)
-                    }
                 })
-                eventSource.value.addEventListener('error', async (error) => {
-                    await new Promise(f => setTimeout(f, 1000));
-                    if (this.retries < 3) {
-                        this.retries += 1
-                        eventSource.value.close()
-                    } else {
-                        eventSource.value.close()
-                        loadingStore.stopLoadingItem('stats')
-                    }
-                })
-                // Assign openStats to eventSource so we can close it later
-                this.openStats = eventSource.value
-            } else {
+            } catch (e) {
+                console.log(e)
                 const notify = useNotifyStore()
-                loadingStore.stopLoadingItem('deploy')
-                notify.setError(`Stats Error: ${error.value}`)
+                loadingStore.stopLoadingItem('stats')
+                notify.setError(`Stats Error: ${e}`)
                 throw new Error
             }
         },

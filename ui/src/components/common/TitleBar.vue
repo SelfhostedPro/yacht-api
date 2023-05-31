@@ -1,6 +1,7 @@
 <template>
     <v-card-title class="pa-0">
-        <v-toolbar :color="color" align-center> <v-toolbar-title>{{ title || null }}</v-toolbar-title>
+        <v-toolbar :color="color" align-center> <v-toolbar-title>{{ title || null
+        }}</v-toolbar-title>
             <v-toolbar-items class="text-center">
                 <slot name="btns"></slot>
                 <v-tooltip v-if="closable" :text="'maximize'">

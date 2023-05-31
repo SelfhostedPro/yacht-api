@@ -251,6 +251,9 @@ importers:
       '@mdi/font':
         specifier: 7.0.96
         version: 7.0.96
+      '@microsoft/fetch-event-source':
+        specifier: ^2.0.1
+        version: 2.0.1
       '@vuelidate/core':
         specifier: ^2.0.2
         version: 2.0.2(vue@3.2.47)
@@ -1195,6 +1198,10 @@ packages:
 
   /@mdi/font@7.0.96:
     resolution: {integrity: sha512-rzlxTfR64hqY8yiBzDjmANfcd8rv+T5C0Yedv/TWk2QyAQYdc66e0kaN1ipmnYU3RukHRTRcBARHzzm+tIhL7w==}
+    dev: false
+
+  /@microsoft/fetch-event-source@2.0.1:
+    resolution: {integrity: sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==}
     dev: false
 
   /@mole-inc/bin-wrapper@8.0.1:

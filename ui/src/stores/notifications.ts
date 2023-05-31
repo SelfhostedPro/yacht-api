@@ -1,8 +1,10 @@
 import { defineStore } from "pinia"
-import { useEventSource, useStorage } from "@vueuse/core"
 import { NotificationEvent } from '@yacht/types'
+import { fetchEventSource } from '@microsoft/fetch-event-source'
+import { useEventSource } from "@/helpers/auth/fetch"
 import { Anchor } from "@/types/ui"
 import { toRaw } from "vue"
+import { useAuthStore } from "./auth"
 
 const NotificationTypes = {
     error: {
@@ -46,14 +48,14 @@ class Notification {
 interface State {
     notifications: Notification[]
     retries: number
-    notificationStream: EventSource | null
+    notificationStreamController: AbortController
 }
 
 export const useNotifyStore = defineStore('notify', {
     state: (): State => ({
         notifications: [] as Notification[],
         retries: 0,
-        notificationStream: null as EventSource,
+        notificationStreamController: new AbortController(),
 
     }),
     getters: {
@@ -70,11 +72,7 @@ export const useNotifyStore = defineStore('notify', {
             }
         },
         async setError(error: string) {
-            const newError = new Notification({ message: error, level: 'error', timeout: -1 })
-            if (!this.notifications.contains(newError)) {
-                this.notifications.push(newError);
-                localStorage.setItem('notifications', JSON.stringify(this.notifications));
-            }
+            this.setNotification(new Notification({ message: error, level: 'error', timeout: -1 }))
         },
         async clearNotification(idx: number) {
             this.notifications.splice(idx, 1)
@@ -82,21 +80,31 @@ export const useNotifyStore = defineStore('notify', {
         },
         async listenToNotifications() {
             this.retries = 0
-            const { eventSource, error } = useEventSource(`/api/notifications`, ['message'], { withCredentials: true })
-            if (!error.value) {
-                this.notificationStream = eventSource.value
-                eventSource.value.addEventListener('message', async (event: MessageEvent<string>) => {
-                    this.setNotification(new Notification(JSON.parse(event.data)))
-                });
-            } else {
-                console.log(`Notification sse error ${error.value}`)
+            const { setNotification, setError } = this
+            const signal = this.notificationStreamController.signal
+            try {
+                await useEventSource(`/api/notifications`, {
+                    onerror(err) {
+                        console.log(err)
+                        setError(new Notification({ message: JSON.stringify(err), level: 'error' }))
+                    },
+                    onmessage(msg) {
+                        if (msg.data) {
+                            setNotification(new Notification(JSON.parse(msg.data)))
+                        }
+                    },
+                    signal: signal
+                })
+            } catch (e) {
+                setError(new Notification({ message: JSON.stringify(e), level: 'error' }))
             }
+
         },
         async close() {
-            this.notificationStream?.close()
+            this.notificationStreamController.close()
         },
         $reset() {
-            this.notificationStream?.close()
+            this.notificationStreamController.close()
             localStorage.removeItem('notification')
             this.notifications = [] as Notification[]
         }

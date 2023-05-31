@@ -1,6 +1,7 @@
 import { useAuthStore } from "@/stores/auth";
 import { useNotifyStore } from "@/stores/notifications";
 import { createFetch, useFetch } from "@vueuse/core";
+import { fetchEventSource } from '@microsoft/fetch-event-source'
 
 
 export const useAuthFetch = createFetch({
@@ -14,6 +15,7 @@ export const useAuthFetch = createFetch({
         },
         async onFetchError(ctx) {
             const data = ctx.data
+            console.log(data)
             const authStore = useAuthStore()
             if (data['statusCode'] === 401) {
                 await authStore.refresh()
@@ -27,3 +29,23 @@ export const useAuthFetch = createFetch({
         },
     }
 })
+
+export async function useEventSource(url, options) {
+    return fetchEventSource(url, {
+        async onopen(response) {
+            if (response.ok) {
+                return
+            } else if (response.status === 401) {
+                const authStore = useAuthStore()
+                try {
+                    authStore.refresh()
+                } catch (e) {
+                    throw new Error(e)
+                }
+            } else {
+                throw new Error(`${response.status}: ${response.statusText}`)
+            }
+        },
+        ...options
+    })
+}

@@ -21,7 +21,8 @@
                                                     v-if="template.templates[app].description">{{
                                                         template.templates[app].description }}</v-card-text>
                                                 <v-card-actions>
-                                                    <v-btn @click="selectedApp = template.templates[app]; openDialog = true" icon> <v-icon icon="mdi-plus" /> </v-btn>
+                                                    <v-btn @click="selectedApp = template.templates[app]; openDialog = true"
+                                                        icon> <v-icon icon="mdi-plus" /> </v-btn>
                                                 </v-card-actions>
                                             </v-card>
                                         </v-img>
@@ -53,25 +54,41 @@
                 <v-row dense>
                     <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-for="app in templates" :key="app.title">
                         <v-card class="overflow-auto" min-height="200" max-height="200">
-                            <v-card-item :prepend-avatar="app.logo" :title="app.title || app.name">
+                            <v-card-item :prepend-avatar="app.logo">
+                                <v-card-title>{{ app.title || app.name }}
+                                    <v-btn class="float-right" variant="plain" @click="selectedApp = app; openDialog = true"
+                                        icon> <v-icon icon="mdi-plus" />
+                                    </v-btn>
+                                    <v-btn class="float-right" variant="plain" @click="selectedApp = app; openInfo = true"
+                                        icon><v-icon icon="mdi-information-outline" />
+                                    </v-btn>
+                                </v-card-title>
                                 <v-card-subtitle class="text-primary" color="primary">{{ app.image }}</v-card-subtitle>
                             </v-card-item>
                             <v-card-text>{{ app.description || `${app.title || app.name} doesn't provide a
                                 description.`}}</v-card-text>
                             <v-card-actions>
-                                <v-btn @click="selectedApp = app; openDialog = true" icon> <v-icon icon="mdi-plus" /> </v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-col>
                 </v-row>
             </v-container>
-            <v-dialog v-model="openDialog" :fullscreen="maximize" transition="dialog-bottom-transition">
+            <v-dialog v-model="openDialog" :fullscreen="maximize" :max-width="maximize ? undefined : '1000'"
+                transition="dialog-bottom-transition">
                 <template v-slot:default>
-                    <v-card color="background">
-                        <title-bar title="Deploy new app" color="primary" @maximize="maximize = !maximize" :closable="true"
-                            @close="openDialog = false; selectedApp = null" />
-                        <v-card-text class="ma-0 pa-0" tag="span">
-                            <app-form :template="selectedApp" @created="openDialog = false; selectedApp = null" />
+                    <app-create :template="selectedApp" @maximize="maximize = !maximize"
+                        @close="openDialog = false; selectedApp = null" />
+                </template>
+            </v-dialog>
+            <v-dialog v-model="openInfo" :max-width="maximize ? undefined : '800'" :fullscreen="maximize"
+                transition="dialog-bottom-transition">
+                <template v-slot:default>
+                    <v-card color="background" class="overflow-auto">
+                        <title-bar :title="`${selectedApp.title || selectedApp.name} info`" color="primary"
+                            @maximize="maximize = !maximize" :closable="true"
+                            @close="openInfo = false; selectedApp = null" />
+                        <v-card-text>
+                            <template-info :template="selectedApp" />
                         </v-card-text>
                     </v-card>
                 </template>
@@ -85,7 +102,8 @@
 import { YachtTemplate } from '@yacht/types'
 import { parseISO } from 'date-fns';
 import TitleBar from '@/components/common/TitleBar.vue';
-import AppForm from '@/components/apps/AppForm.vue';
+import AppCreate from '@/components/apps/AppCreate.vue';
+import TemplateInfo from '@/components/templates/view/templateInfo.vue';
 import { ref } from 'vue';
 import { Ref } from 'vue';
 interface Props {
@@ -96,6 +114,7 @@ interface Props {
 const maximize = ref(false)
 const selectedApp: Ref<YachtTemplate['templates'][0]> = ref(null)
 const openDialog: Ref<boolean> = ref(false)
+const openInfo: Ref<boolean> = ref(false)
 defineProps<Props>()
 defineEmits(['close', 'maximize'])
 

@@ -8,18 +8,13 @@
                 <v-btn icon @click='refresh()'>
                     <v-icon>mdi-restart</v-icon>
                 </v-btn>
-                <v-dialog :fullscreen="maximize" transition="dialog-bottom-transition">
+                <v-dialog :fullscreen="maximize" :max-width="maximize ? undefined : '80vw'" scrollable
+                    transition="dialog-bottom-transition">
                     <template v-slot:activator="{ props }">
                         <v-btn icon color="primary" v-bind="props"><v-icon icon="mdi-plus" /></v-btn>
                     </template>
                     <template v-slot:default="{ isActive }">
-                        <v-card color="background">
-                            <title-bar title="Deploy new app" color="primary" @maximize="maximize = !maximize"
-                                :closable="true" @close="isActive.value = false" />
-                            <v-card-text class="ma-0 pa-0" tag="span">
-                                <app-form @created="isActive.value = false" />
-                            </v-card-text>
-                        </v-card>
+                        <app-create @close="isActive.value = false" @maximize="maximize = !maximize" :maximize="maximize" />
                     </template>
                 </v-dialog>
             </template>
@@ -84,8 +79,7 @@ import { useAppStore } from '@/stores/apps'
 import { ref, Ref } from 'vue';
 // Import custom components
 import SearchBar from '@/components/common/SearchBar.vue'
-import TitleBar from '../common/TitleBar.vue';
-import AppForm from './AppForm.vue';
+import AppCreate from './AppCreate.vue';
 import baseinfo from '@/components/apps/list/base.vue'
 import resourcetab from '@/components/apps/list/resourcetab.vue'
 import actions from '@/components/apps/list/actions.vue'

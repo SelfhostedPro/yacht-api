@@ -1,5 +1,5 @@
 <template>
-    <v-card>
+    <v-card flat>
         <v-card-text>
             <v-row :dense="mdAndDown" align="center">
                 <v-col :cols="formCols('label')">
@@ -57,9 +57,9 @@ const setRead = (value) => {
 
 const formCols = (field: 'label' | 'source' | 'destination' | 'readonly') => {
     const cols = {
-        label: { sm: '12', other: '2' },
-        source: { sm: '12', other: '4' },
-        destination: { sm: '9', other: '4' },
+        label: { sm: '12', other: '12' },
+        source: { sm: '12', other: '5' },
+        destination: { sm: '9', other: '5' },
         readonly: { sm: '3', other: '2' },
     };
     return smAndDown.value === true ? cols[field].sm : cols[field].other;

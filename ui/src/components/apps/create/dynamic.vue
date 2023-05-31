@@ -1,15 +1,12 @@
 <template>
-    <component :is="useCard ? VCard : VExpansionPanel" v-bind="componentProps">
-        <v-toolbar v-if="useCard" :rounded="0" color="surface">
-            <v-toolbar-title class="text-center"> {{ title || name }} </v-toolbar-title>
-        </v-toolbar>
-        <component :is="useCard ? VCardText : VExpansionPanelText">
+    <component :is="!advanced ? VCard : VExpansionPanel" v-bind="componentProps">
+        <component :is="!advanced ? VCardText : VExpansionPanelText">
             <v-slide-x-transition group>
                 <v-row v-if="Array.isArray(resourceFormat[name])" align="center" no-gutters class="my-2"
                     v-for="_, i of resource" :key="i">
                     <v-col cols="11">
                         <Suspense>
-                            <DynamicComponent v-model="resource[i]" />
+                            <DynamicComponent v-model="resource[i]" :servers="servers" />
                         </Suspense>
                     </v-col>
                     <v-col class="text-center" cols="1">
@@ -19,16 +16,16 @@
                 <v-row v-else>
                     <v-col cols="12">
                         <Suspense>
-                            <DynamicComponent v-model="resource" />
+                            <DynamicComponent v-model="resource" :servers="servers" />
                         </Suspense>
                     </v-col>
                 </v-row>
             </v-slide-x-transition>
-            <addbutton v-if="Array.isArray(resourceFormat[name]) && !useCard" :name="name" :resources="resource"
+            <addbutton v-if="Array.isArray(resourceFormat[name]) && advanced" :name="name" :resources="resource"
                 :rounded="'sm'" :icon="false" :size="'large'" @add="addRow()" />
         </component>
-        <addbutton v-if="Array.isArray(resourceFormat[name]) && useCard" :name="name" :resources="resource" :rounded="'sm'"
-            :icon="false" :size="'large'" @add="addRow()" />
+        <addbutton v-if="Array.isArray(resourceFormat[name]) && !advanced" :name="name" :resources="resource"
+            :rounded="'sm'" :icon="false" :size="'large'" @add="addRow()" />
     </component>
 </template>
 
@@ -49,18 +46,32 @@ const props = defineProps({
         type: String,
         required: false
     },
-    useCard: {
+    advanced: {
         type: Boolean,
         default: false,
     },
+    servers: {
+        required: false
+    },
 })
-const DynamicComponent = defineAsyncComponent(() => import(`./dynamic/${props.name}-form.vue`));
+const DynamicComponent = defineAsyncComponent(() => import(`./forms/${props.advanced ? 'advanced/' + props.name : props.name}-form.vue`));
 const emit = defineEmits(['update:modelValue'])
 
 type ResourceFormatType = Record<string, unknown>;
 const resourceFormat: ResourceFormatType = {
+    base: {
+        name: '',
+        image: '',
+        restart: '',
+        server: ''
+    },
+    info: {
+        icon: '',
+        title: '',
+        notes: '',
+    },
     variables: [{ key: '', value: '' }],
-    volumes: [{ label: '', source: '', destination: '', read_only: false }],
+    storage: [{ label: '', source: '', destination: '', read_only: false }],
     command: [''],
     sysctls: [{ name: '', value: '' }],
     labels: [{ name: '', value: '' }],
@@ -94,18 +105,19 @@ const addRow = () => {
 };
 
 const componentProps = computed(() => {
-    if (props.useCard) {
-        return {
-            'color': 'foreground',
-            'rounded': 0,
-            'title': null,
-            // Add the relevant props for v-card here
-        };
-    } else {
+    if (props.advanced) {
         return {
             'bg-color': 'foreground',
             'title': props.name
-            // Add any other relevant props for v-expansion-panel here
+            // Add the relevant props for v-expansion-panel here
+        };
+    } else {
+        return {
+            'variant': 'flat',
+            'color': 'foreground',
+            'rounded': 0,
+            'title': null,
+            // Add any other relevant props for v-card here
         };
     }
 });

@@ -1,5 +1,5 @@
 <template>
-    <v-card>
+    <v-card flat>
         <v-card-text>
             <v-row :dense="mdAndDown" align="center">
                 <v-col cols="12">
