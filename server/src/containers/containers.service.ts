@@ -9,10 +9,8 @@ import { Logger } from '../common/logger/logger.service';
 import { ServersService } from '../servers/servers.service';
 import { Observable } from 'rxjs';
 import {
-  normalizeContainer,
-  normalizeContainers,
-  normalizeCreate,
-} from '../util/containerFormatter';
+  ContainerFormatterService,
+} from '../util/containerFormatter.service';
 import {
   Container,
   ServerContainers,
@@ -26,6 +24,7 @@ export class ContainersService {
   constructor(
     private readonly logger: Logger,
     private readonly serversService: ServersService,
+    private readonly containerFormatterService: ContainerFormatterService,
   ) {
     this.logger.setContext(ContainersService.name)
   }
@@ -40,7 +39,7 @@ export class ContainersService {
           this.logger.error(`Error getting containers for server '${name}': ${error.message}`);
           return [];
         });
-        return normalizeContainers(containers);
+        return this.containerFormatterService.normalizeContainers(containers);
       });
       // Wait for containers to resolve
       const containerArrays = await Promise.all(serverPromises);
@@ -60,13 +59,13 @@ export class ContainersService {
     const server: any = await this.serversService.getServerFromConfig(
       serverName,
     );
-    return await normalizeContainer(await server.getContainer(id).inspect());
+    return await this.containerFormatterService.normalizeContainer(await server.getContainer(id).inspect());
   }
 
   async oldGetContainer(id: string): Promise<Container> {
     const Docker = require('dockerode');
     const docker = new Docker();
-    return await normalizeContainer(await docker.getContainer(id).inspect());
+    return await this.containerFormatterService.normalizeContainer(await docker.getContainer(id).inspect());
   }
 
   async createContainer(serverName: string, form: CreateContainerForm) {
@@ -76,7 +75,7 @@ export class ContainersService {
     const pullStream = await server.pull(form.image);
     await new Promise((res) => server.modem.followProgress(pullStream, res));
     const test = await server
-      .createContainer(await normalizeCreate(form))
+      .createContainer(await this.containerFormatterService.normalizeCreate(form))
       .catch((err) => {
         throw err;
       });
@@ -86,7 +85,7 @@ export class ContainersService {
       .catch((err) => {
         throw err;
       });
-    return await normalizeContainer(
+    return await this.containerFormatterService.normalizeContainer(
       await server.getContainer(form.name).inspect(),
     );
   }
@@ -113,7 +112,7 @@ export class ContainersService {
     };
     if (action in actions) {
       await new Promise((res) => actions[action](res));
-      const containerInfo = await normalizeContainer(await container.inspect());
+      const containerInfo = await this.containerFormatterService.normalizeContainer(await container.inspect());
       this.logger.log(
         `Action: ${action} used on container ${containerInfo.name}: ${containerInfo.shortId}`,
       );

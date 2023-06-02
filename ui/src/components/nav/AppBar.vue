@@ -1,11 +1,10 @@
 <template>
-  <v-app-bar color="rgba(65, 184, 131, 0.9)" elevation="8">
+  <v-app-bar class="app-bar" elevation="8">
     <template v-slot:append>
       <v-app-bar-nav-icon v-if="mdAndDown" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
-    <!-- <v-breadcrumbs :items="items"></v-breadcrumbs> -->
     <v-app-bar-title>
-      <v-img max-height="32" :src="logo" />
+      <v-img max-height="30" class="d-flex align-center mx-auto text-logo" :src="logo" style="filter: brightness(5)" />
     </v-app-bar-title>
   </v-app-bar>
   <v-navigation-drawer v-if="mdAndDown" app v-model="drawer" location="right" temporary>
@@ -28,31 +27,19 @@
 </template>
 
 <script lang="ts" setup>
-import { Logo } from "@/composables/logo"
+import { textLogo } from "@/composables/logo"
 import { Ref, ref } from "vue";
 import { useDisplay } from 'vuetify'
-// import { useRouter } from 'vue-router';
-// import { watch } from "vue";
-// const items = ref([])
-// const router = useRouter()
-// watch(router.currentRoute, () => {
-//     breadcrumbItems()
-// })
-// const breadcrumbItems = () => {
-//     items.value = []
-//     router.currentRoute.value.matched.map((route) => {
-//         if (!items.value.some((item) => item.text === route.meta.title)) {
-//           console.log(route)
-//             items.value.push({
-//                 text: route.meta.title || 'test',
-//                 disabled: route.meta.title === router.currentRoute.value.meta.title,
-//                 to: route.path
-//             })
-//         }
-//     })
-// }
+
 defineProps(['links'])
 const drawer: Ref = ref(false)
 const { mdAndDown, name } = useDisplay()
-const logo = Logo()
+const logo = textLogo()
 </script>
+
+<style>
+.app-bar {
+  color: rgba(var(--v-theme-primary),0.9) !important;
+  background-color: rgba(var(--v-theme-primary),0.9) !important;
+}
+</style>

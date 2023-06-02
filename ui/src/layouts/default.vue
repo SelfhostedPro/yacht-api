@@ -6,7 +6,6 @@
       <v-container fluid>
         <router-view></router-view>
       </v-container>
-      <snackbar />
     </v-main>
     <!-- <nav-drawer ref="drawer" :links="links" /> -->
   </v-app>
@@ -16,7 +15,6 @@
 import AppBar from '@/components/nav/AppBar.vue'
 import Sidebar from '@/components/nav/Sidebar.vue'
 // import NavDrawer from '@/components/nav/NavDrawer.vue'
-import Snackbar from '@/components/notifications/snackbar.vue'
 // const drawer: Ref = ref(false)
 const links = [
   {

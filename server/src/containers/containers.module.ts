@@ -5,6 +5,7 @@ import { AuthModule } from '../auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { LoggerModule } from '../common/logger/logger.module';
 import { ServersModule } from 'src/servers/servers.module';
+import { UtilModule } from 'src/util/util.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ServersModule } from 'src/servers/servers.module';
     LoggerModule,
     AuthModule,
     ServersModule,
+    UtilModule,
   ],
   controllers: [ContainersController],
   providers: [ContainersService],

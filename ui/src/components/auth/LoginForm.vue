@@ -1,6 +1,5 @@
 <template>
     <v-card-title v-if="registration" class="text-center"> setup </v-card-title>
-    <v-card-title v-else class="text-center"> login </v-card-title>
     <v-card-text>
         <v-form fast-fail>
             <v-text-field @keyup.enter="submit" v-model="username" label="username" append-inner-icon="mdi-account-circle" />

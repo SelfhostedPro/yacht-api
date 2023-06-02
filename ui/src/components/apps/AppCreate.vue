@@ -13,29 +13,29 @@
             <v-col>
                 <v-window v-model="step"
                     :style="maximize ? 'height: 85vh; overflow-y: scroll' : 'height: 70vh; overflow-y: scroll'">
-                    <v-window-item>
+                    <v-window-item eager>
                         <Suspense>
                             <Dynamic name="base" v-model="form" :servers="servers" />
                         </Suspense>
                     </v-window-item>
-                    <v-window-item>
+                    <v-window-item eager>
                         <Suspense>
                             <Dynamic name="info" v-model="form" />
                         </Suspense>
                     </v-window-item>
-                    <v-window-item>
+                    <v-window-item eager>
                         <network :networks="networks" v-model="form" />
                     </v-window-item>
                     <v-window-item>
                         <Dynamic name="storage" v-model="form.mounts" />
                     </v-window-item>
-                    <v-window-item>
+                    <v-window-item eager>
                         <Dynamic title="environment" name="variables" :use-card="true" v-model="form.env" />
                     </v-window-item>
-                    <v-window-item>
+                    <v-window-item eager>
                         <advanced v-model="form" :template="template" />
                     </v-window-item>
-                    <v-window-item>
+                    <v-window-item eager>
                         <preview :form="form" />
                     </v-window-item>
                 </v-window>
@@ -107,6 +107,7 @@ const servers = ref([])
 onMounted(async () => {
     if (props.template) {
         await populateFromTemplate()
+        step.value = 6
         v.value.$touch()
     } else if (localStorage.getItem('createAppForm')) {
         form.value = JSON.parse(localStorage.getItem('createAppForm'))

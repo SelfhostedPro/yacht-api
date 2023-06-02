@@ -3,7 +3,7 @@
         <v-row>
             <v-col>
                 <v-card class="mx-auto" max-width="400px" color="foreground">
-                        <v-img class="mx-auto mt-5" max-height="76" alt="Vue logo" :src="logo" />
+                        <v-img class="mx-auto mt-5 mb-5" max-height="200" alt="Yacht logo" :src="logo" style="filter: brightness(5)" />
                     <LoginForm :registration="firstSetup"></LoginForm>
                 </v-card>
             </v-col>

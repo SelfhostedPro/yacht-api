@@ -1,5 +1,8 @@
 <template>
-    <v-navigation-drawer v-if="!mdAndDown" height="100vh" :permanent="locked" elevation="10" floating :expand-on-hover="true" :rail="!locked">
+    <v-navigation-drawer v-if="!mdAndDown" height="100vh" :permanent="locked" elevation="10" floating
+        :expand-on-hover="true" :rail="!locked">
+        <v-img max-height="100" class="mx-2 mt-2" :src="logo"
+            style="filter: brightness(5)" />
         <v-btn class="my-2 mx-2" :icon="locked ? 'mdi-lock' : 'mdi-lock-open'" density="comfortable"
             v-on:click="locked = !locked" />
         <v-divider />
@@ -23,15 +26,20 @@
         <template v-slot:append>
             <div>
                 <v-btn size="large" variant="text" icon="mdi-file-document" target="_blank" href="https://yacht.sh" />
-                <v-btn size="large" variant="text" icon="mdi-github" target="_blank" href="https://github.com/SelfhostedPro/Yacht" />
+                <v-btn size="large" variant="text" icon="mdi-github" target="_blank"
+                    href="https://github.com/SelfhostedPro/Yacht" />
             </div>
         </template>
     </v-navigation-drawer>
 </template>
 
 <script setup lang="ts">
+import vuetify from '@/plugins/vuetify';
+
+import { miniLogo } from "@/composables/logo"
 import { ref } from 'vue';
 import { useDisplay } from 'vuetify'
+const logo = miniLogo()
 const { mdAndDown } = useDisplay()
 defineProps(['links'])
 const locked = ref(false)

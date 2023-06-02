@@ -1,11 +1,15 @@
-import lightLogo from "@/assets/logo-light.svg";
-import darkLogo from "@/assets/logo.svg";
-import vuetify from '@/plugins/vuetify';
+import logo from "@/assets/yacht.svg";
+import logoMini from "@/assets/yacht-mini.svg";
+import logoText from "@/assets/yacht-text.svg";
 
 export function Logo() {
-    if (vuetify.theme.current.value.dark == true) {
-        return darkLogo;
-    } else if (vuetify.theme.current.value.dark == false) {
-        return lightLogo;
-    }
+    return logo;
+}
+
+export function miniLogo() {
+    return logoMini;
+}
+
+export function textLogo() {
+    return logoText;
 }
