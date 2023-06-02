@@ -312,6 +312,7 @@ export class ConfigService implements OnModuleInit {
         ],
         auth: true,
         theme: 'dark',
+        plugins: null,
         sessionTimeout: 3600,
       },
     };

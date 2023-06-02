@@ -4,7 +4,6 @@ import { useEventSource } from "@/helpers/auth/fetch"
 import { useAuthFetch } from "@/helpers/auth/fetch"
 import { useLoadingStore } from "@/stores/loading"
 import { useNotifyStore } from "./notifications"
-import { useAuthStore } from "./auth"
 
 export const useAppStore = defineStore('apps', {
     state: () => ({
@@ -76,29 +75,27 @@ export const useAppStore = defineStore('apps', {
         async fetchStats() {
             const loadingStore = useLoadingStore()
             loadingStore.startLoadingItem('stats')
-            this.retries = 0
-            const signal = this.openStatsController.signal
+            const self = this
             try {
                 await useEventSource(`/api/containers/stats`, {
                     onerror(err) {
-                        console.log(err)
+                        throw err
                     },
                     onmessage(msg) {
                         if (msg.data) {
                             const stat = JSON.parse(msg.data)
-                            this.stats[stat.Name] = JSON.parse(msg.data)
+                            self.stats[stat.Name] = JSON.parse(msg.data)
+                        } else {
+                            loadingStore.stopLoadingItem('stats')
                         }
                     },
-                    signal: signal
-                }).then(() => {
-                    loadingStore.stopLoadingItem('stats')
+                    signal: self.openStatsController.signal
                 })
             } catch (e) {
                 console.log(e)
                 const notify = useNotifyStore()
                 loadingStore.stopLoadingItem('stats')
                 notify.setError(`Stats Error: ${e}`)
-                throw new Error
             }
         },
         async fetchAppAction(server: string | number, id: string, action: string) {

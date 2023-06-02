@@ -3,7 +3,7 @@ import {
   Controller,
   Get,
   HttpException,
-  Param,
+  SetMetadata,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -11,8 +11,9 @@ import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { YachtConfig } from '@yacht/types';
 import { AccessTokenGuard } from '../common/guards/accessToken.guard';
 import { ConfigService } from '../config/config.service';
-import { updateSettingsDto } from './settings.dto';
+import { serverUIConfigDto, updateSettingsDto } from './settings.dto';
 import { SSHManagerService } from 'src/util/sshManager.service';
+import { Public } from 'src/common/decorators/public';
 
 @ApiTags('Settings')
 @ApiBearerAuth()
@@ -50,6 +51,27 @@ export class SettingsController {
       // Error Handling
       if (err.statusCode) {
         console.log(err)
+        throw new HttpException(err.message, err.statusCode);
+      } else {
+        throw new HttpException(err.message, 500);
+      }
+    }
+  }
+  @Public()
+  @Get('/ui')
+  @ApiCreatedResponse({
+    description: 'List all ui settings'
+  })
+  async getUiSettings(): Promise<serverUIConfigDto> {
+    try {
+      return {
+        plugins: this.configService.yachtConfig.base.plugins || null,
+        auth: this.configService.yachtConfig.base.auth || true,
+        theme: this.configService.yachtConfig.base.theme,
+      } as serverUIConfigDto
+    } catch (err) {
+      // Error Handling
+      if (err.statusCode) {
         throw new HttpException(err.message, err.statusCode);
       } else {
         throw new HttpException(err.message, 500);

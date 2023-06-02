@@ -1,10 +1,8 @@
 import { defineStore } from "pinia"
 import { NotificationEvent } from '@yacht/types'
-import { fetchEventSource } from '@microsoft/fetch-event-source'
 import { useEventSource } from "@/helpers/auth/fetch"
 import { Anchor } from "@/types/ui"
 import { toRaw } from "vue"
-import { useAuthStore } from "./auth"
 
 const NotificationTypes = {
     error: {
@@ -47,14 +45,12 @@ class Notification {
 
 interface State {
     notifications: Notification[]
-    retries: number
     notificationStreamController: AbortController
 }
 
 export const useNotifyStore = defineStore('notify', {
     state: (): State => ({
         notifications: [] as Notification[],
-        retries: 0,
         notificationStreamController: new AbortController(),
 
     }),
@@ -79,32 +75,29 @@ export const useNotifyStore = defineStore('notify', {
             localStorage.setItem('notifications', JSON.stringify(this.notifications))
         },
         async listenToNotifications() {
-            this.retries = 0
-            const { setNotification, setError } = this
-            const signal = this.notificationStreamController.signal
+            const self = this
             try {
                 await useEventSource(`/api/notifications`, {
                     onerror(err) {
                         console.log(err)
-                        setError(new Notification({ message: JSON.stringify(err), level: 'error' }))
+                        self.setError(new Notification({ message: JSON.stringify(err), level: 'error' }))
                     },
                     onmessage(msg) {
                         if (msg.data) {
-                            setNotification(new Notification(JSON.parse(msg.data)))
+                            self.setNotification(new Notification(JSON.parse(msg.data)))
                         }
                     },
-                    signal: signal
+                    signal: self.notificationStreamController.signal
                 })
             } catch (e) {
-                setError(new Notification({ message: JSON.stringify(e), level: 'error' }))
+                self.setError(new Notification({ message: JSON.stringify(e), level: 'error' }))
             }
-
         },
         async close() {
-            this.notificationStreamController.close()
+            this.notificationStreamController.abort()
         },
         $reset() {
-            this.notificationStreamController.close()
+            this.notificationStreamController.abort()
             localStorage.removeItem('notification')
             this.notifications = [] as Notification[]
         }

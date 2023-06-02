@@ -74,8 +74,10 @@ export class ResourcesService {
   }
 
   async getNetworks(): Promise<ServerNetworks> {
+    console.log('getting networks')
     const servers: ServerDict =
       await this.serversService.getServersFromConfig();
+      console.log(servers)
     const serverKeys = Object.keys(servers);
     // Get containers from all servers in config
     const serverPromises: Promise<NetworkInspectInfo[]>[] = serverKeys.map(

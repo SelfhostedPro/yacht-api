@@ -30,6 +30,8 @@
                     <v-text-field label="title" v-model="modelValue.info.title" placeholder="My Container" required />
                     <v-textarea label="notes" auto-grow :placeholder="defaultPreview.notes"
                         v-model="modelValue.info.notes" />
+                    <v-card-text class="font-weight-black">DO NOT STORE SENSITIVE INFO HERE OR R/SELFHOSTED WILL JUDGE YOU
+                        😤</v-card-text>
                 </v-col>
             </v-row>
         </v-card-text>

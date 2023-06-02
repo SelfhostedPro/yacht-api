@@ -1,20 +1,6 @@
 <template>
-    <v-toolbar @click="expand = !expand" color="surface" dark>
-        <v-row>
-            <v-col cols="1">
-            </v-col>
-            <v-col>
-                <v-toolbar-title class="text-center">advanced</v-toolbar-title>
-            </v-col>
-            <v-col cols="1">
-                <v-toolbar-items class="float-right">
-                    <v-icon :icon="expand ? 'mdi-chevron-up' : 'mdi-chevron-down'" />
-                </v-toolbar-items>
-            </v-col>
-        </v-row>
-    </v-toolbar>
-    <v-card class="overflow-auto" color="foreground">
-        <v-expand-transition v-show="expand === true">
+    <v-card color="foreground">
+        <v-card-text>
             <v-expansion-panels color="surface">
                 <Dynamic name="command" advanced v-model="modelValue.command" />
                 <Dynamic name="labels" advanced v-model="modelValue.labels" />
@@ -25,15 +11,15 @@
                 <v-expansion-panel title="raw">
                     <v-expansion-panel-text>
                         <v-card title="form">
-                            <pre>{{ modelValue }}</pre>
+                            <p style="white-space:pre-wrap;">{{ modelValue }}</p>
                         </v-card>
                         <v-card title="template">
-                            <pre>{{ template }}</pre>
+                            <p style="white-space:pre-wrap;">{{ template }}</p>
                         </v-card>
                     </v-expansion-panel-text>
                 </v-expansion-panel>
             </v-expansion-panels>
-        </v-expand-transition>
+        </v-card-text>
     </v-card>
 </template>
 <script setup lang="ts">
@@ -46,5 +32,4 @@ interface Props {
 }
 defineProps<Props>()
 defineEmits(['update:modelValue'])
-const expand: Ref<boolean> = ref(false)
 </script>

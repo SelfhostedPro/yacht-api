@@ -7,8 +7,11 @@
                         hide-details="auto"></v-text-field>
                 </v-col>
                 <v-col :cols="formCols('source')">
-                    <v-text-field label="source" placeholder="/home/user/config" v-model="volume.source" @input="setSource($event.target.value)"
-                        hide-details="auto"></v-text-field>
+                    <v-text-field label="source" placeholder="/home/user/config" v-model="volume.source" @input="setSource($event.target.value);v$.source.$touch"
+                        hide-details="auto"
+                        @blur="v$.source.$touch"
+                        :error-messages="v$.source.$errors.map(e => e.$message.toString())"
+                        ></v-text-field>
                 </v-col>
                 <v-col :cols="formCols('destination')">
                     <v-text-field label="destination" placeholder="/config" v-model="volume.destination" @input="setDestination($event.target.value)"
@@ -28,10 +31,12 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useDisplay } from 'vuetify';
+import { useVuelidate } from '@vuelidate/core'
+import { helpers, required } from '@vuelidate/validators'
+
 const { smAndDown, mdAndDown } = useDisplay()
 const props = defineProps(['modelValue'])
 const emit = defineEmits(['update:modelValue'])
-
 
 const volume = computed({
     get() {
@@ -64,4 +69,11 @@ const formCols = (field: 'label' | 'source' | 'destination' | 'readonly') => {
     };
     return smAndDown.value === true ? cols[field].sm : cols[field].other;
 };
+const rules = {
+    source: {
+        required: helpers.withMessage('source is required', helpers.withParams({ parent: 'storage'}, required))
+    },
+}
+const v$ = useVuelidate(rules, volume)
+
 </script>

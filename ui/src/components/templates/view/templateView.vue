@@ -73,10 +73,10 @@
                     </v-col>
                 </v-row>
             </v-container>
-            <v-dialog v-model="openDialog" :fullscreen="maximize" :max-width="maximize ? undefined : '1000'"
+            <v-dialog v-model="openDialog" persistent :fullscreen="maximize" :max-width="maximize ? undefined : '1000'"
                 transition="dialog-bottom-transition">
                 <template v-slot:default>
-                    <app-create :template="selectedApp" @maximize="maximize = !maximize"
+                    <app-create :template="selectedApp" @maximize="maximize = !maximize" :maximize="maximize"
                         @close="openDialog = false; selectedApp = null" />
                 </template>
             </v-dialog>

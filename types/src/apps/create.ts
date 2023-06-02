@@ -4,7 +4,7 @@ export interface KeyValue {
     value: string;
 }
 export interface ContainerFormEnvs {
-    key?: string;
+    name?: string;
     value?: string;
     description?: string;
     label?: string;

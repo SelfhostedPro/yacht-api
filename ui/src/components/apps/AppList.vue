@@ -8,7 +8,7 @@
                 <v-btn icon @click='refresh()'>
                     <v-icon>mdi-restart</v-icon>
                 </v-btn>
-                <v-dialog :fullscreen="maximize" :max-width="maximize ? undefined : '80vw'" scrollable
+                <v-dialog class="create-dialog" persistent :fullscreen="maximize" :width="maximize ? undefined : '80vw'" scrollable
                     transition="dialog-bottom-transition">
                     <template v-slot:activator="{ props }">
                         <v-btn icon color="primary" v-bind="props"><v-icon icon="mdi-plus" /></v-btn>
@@ -142,6 +142,9 @@ onMounted(async () => {
 <style>
 .v-app-bar-title__content {
     display: flex;
+}
+.create-dialog {
+    position: absolute !important;
 }
 </style>
 

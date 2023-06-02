@@ -54,7 +54,7 @@ const props = defineProps({
         required: false
     },
 })
-const DynamicComponent = defineAsyncComponent(() => import(`./forms/${props.advanced ? 'advanced/' + props.name : props.name}-form.vue`));
+const DynamicComponent = defineAsyncComponent(() => import(`./forms/${props.name}-form.vue`));
 const emit = defineEmits(['update:modelValue'])
 
 type ResourceFormatType = Record<string, unknown>;

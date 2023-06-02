@@ -20,7 +20,6 @@ export class ServersService {
     const options = privateKey ? { ...server.options, sshOptions: { privateKey } } : server.options;
     const newServer = new Docker(options);
     try {
-      console.log(newServer.info())
       await newServer.info();
       return newServer;
     } catch (e) {

@@ -1,22 +1,37 @@
 export class updateSettingsDto {
   base: baseDto;
 }
-
 export class baseDto {
   name: string;
-  servers: serverSettingsDto[];
+  servers: serverConfigDto[];
   auth: boolean;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | ThemeSettings;
+  plugins: string[]
   sessionTimeout: number;
 }
-export class serverSettingsDto {
+export class ThemeSettings {
+  primary: string;
+  secondary: string;
+  surface: string;
+  foreground: string;
+  background: string;
+  error: string;
+  info: string;
+  warning: string;
+  success: string;
+}
+
+export class serverUIConfigDto {
+  theme: 'light' | 'dark' | ThemeSettings;
+  auth: boolean 
+  plugins: string[]
+}
+
+export class serverConfigDto {
   name: string;
   options: DockerOptions;
 }
-export class serverConfig {
-  name: string;
-  options: DockerOptions;
-}
+
 class DockerOptions {
   socketPath?: string | undefined;
   host?: string | undefined;

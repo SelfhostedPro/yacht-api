@@ -1,24 +1,27 @@
 <template>
-    <v-card color="foreground" :loading="isLoading.loading">
-        <title-bar class="form-bar" color="primary" @maximize="$emit('maximize')" @close="$emit('close')" :closable="true"
-            :title="`create ${form.name || 'new app'}`" />
-        <template v-slot:loader="{ isActive }">
-            <v-progress-linear :active="isActive" color="primary" height="4" indeterminate></v-progress-linear>
-        </template>
-        <v-row>
-            <v-col cols="4">
-                <v-card-text class="d-flex align-start justify-start">
-                    <formProgress v-model="step" />
-                </v-card-text>
+    <v-card color="foreground">
+        <title-bar class="form-bar" :loading="isLoading.loading" color="primary" @maximize="$emit('maximize')"
+            @close="$emit('close')" :closable="true" :title="`create ${form.name || 'new app'}`" />
+        <v-row :dense="smAndDown">
+            <v-col :cols="smAndDown ? '12' : '4'">
+                <v-sheet color="surface" class="fill-height">
+                    <v-sheet color="surface" class="d-flex align-start justify-start">
+                        <formProgress v-model="step" :errors="v.$errors" />
+                    </v-sheet>
+                </v-sheet>
             </v-col>
             <v-col>
-                <v-window v-model="step" direction="vertical"
-                    :style="maximize ? 'max-height: 80vh; overflow: scroll' : 'max-height: 60vh; overflow: scroll'">
+                <v-window v-model="step"
+                    :style="maximize ? 'height: 85vh; overflow-y: scroll' : 'height: 70vh; overflow-y: scroll'">
                     <v-window-item>
-                        <Dynamic name="base" v-model="form" :servers="servers" />
+                        <Suspense>
+                            <Dynamic name="base" v-model="form" :servers="servers" />
+                        </Suspense>
                     </v-window-item>
                     <v-window-item>
-                        <Dynamic name="info" v-model="form" />
+                        <Suspense>
+                            <Dynamic name="info" v-model="form" />
+                        </Suspense>
                     </v-window-item>
                     <v-window-item>
                         <network :networks="networks" v-model="form" />
@@ -29,16 +32,27 @@
                     <v-window-item>
                         <Dynamic title="environment" name="variables" :use-card="true" v-model="form.env" />
                     </v-window-item>
+                    <v-window-item>
+                        <advanced v-model="form" :template="template" />
+                    </v-window-item>
+                    <v-window-item>
+                        <preview :form="form" />
+                    </v-window-item>
                 </v-window>
             </v-col>
         </v-row>
         <v-card-actions style="background-color: rgb(var(--v-theme-surface)) !important;">
+            <v-fade-transition>
+                <v-progress-circular :model-value="step / 6 * 100" size="small" class="app-progress"
+                    :indeterminate="isLoading.items.get('deploy')" :bg-opacity="1" height="4" bg-color="surface"
+                    :color="v.$errors.length !== 0 ? 'error' : 'primary'" />
+            </v-fade-transition>
             <v-spacer />
             <v-btn v-if="step !== 0" @click="step--">prev</v-btn>
-            <v-btn v-if="step !== 4" color="primary" @click="step++">next</v-btn>
+            <v-btn v-if="step !== 6" color="primary" @click="step++">next</v-btn>
             <v-btn v-else color="primary" @click="submit()">submit</v-btn>
         </v-card-actions>
-        <advanced v-model="form" :template="template" />
+        <!-- <pre>{{ form }}</pre> -->
     </v-card>
 </template>
 
@@ -48,7 +62,7 @@ import formProgress from './create/form-progress.vue';
 import Dynamic from './create/dynamic.vue'
 import advanced from './create/advanced.vue';
 import network from './create/network.vue'
-
+import preview from './create/preview.vue';
 
 import { storeToRefs } from 'pinia';
 import { CreateContainerForm, YachtTemplate, YachtV1TemplatePort, YachtV2TemplatePort } from '@yacht/types';
@@ -58,6 +72,13 @@ import { useAppStore } from '@/stores/apps';
 import { useLoadingStore } from '@/stores/loading';
 import { useResourceStore } from '@/stores/resources';
 import { useSettingsStore } from '@/stores/settings';
+
+import { useDisplay } from 'vuetify';
+// Form validation
+import { useVuelidate } from '@vuelidate/core'
+const v = useVuelidate()
+
+const { smAndDown } = useDisplay()
 const props = defineProps(['template', 'maximize'])
 const emit = defineEmits(['close', 'maximize'])
 
@@ -86,6 +107,7 @@ const servers = ref([])
 onMounted(async () => {
     if (props.template) {
         await populateFromTemplate()
+        v.value.$touch()
     } else if (localStorage.getItem('createAppForm')) {
         form.value = JSON.parse(localStorage.getItem('createAppForm'))
     }
@@ -97,6 +119,7 @@ onMounted(async () => {
         form.value.server = servers.value[0] || 'none'
         form.value.network ? form.value.network = form.value.network : form.value.network = networks.value[servers.value[0]].find((network) => network.Name === 'bridge').Name || 'none'
     });
+
 })
 
 

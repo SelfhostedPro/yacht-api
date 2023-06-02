@@ -307,7 +307,7 @@ export async function normalizeCreate(
       CpuShares: limits.cpus,
       Memory: limits.mem_limit,
     },
-    Env: env.map(({ key, value }) => `${name}=${value}`),
+    Env: env.map(({ name, value }) => `${name}=${value}`),
     Labels: transformedLabels,
     Cmd: command,
   };
