@@ -5,19 +5,17 @@ import Dockerode, {
 } from 'dockerode';
 import { PassThrough as StreamPassThrough } from 'stream';
 import { ContainerProcessesDTO } from './classes';
-import { Logger } from '../common/logger/logger.service';
-import { ServersService } from '../servers/servers.service';
+import { Logger } from 'src/common/logger/logger.service';
+import { ServersService } from 'src/servers/servers.service';
 import { Observable } from 'rxjs';
-import {
-  ContainerFormatterService,
-} from '../util/containerFormatter.service';
+import { ContainerFormatterService } from 'src/util/containerFormatter.service';
 import {
   Container,
   ServerContainers,
   ServerDict,
   CreateContainerForm,
 } from '@yacht/types';
-import { DockerStatsStreamer } from '../util/containerStreamers';
+import { DockerStatsStreamer } from 'src/util/containerStreamers';
 
 @Injectable()
 export class ContainersService {

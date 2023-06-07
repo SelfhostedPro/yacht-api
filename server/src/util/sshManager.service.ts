@@ -16,6 +16,7 @@ export class SSHManagerService {
     private readonly logger: Logger,
     private readonly configService: ConfigService,
   ) {
+    this.logger.setContext(SSHManagerService.name)
   }
   // Generate an SSH key
   async createSSHKey(keyName: string, passphrase: string) {

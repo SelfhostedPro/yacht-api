@@ -175,6 +175,9 @@ importers:
       '@types/passport-jwt':
         specifier: ^3.0.8
         version: 3.0.8
+      '@types/source-map-support':
+        specifier: ^0.5.6
+        version: 0.5.6
       '@types/sshpk':
         specifier: ^1.17.1
         version: 1.17.1
@@ -2070,6 +2073,12 @@ packages:
     dependencies:
       '@types/mime': 3.0.1
       '@types/node': 18.16.3
+    dev: true
+
+  /@types/source-map-support@0.5.6:
+    resolution: {integrity: sha512-b2nJ9YyXmkhGaa2b8VLM0kJ04xxwNyijcq12/kDoomCt43qbHBeK2SLNJ9iJmETaAj+bKUT05PQUu3Q66GvLhQ==}
+    dependencies:
+      source-map: 0.6.1
     dev: true
 
   /@types/ssh2@1.11.11:

@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { YachtConfig } from '@yacht/types';
-import { AccessTokenGuard } from '../common/guards/accessToken.guard';
-import { ConfigService } from '../config/config.service';
+import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
+import { ConfigService } from 'src/config/config.service';
 import { serverUIConfigDto, updateSettingsDto } from './settings.dto';
 import { SSHManagerService } from 'src/util/sshManager.service';
 import { Public } from 'src/common/decorators/public';

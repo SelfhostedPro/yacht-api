@@ -10,152 +10,145 @@ import {
   ContainerMount,
   ContainerPort,
   CreateContainerForm,
-  YachtConfig,
 } from '@yacht/types';
 import { ConfigService } from 'src/config/config.service';
 import { Injectable } from '@nestjs/common';
-
-export interface ReadableContainerInfo extends ContainerInfo {
-  CreatedDate?: string | number;
-  ShortId?: string;
-  ShortName?: string;
-  PortDetails?: string;
-}
-
-export interface FixedContainerInspectInfo extends ContainerInspectInfo {
-  Mounts: Array<{
-    Name?: string | undefined;
-    Type?: 'volume' | 'bind' | 'tmpfs';
-    Source: string;
-    Destination: string;
-    Driver?: string | undefined;
-    Mode: string;
-    RW: boolean;
-    Propagation: string;
-  }>;
-}
-export interface FixedContainerInfo extends ContainerInfo {
-  Mounts: Array<{
-    Name?: string | undefined;
-    Type: 'volume' | 'bind' | 'tmpfs';
-    Source: string;
-    Destination: string;
-    Driver?: string | undefined;
-    Mode: string;
-    RW: boolean;
-    Propagation: string;
-  }>;
-}
+import { Logger } from 'src/common/logger/logger.service';
+import { FixedContainerInfo, FixedContainerInspectInfo } from './containerFormatter.dto';
 
 @Injectable()
 export class ContainerFormatterService {
-  private DEFAULT_IMAGE_URL = 'https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/linuxserver-ls-logo.png';
   constructor(
     private readonly configService: ConfigService,
-  ) { }
+    private readonly logger: Logger,
+  ) {
+    this.logger.setContext(ContainerFormatterService.name)
+  }
 
-  isContainerInfo(obj: any): obj is FixedContainerInfo {
+  /**
+   * Checks if obj is FixedContainerInfo type.
+   */
+  private isContainerInfo(obj: any): obj is FixedContainerInfo {
     return typeof obj.State === 'string';
   }
-  isContainerInspectInfo(obj: any): obj is FixedContainerInspectInfo {
+  /**
+   * Checks if obj is FixedContainerInspectInfo type.
+   */
+  private isContainerInspectInfo(obj: any): obj is FixedContainerInspectInfo {
     return obj.State instanceof Object;
   }
-  public async normalizeContainer(
-    data: FixedContainerInspectInfo,
-  ): Promise<Container>;
-  public async normalizeContainer(
-    data: FixedContainerInfo,
-  ): Promise<Container>;
-  public async normalizeContainer(
-    data: FixedContainerInfo | FixedContainerInspectInfo,
-  ): Promise<Container> {
+
+  /**
+   * Normalize container data based on the input data type.
+   */
+  public async normalizeContainer(data: FixedContainerInspectInfo): Promise<Container>;
+  public async normalizeContainer(data: FixedContainerInfo): Promise<Container>;
+  public async normalizeContainer(data: FixedContainerInfo | FixedContainerInspectInfo): Promise<Container> {
     if (this.isContainerInfo(data)) {
-      const container: Container = {
-        name: data.Names[0].slice(1),
-        id: data.Id,
-        shortId: data['Id'].substring(0, 10),
-        image: data['Image'],
-        created: format(new Date(data.Created * 1000), 'MM/dd/yyyy'),
-        status: data.State,
-        state: data.Status,
-        info: {
-          title:
-            data.Labels['sh.yacht.title'] ||
-            data.Labels['org.opencontainers.image.title'],
-          notes: data.Labels['sh.yacht.notes'],
-          description: data.Labels['org.opencontainers.image.description'],
-          docs: data.Labels['org.opencontainers.image.documentation'],
-          url: data.Labels['org.opencontainers.image.url'],
-          source: data.Labels['org.opencontainers.image.source'],
-          vendor: data.Labels['org.opencontainers.image.vendor'],
-          icon: await this.getIconUrl(data.Labels),
-        },
-        config: {
-          network: {
-            mode: data.HostConfig.NetworkMode,
-            networks: data.NetworkSettings.Networks,
-          },
-        },
-        mounts: data.Mounts ? this.formatMounts(data.Mounts) : null,
-        ports: data.Ports ? this.formatInfoPorts(data.Ports) : null,
-        labels: data.Labels,
-      };
-      return container;
+      return this.normalizeContainerInfo(data);
     } else if (this.isContainerInspectInfo(data)) {
-      const container: Container = {
-        name: data.Name.slice(1),
-        id: data.Id,
-        shortId: data['Id'].substring(0, 10),
-        image: data.Config.Image,
-        created: format(parseISO(data['Created'].toString()), 'MM/dd/yyyy'),
-        status: data.State.Status,
-        restart: {
-          policy: data.HostConfig.RestartPolicy.Name,
-          count: data.RestartCount,
-        },
-        info: {
-          title:
-            data.Config.Labels['sh.yacht.title'] ||
-            data.Config.Labels['org.opencontainers.image.title'],
-          notes: data.Config.Labels['sh.yacht.notes'],
-          description: data.Config.Labels['org.opencontainers.image.description'],
-          docs: data.Config.Labels['org.opencontainers.image.documentation'],
-          url: data.Config.Labels['org.opencontainers.image.url'],
-          source: data.Config.Labels['org.opencontainers.image.source'],
-          vendor: data.Config.Labels['org.opencontainers.image.vendor'],
-          icon: await this.getIconUrl(data.Config.Labels),
-        },
-        config: {
-          network: {
-            mode: data.HostConfig.NetworkMode,
-            networks: data.NetworkSettings.Networks,
-          },
-          general: {
-            hostname: data.Config.Hostname,
-            tty: data.Config.Tty,
-            user: data.Config.User,
-            appArmorProfile: data.AppArmorProfile,
-            driver: data.Driver,
-            platform: data.Platform,
-            path: data.Path,
-            autoRemove: data.HostConfig.AutoRemove,
-            logConfig: {
-              type: data.HostConfig.LogConfig.Type,
-              config: data.HostConfig.LogConfig.Config,
-            },
-            args: data.Args,
-          },
-        },
-        mounts: data.Mounts ? this.formatMounts(data.Mounts) : null,
-        ports: Object.keys(data.NetworkSettings.Ports).length
-          ? this.formatInspectPorts(data)
-          : null,
-        labels: data.Config.Labels,
-        env: data.Config.Env,
-      };
-      return container;
+      return this.normalizeContainerInspectInfo(data);
     }
   }
+
+  /**
+ * Normalize container data from FixedContainerInfo type.
+ */
+  private async normalizeContainerInfo(data: FixedContainerInfo): Promise<Container> {
+    const container: Container = {
+      name: data.Names[0].slice(1),
+      id: data.Id,
+      shortId: data['Id'].substring(0, 10),
+      image: data['Image'],
+      created: format(new Date(data.Created * 1000), 'MM/dd/yyyy'),
+      status: data.State,
+      state: data.Status,
+      info: {
+        title:
+          data.Labels['sh.yacht.title'] ||
+          data.Labels['org.opencontainers.image.title'],
+        notes: data.Labels['sh.yacht.notes'],
+        description: data.Labels['org.opencontainers.image.description'],
+        docs: data.Labels['org.opencontainers.image.documentation'],
+        url: data.Labels['org.opencontainers.image.url'],
+        source: data.Labels['org.opencontainers.image.source'],
+        vendor: data.Labels['org.opencontainers.image.vendor'],
+        icon: await this.getIconUrl(data.Labels),
+      },
+      config: {
+        network: {
+          mode: data.HostConfig.NetworkMode,
+          networks: data.NetworkSettings.Networks,
+        },
+      },
+      mounts: data.Mounts ? this.formatMounts(data.Mounts) : null,
+      ports: data.Ports ? this.formatInfoPorts(data.Ports) : null,
+      labels: data.Labels,
+    };
+    return container;
+  }
+
+  /**
+   * Normalize container data from FixedContainerInspectInfo type.
+   */
+  private async normalizeContainerInspectInfo(data: FixedContainerInspectInfo): Promise<Container> {
+    const container: Container = {
+      name: data.Name.slice(1),
+      id: data.Id,
+      shortId: data['Id'].substring(0, 10),
+      image: data.Config.Image,
+      created: format(parseISO(data['Created'].toString()), 'MM/dd/yyyy'),
+      status: data.State.Status,
+      restart: {
+        policy: data.HostConfig.RestartPolicy.Name,
+        count: data.RestartCount,
+      },
+      info: {
+        title:
+          data.Config.Labels['sh.yacht.title'] ||
+          data.Config.Labels['org.opencontainers.image.title'],
+        notes: data.Config.Labels['sh.yacht.notes'],
+        description: data.Config.Labels['org.opencontainers.image.description'],
+        docs: data.Config.Labels['org.opencontainers.image.documentation'],
+        url: data.Config.Labels['org.opencontainers.image.url'],
+        source: data.Config.Labels['org.opencontainers.image.source'],
+        vendor: data.Config.Labels['org.opencontainers.image.vendor'],
+        icon: await this.getIconUrl(data.Config.Labels),
+      },
+      config: {
+        network: {
+          mode: data.HostConfig.NetworkMode,
+          networks: data.NetworkSettings.Networks,
+        },
+        general: {
+          hostname: data.Config.Hostname,
+          tty: data.Config.Tty,
+          user: data.Config.User,
+          appArmorProfile: data.AppArmorProfile,
+          driver: data.Driver,
+          platform: data.Platform,
+          path: data.Path,
+          autoRemove: data.HostConfig.AutoRemove,
+          logConfig: {
+            type: data.HostConfig.LogConfig.Type,
+            config: data.HostConfig.LogConfig.Config,
+          },
+          args: data.Args,
+        },
+      },
+      mounts: data.Mounts ? this.formatMounts(data.Mounts) : null,
+      ports: Object.keys(data.NetworkSettings.Ports).length
+        ? this.formatInspectPorts(data)
+        : null,
+      labels: data.Config.Labels,
+      env: data.Config.Env,
+    };
+    return container;
+  }
+
+  /**
+   * Transform mounts data to ContainerMount type.
+   */
   private formatMounts(data: FixedContainerInspectInfo['Mounts']);
   private formatMounts(data: FixedContainerInfo['Mounts']): ContainerMount[] {
     return data.map(
@@ -171,10 +164,16 @@ export class ContainerFormatterService {
       }),
     );
   }
+  /**
+   * Changes a port string to a ContainerPort type.
+   */
   private splitPort(port) {
     const [portNumber, type] = port.split('/');
     return { containerPort: parseInt(portNumber), type };
   }
+  /**
+   * Transform ports data from info to ContainerPort type.
+   */
   private formatInspectPorts(data: ContainerInspectInfo): ContainerPort[] {
     const portList: Set<ContainerPort> = new Set();
     const { NetworkSettings, Config } = data;
@@ -203,6 +202,9 @@ export class ContainerFormatterService {
     return Array.from(portList);
   }
 
+  /**
+   * Transform ports data from inspect to ContainerPort type.
+   */
   private formatInfoPorts(data: Port[]): ContainerPort[] {
     return data.reduce(
       (
@@ -222,16 +224,24 @@ export class ContainerFormatterService {
       [],
     );
   }
-
+  /**
+   * Checks to see if the icon url is valid and loads.
+   * (Used in order to grab the default LSIO icon if the app's icon returns a 404)
+   */
   private async checkUrl(url: string): Promise<string> {
+    const DEFAULT_IMAGE_URL = 'https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/linuxserver-ls-logo.png';
     try {
       new URL(url);
       const response = await fetch(url);
-      return response.ok && response.status !== 404 ? url : this.DEFAULT_IMAGE_URL;
+      return response.ok && response.status !== 404 ? url : DEFAULT_IMAGE_URL;
     } catch {
-      return this.DEFAULT_IMAGE_URL;
+      return DEFAULT_IMAGE_URL;
     }
   }
+  /**
+   * Checks for an icon url in the container's labels.
+   * Includes some special cases for certain vendors.
+   */
   private async getIconUrl(labels: Container['labels']) {
     if (labels['sh.yacht.icon']) {
       return this.checkUrl(labels['sh.yacht.icon']);
@@ -256,12 +266,19 @@ export class ContainerFormatterService {
       }
     } else return null;
   }
+  /**
+   * Normalize container data for multiple containers.
+   */
   public async normalizeContainers(
     data: ContainerInfo[],
   ): Promise<Container[]> {
-    const promises = data.map(this.normalizeContainer);
+    const promises = data.map(this.normalizeContainer, this);
     return Promise.all(promises);
   }
+
+  /**
+   * Normalize data from frontend and transform it into a valid ContainerCreateOptions object.
+   */
   public async normalizeCreate(
     data: CreateContainerForm,
   ): Promise<ContainerCreateOptions> {
@@ -279,7 +296,7 @@ export class ContainerFormatterService {
       sysctls,
       capabilities,
       limits,
-    } = data;
+    } = await this.transformVariables(data);
     const transformedLabels = await this.transformInfo(data);
     const containerCreateOptions: ContainerCreateOptions = {
       name,
@@ -311,6 +328,10 @@ export class ContainerFormatterService {
     };
     return containerCreateOptions;
   }
+
+  /**
+   * Transform data from container create into labels in order to provide additional information about the container.
+   */
   private async transformInfo(data: CreateContainerForm) {
     const { labels, info, ports, env } = data;
     const baseLabels = Object.fromEntries(
@@ -333,6 +354,19 @@ export class ContainerFormatterService {
       envLabels,
     );
     return transformedLabels;
+  }
+
+  private async transformVariables(data: CreateContainerForm): Promise<CreateContainerForm> {
+    const variables = this.configService.yachtConfig?.base['template_variables'];
+    const stringData = JSON.stringify(data)
+    if (variables) {
+      for (const variable of variables) {
+        stringData.replaceAll(variable.variable, variable.replacement)
+      }
+      const replacedData: CreateContainerForm = JSON.parse(stringData)
+      return replacedData
+    }
+    return data;
   }
 }
 

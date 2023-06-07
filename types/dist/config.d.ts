@@ -12,11 +12,12 @@ export interface YachtConfig {
             name: string;
             apps?: Object[];
         };
-        template_variables?: {
-            variable: string;
-            replacement: string;
-        };
+        template_variables?: templateVariable[];
     };
+}
+export interface templateVariable {
+    variable: string;
+    replacement: string;
 }
 export interface serverConfig {
     name: string;

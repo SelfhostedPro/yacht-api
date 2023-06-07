@@ -6,7 +6,7 @@ import { ContainerFormatterService } from './containerFormatter.service';
 
 @Module({
     imports: [ConfigModule, LoggerModule],
-    providers: [SSHManagerService, ContainerFormatterService],
-    exports: [SSHManagerService, ContainerFormatterService],
+    providers: [ContainerFormatterService, SSHManagerService],
+    exports: [ContainerFormatterService, SSHManagerService],
 })
 export class UtilModule { }
