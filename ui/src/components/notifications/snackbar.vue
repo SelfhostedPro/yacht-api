@@ -1,10 +1,13 @@
 <template>
-  <v-snackbar :z-index="5000" v-for="notification, i in notifications" :model-value="notification.visible"
-    :color="notification.color" :timeout="notification.timeout || -1" :location="notification.location">
-    {{ notification.content }}
+  <v-snackbar v-if="notifications.length > 0" :z-index="5000" :model-value="notifications[notifications.length - 1].visible"
+    :color="notifications[notifications.length - 1].color"
+    :timeout="notifications[notifications.length - 1].timeout || -1"
+    :location="notifications[notifications.length - 1].location"> {{ notifications[notifications.length - 1].content }}
     <template v-slot:actions>
-      <v-btn icon variant="text" :color="notification.btnColor" @click="clearSnack(i)">
-        ({{ notifications.length }}) <v-icon>{{ notification.btnIcon }}</v-icon>
+      <v-btn icon variant="text" :color="notifications[notifications.length - 1].btnColor"
+        @click="clearSnack(notifications.length - 1)">
+        {{ notifications.length > 1 ? `(${notifications.length})` : null }} <v-icon>{{ notifications[notifications.length -
+          1].btnIcon }}</v-icon>
       </v-btn>
     </template>
   </v-snackbar>
@@ -33,6 +36,6 @@ onBeforeUnmount(async () => {
   await notifyStore.close()
 })
 onMounted(async () => {
-  await notifyStore.listenToNotifications()
+  notifyStore.listenToNotifications()
 })
 </script>

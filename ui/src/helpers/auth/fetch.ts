@@ -14,16 +14,22 @@ export const useAuthFetch = createFetch({
             return { options }
         },
         async onFetchError(ctx) {
-            const data = ctx.data
-            console.log(data)
             const authStore = useAuthStore()
-            if (data['statusCode'] === 401) {
-                await authStore.refresh()
-                const { data, response, error } = await useFetch(ctx.response.url).json()
-                return { data: data.value, response: response.value, error: error.value }
-            } else {
-                const notify = useNotifyStore()
-                notify.setError(`${ctx.data.statusCode}: ${ctx.data.message}`)
+            const notify = useNotifyStore()
+            switch (ctx.response.status) {
+                case 401: {
+                    await authStore.refresh()
+                    const { data, response, error } = await useFetch(ctx.response.url).json()
+                    return { data: data.value, response: response.value, error: error.value }
+                }
+                case 500: {
+                    notify.setError('Error 500: Internal Server Error. Please check the server logs for more information.');
+                    break;
+                }
+                default: {
+                    notify.setError(`Error ${ctx.response.status}: ${ctx.response.statusText}`);
+                    break;
+                }
             }
             return ctx
         },

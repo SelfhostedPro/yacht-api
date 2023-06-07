@@ -52,7 +52,6 @@ export const useNotifyStore = defineStore('notify', {
     state: (): State => ({
         notifications: [] as Notification[],
         notificationStreamController: new AbortController(),
-
     }),
     getters: {
         getNotifications: (state) => state.notifications,
@@ -78,9 +77,13 @@ export const useNotifyStore = defineStore('notify', {
             const self = this
             try {
                 await useEventSource(`/api/notifications`, {
-                    onerror(err) {
-                        console.log(err)
-                        self.setError(new Notification({ message: JSON.stringify(err), level: 'error' }))
+                    onerror(err: Error) {
+                        if (err.message === '500: Internal Server Error') {
+                            self.setError('Error 500: Internal Server Error. Please check the server logs for more information.')
+                        } else {
+                            self.setError(`Error ${err.message}`)
+                        }
+                        throw err
                     },
                     onmessage(msg) {
                         if (msg.data) {
@@ -89,8 +92,8 @@ export const useNotifyStore = defineStore('notify', {
                     },
                     signal: self.notificationStreamController.signal
                 })
-            } catch (e) {
-                self.setError(new Notification({ message: JSON.stringify(e), level: 'error' }))
+            } catch (err) {
+                this.close()
             }
         },
         async close() {

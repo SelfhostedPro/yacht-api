@@ -20,7 +20,7 @@ export const useAuthStore = defineStore('auth', {
     getters: {},
     actions: {
         async userLogin(creds: LoginCreds) {
-            const { error, data } = await useFetch('/api/auth/login/').post(creds).json()
+            const { error, data, response } = await useAuthFetch('/api/auth/login/').post(creds).json()
             if (!error.value) { 
                 useStorage('user', await data.value.username)
                 this.user = await data.value.username
@@ -32,7 +32,11 @@ export const useAuthStore = defineStore('auth', {
             if (!error.value && !data.value['statusCode']) {
                 console.log(`refreshed token for ${this.user.value}`)
             } else {
-                await this.logOut(router.options.history.location)
+                if (error.value === 'Unauthorized') {
+                    await this.logOut(router.options.history.location, `Error ${data.value['statusCode']}: ${error.value}. Please login or enable cookies if they're disabled.`)
+                } else {
+                    await this.logOut(router.options.history.location, error.value)
+                }
             }
         },
         async userRegister(creds: LoginCreds) {
