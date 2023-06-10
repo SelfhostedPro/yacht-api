@@ -4,8 +4,9 @@
             <v-progress-linear :active="isActive" color="primary" height="4" indeterminate></v-progress-linear>
         </template>
         <search-bar :title="'templates'" color="surface" v-model:search="searchQuery" />
-        <v-tabs align-tabs="center" v-model="tab" color="primary" slider-color="primary" >
+        <v-tabs align-tabs="center" v-model="tab" color="primary" slider-color="primary">
             <v-tab v-for="template, i in templates" :key="template.name" :value="i">{{ template.title }}</v-tab>
+            <v-tab hide-slider color="white" variant="text" :value="tab"><templates-add /></v-tab>
         </v-tabs>
         <v-sheet color="foreground">
             <v-fade-transition v-if="isLoading.items.get('templates')">
@@ -19,8 +20,9 @@
             </v-fade-transition>
             <v-fade-transition v-else-if="templates">
                 <v-window v-model="tab">
-                    <v-window-item v-for="template,i in templates" :value="i">
-                        <template-view :template="template" :templates="templateSearch(template.templates)" :searchQuery="searchQuery" />
+                    <v-window-item v-for="template, i in templates" :value="i">
+                        <template-view :template="template" :templates="templateSearch(template.templates)"
+                            :searchQuery="searchQuery" />
                     </v-window-item>
                 </v-window>
             </v-fade-transition>
@@ -30,6 +32,7 @@
 <script setup lang="ts">
 import SearchBar from '@/components/common/SearchBar.vue';
 import templateView from './view/templateView.vue';
+import templatesAdd from './templatesAdd.vue';
 import { useLoadingStore } from '@/stores/loading';
 import { useTemplateStore } from '@/stores/templates';
 import { YachtTemplate } from '@yacht/types';

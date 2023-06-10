@@ -1,12 +1,14 @@
 <template>
-  <v-snackbar v-if="notifications.length > 0" :z-index="5000" :model-value="notifications[notifications.length - 1].visible"
-    :color="notifications[notifications.length - 1].color"
+  <v-snackbar v-if="notifications.length > 0" :z-index="5000"
+    :model-value="notifications[notifications.length - 1].visible" :color="notifications[notifications.length - 1].color"
     :timeout="notifications[notifications.length - 1].timeout || -1"
-    :location="notifications[notifications.length - 1].location"> {{ notifications[notifications.length - 1].content }}
+    :location="notifications[notifications.length - 1].location" style="white-space: pre-wrap;"> {{
+      notifications[notifications.length - 1].content }}
     <template v-slot:actions>
       <v-btn icon variant="text" :color="notifications[notifications.length - 1].btnColor"
         @click="clearSnack(notifications.length - 1)">
-        {{ notifications.length > 1 ? `(${notifications.length})` : null }} <v-icon>{{ notifications[notifications.length -
+        {{ notifications.length > 1 ? `(${notifications.length})` : null }} <v-icon>{{ notifications[notifications.length
+          -
           1].btnIcon }}</v-icon>
       </v-btn>
     </template>

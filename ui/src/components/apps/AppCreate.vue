@@ -43,9 +43,21 @@
         </v-row>
         <v-card-actions style="background-color: rgb(var(--v-theme-surface)) !important;">
             <v-fade-transition>
-                <v-progress-circular :model-value="step / 6 * 100" size="small" class="app-progress"
-                    :indeterminate="isLoading.items.get('deploy')" :bg-opacity="1" height="4" bg-color="surface"
-                    :color="v.$errors.length !== 0 ? 'error' : 'primary'" />
+                <v-tooltip>
+                    <template v-slot:activator="{ props }">
+                        <v-progress-circular v-bind="props" :model-value="step / 6 * 100" size="small" class="app-progress"
+                            :indeterminate="isLoading.items.get('deploy')" :bg-opacity="1" height="4" bg-color="surface"
+                            :color="v.$errors.length !== 0 ? 'error' : 'primary'" />
+                    </template>
+                    <div v-if="v.$errors.length !== 0">
+                        <span> The following errors have been detected: </span>
+                        <br />
+                        <span v-for="error, i in v.$errors">{{ `${i + 1} -
+                                                    ${error.$params['parent'].toString()[0].toUpperCase() +
+                            error.$params['parent'].toString().slice(1)}: ${error.$message}` }}<br /> </span>
+                    </div>
+                    <span v-else>No errors found.</span>
+                </v-tooltip>
             </v-fade-transition>
             <v-spacer />
             <v-btn v-if="step !== 0" @click="step--">prev</v-btn>

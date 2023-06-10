@@ -79,6 +79,7 @@ const resourceFormat: ResourceFormatType = {
         add: [''],
         drop: [''],
     },
+    ports: [{ label: '', host: '', container: '', protocol: '' }],
     devices: [{ container: '', host: '', permissions: '' }],
     limits: {
         cpu: '',

@@ -16,6 +16,10 @@ export const useAuthFetch = createFetch({
         async onFetchError(ctx) {
             const authStore = useAuthStore()
             const notify = useNotifyStore()
+            if (ctx.error.message === 'Failed to fetch') {
+                notify.setError('Failed to fetch. Please check your connection and url and try again.')
+                return ctx
+            }
             switch (ctx.response.status) {
                 case 401: {
                     await authStore.refresh()
