@@ -6,7 +6,8 @@
         <search-bar :title="'templates'" color="surface" v-model:search="searchQuery" />
         <v-tabs align-tabs="center" v-model="tab" color="primary" slider-color="primary">
             <v-tab v-for="template, i in templates" :key="template.name" :value="i">{{ template.title }}</v-tab>
-            <v-tab hide-slider color="white" variant="text" :value="tab"><templates-add /></v-tab>
+            <v-tab hide-slider color="white" variant="text" :value="tab"><templates-add
+                    @added="tab=templates.length - 1" /></v-tab>
         </v-tabs>
         <v-sheet color="foreground">
             <v-fade-transition v-if="isLoading.items.get('templates')">

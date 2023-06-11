@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { TemplatesService } from './templates.service';
 import { addYachtTemplateDTO } from './dto/templates.dto';
@@ -18,5 +18,11 @@ export class TemplatesController {
   @Post('/')
   async addTemplate(@Body() body: addYachtTemplateDTO) {
     return await this.templatesService.addTemplate(body);
+  }
+  @Delete('/:name')
+  async deleteTemplate(
+    @Param('name') name: string,
+  ) {
+    return await this.templatesService.deleteTemplate(name);
   }
 }

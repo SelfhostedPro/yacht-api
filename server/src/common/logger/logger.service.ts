@@ -31,6 +31,7 @@ export class Logger extends ConsoleLogger {
   }
 
   success(...args) {
+    this.notificationsService.success(args.join(' '))
     console.log(this.prefix, ...args.map((x) => color.green(x)));
   }
 

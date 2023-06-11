@@ -39,13 +39,30 @@
                                 <v-card-title>{{ template.title }}</v-card-title>
                                 <v-card-text v-if="template.description" class="text-high-emphasis px-12"
                                     style="white-space: pre-wrap;">{{ template.description }}</v-card-text>
+                                <v-card-subtitle>name: {{ template.name }}</v-card-subtitle>
                                 <v-card-subtitle>type: {{ template.type }}</v-card-subtitle>
                                 <v-card-subtitle>created: {{ formatDate(template.created) }}</v-card-subtitle>
                                 <v-card-subtitle>apps: {{ template.templates.length }}</v-card-subtitle>
-                                <v-card-actions v-if="template.links" class="flex-d justify-center">
-                                    <v-btn v-for="link in template.links" :color="link.color || null" :key="link.text"
+                                <v-card-actions class="flex-d justify-center">
+                                    <v-btn v-for="link in template['links']" :color="link.color || null" :key="link.text"
                                         :prepend-icon="link.icon || 'mdi-link'" :href="link.url || null" target="_blank">{{
                                             link.text || 'link' }}</v-btn>
+                                    <v-menu v-model="deleteMenu" :close-on-content-click="false" location="top"
+                                        transition="slide-y-transition">
+                                        <template v-slot:activator="{ props }">
+                                            <v-btn v-bind="props" color="error" prepend-icon="mdi-delete">delete</v-btn>
+                                        </template>
+                                        <v-card :title="`delete template ${template.name}?`" max-width="30vw">
+                                            <v-card-text>
+                                                This action cannot be undone. <br />
+                                                Apps deployed with this template will continue to run on your system.<br />
+                                            </v-card-text>
+                                            <v-card-actions>
+                                                <v-btn @click="deleteTemplate(); deleteMenu = false" color="error">confirm</v-btn>
+                                                <v-btn @click="deleteMenu = false" >cancel</v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </v-menu>
                                 </v-card-actions>
                             </v-card>
                         </v-fade-transition>
@@ -106,17 +123,24 @@ import AppCreate from '@/components/apps/AppCreate.vue';
 import TemplateInfo from '@/components/templates/view/templateInfo.vue';
 import { ref } from 'vue';
 import { Ref } from 'vue';
+import { useTemplateStore } from '@/stores/templates';
 interface Props {
     template: YachtTemplate,
     templates: YachtTemplate['templates']
     searchQuery: string,
 }
+const deleteMenu = ref(false)
 const maximize = ref(false)
 const selectedApp: Ref<YachtTemplate['templates'][0]> = ref(null)
 const openDialog: Ref<boolean> = ref(false)
 const openInfo: Ref<boolean> = ref(false)
-defineProps<Props>()
+const props = defineProps<Props>()
 defineEmits(['close', 'maximize'])
+
+const deleteTemplate = async () => {
+    const templateStore = useTemplateStore()
+    await templateStore.deleteTemplate(props.template.name)
+}
 
 const formatDate = (date) => {
     return parseISO(date).toLocaleString()

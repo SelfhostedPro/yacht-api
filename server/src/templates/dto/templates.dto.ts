@@ -3,8 +3,9 @@ import { PortainerV1Template, PortainerV2Template } from "@yacht/types";
 import { YachtV1Template, YachtV2Template } from "@yacht/types";
 
 export class addYachtTemplateDTO {
-    name: string;
     url: string;
+    name?: string;
+    title?: string;
 }
 
 export class getYachtTemplateDTO implements YachtTemplate {

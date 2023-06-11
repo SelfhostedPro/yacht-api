@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
 import { Logger } from '../common/logger/logger.service';
 import * as fs from 'fs-extra';
@@ -33,17 +33,17 @@ export class TemplatesService implements OnModuleInit {
     }
   }
   // Add a template
-  async addTemplate(body: addYachtTemplateDTO) {
-    const template = await fetch(body.url).then((res) => res.json());
-    const exists = fs.existsSync(this.templatePath + '/' + template.name)
+  async addTemplate({ url, name, title }: addYachtTemplateDTO) {
+    const template = await fetch(url).then((res) => res.json());
+    const exists = fs.existsSync(this.templatePath + '/' + name || template.name)
     if (!exists) {
       this.logger.log('Adding template: ' + template.name);
       try {
         const templateType = template['type'] || getTemplateType(template)
         const templateFile: YachtTemplate = {
-          name: template.name || body.name,
-          title: template.title ?? body.name,
-          url: body.url,
+          name: name || template.name,
+          title: title || template.title,
+          url: url,
           created: new Date().toISOString(),
           type: templateType,
           image: template.image || null,
@@ -53,14 +53,29 @@ export class TemplatesService implements OnModuleInit {
           links: template.links || null,
           templates: templateType === 'yachtv2' || templateType === 'portainerv2' ? template.templates : template // if template type is yachtv2 or portainerv2 the templates are nested in the template property.
         }
-        fs.outputFileSync(`${this.templatePath}/${template.name}/template.json`, JSON.stringify(templateFile))
+        fs.outputFileSync(`${this.templatePath}/${name || template.name}/template.json`, JSON.stringify(templateFile))
+        this.logger.success(`Template ${name || template.name} added.`);
         return templateFile
       } catch (err) {
         throw new Error(err)
       }
     } else {
-      this.logger.error('Template already exists: ' + template.name)
-      throw new Error('Template already exists: ' + template.name)
+      throw new HttpException(`Template "${name}" already exists`, HttpStatus.CONFLICT)
+    }
+  }
+  async deleteTemplate(name: string) {
+    const exists = fs.existsSync(this.templatePath + '/' + name)
+    if (exists) {
+      this.logger.log('Deleting template: ' + name);
+      try {
+        fs.removeSync(`${this.templatePath}/${name}`)
+        this.logger.success(`Template ${name} deleted.`);
+        return true
+      } catch (err) {
+        throw new Error(err)
+      }
+    } else {
+      throw new HttpException(`Template "${name}" does not exist`, HttpStatus.NOT_FOUND)
     }
   }
 }

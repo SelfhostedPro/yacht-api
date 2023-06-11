@@ -1,40 +1,72 @@
 <template>
-    <v-menu :close-on-content-click="false">
+    <v-menu v-model="menuOpen" :close-on-content-click="false" transition="slide-y-transition">
         <template v-slot:activator="{ props }">
             <v-btn v-bind="props" variant="plain"><v-icon icon="mdi-plus"></v-icon></v-btn>
         </template>
-
-        <v-list width="40vw">
-            <v-list-item class="align-center">
-                <div class="d-flex align-center">
-                    <v-text-field dense label="template url" v-model="url" hide-details="auto"
-                        :error-messages="v$.url.$errors.map(e => e.$message.toString())" @input="v$.url.$touch"
-                        @blur="v$.url.$touch" />
-                    <v-btn v-if="templateValid === true" class="mt-1" variant="plain" color="primary" :rounded="0" append-icon="mdi-plus"
-                        text="add" />
-                    <v-btn v-else :loading="loading" @click="loading = true; validate()" class="mt-1" variant="plain"
-                        :rounded="0" append-icon="mdi-eye-outline" text="check" />
-                </div>
-            </v-list-item>
-        </v-list>
+        <v-expand-transition>
+            <v-list width="40vw">
+                <v-list-item class="align-center">
+                    <div class="d-flex align-center">
+                        <v-text-field dense label="template url" v-model="form.url" hide-details="auto"
+                            placeholder="https://raw.githubusercontent.com/SelfhostedPro/yacht-api/main/default_template.json"
+                            :error-messages="v$.url.$errors.map(e => e.$message.toString())" @input="v$.url.$touch"
+                            @blur="v$.url.$touch" />
+                        <v-btn :loading="loading" @click="templateValid = false; loading = true; validate()" class="mt-1"
+                            variant="plain" :rounded="0" append-icon="mdi-magnify" text="check" />
+                    </div>
+                </v-list-item>
+                <v-expand-transition>
+                    <div v-show="templateValid">
+                        <v-list-item>
+                            <v-text-field dense label="name" placeholder="default" v-model="form.name" hide-details="auto"
+                                :error-messages="v$.name.$errors.map(e => e.$message.toString())" @input="v$.name.$touch"
+                                @blur="v$.name.$touch" hint="name of folder created in templates directory" />
+                            <v-text-field dense label="title" placeholder="Yacht Template" v-model="form.title"
+                                hide-details="auto" hint="used for tab name on this page." />
+                            <v-btn v-if="templateValid" block :loading="loading || loadingStore.isLoading.loading"
+                                @click="loading = true; submit()" class="mt-1" variant="plain" :rounded="0"
+                                append-icon="mdi-plus" text="add" :disabled="v$.$errors.length > 0" />
+                        </v-list-item>
+                    </div>
+                </v-expand-transition>
+            </v-list>
+        </v-expand-transition>
     </v-menu>
 </template>
 
 <script setup lang="ts">
 import useVuelidate from '@vuelidate/core';
-import { helpers, required, url as urlValidator } from '@vuelidate/validators';
+import { helpers, required, requiredIf, url as urlValidator } from '@vuelidate/validators';
 import { useAuthFetch } from '@/helpers/auth/fetch';
 import { useNotifyStore } from '@/stores/notifications';
+import { useTemplateStore } from '@/stores/templates'
+import { useLoadingStore } from '@/stores/loading';
 import { ref, Ref } from 'vue';
 
-const url: Ref<string> = ref('')
+const emit = defineEmits(['added'])
+
+const loadingStore = useLoadingStore()
+const menuOpen = ref(false)
+
+interface form {
+    url: string,
+    name: string,
+    title?: string
+}
 const templateValid = ref(false)
 const loading = ref(false)
-
-
+const form: Ref<form> = ref({
+    url: '',
+    name: ''
+})
 
 const isGithubUrl = (url: string) => {
     return url.includes('github.com') ? false : true
+}
+
+const templateExists = (name: string) => {
+    const { templates } = useTemplateStore()
+    return templates.find(t => t.name === name) ? false : true
 }
 
 const rules = {
@@ -42,17 +74,28 @@ const rules = {
         required: helpers.withMessage('Template url is required.', required),
         url: helpers.withMessage('Template url must be valid url.', urlValidator),
         isGithubUrl: helpers.withMessage('Github url must be raw.githubusercontent.com url.', isGithubUrl)
+    },
+    name: {
+        required: helpers.withMessage('Template name is required.', requiredIf(templateValid)),
+        duplicate: helpers.withMessage('Template name already exists.', templateExists)
     }
 }
 
-const v$ = useVuelidate(rules, { url })
+const v$ = useVuelidate(rules, form)
 
 const validate = async () => {
-    const { data, isFetching } = await useAuthFetch<string>(url.value)
+    const { data, isFetching } = await useAuthFetch<string>(form.value.url)
     loading.value = isFetching.value
     try {
-        JSON.parse(data.value)
+        const templateJSON = JSON.parse(data.value)
         templateValid.value = true
+        if (templateJSON['name']) {
+            form.value.name = templateJSON['name']
+            v$.value.$touch()
+        }
+        if (templateJSON['title']) {
+            form.value.title = templateJSON['title']
+        }
         return
     } catch (e) {
         const notify = useNotifyStore()
@@ -65,7 +108,15 @@ const validate = async () => {
             }
             return
         }
-        notify.setError(e.message)
+        console.error(e)
+        notify.setError(`${e.name}: ${e.message}`)
     }
+}
+const submit = async () => {
+    const { addTemplate } = useTemplateStore()
+    await addTemplate(form.value.url, form.value.name, form.value.title)
+    loading.value = false
+    menuOpen.value = false
+    emit('added') 
 }
 </script>

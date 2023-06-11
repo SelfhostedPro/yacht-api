@@ -16,6 +16,7 @@ export const useAuthFetch = createFetch({
         async onFetchError(ctx) {
             const authStore = useAuthStore()
             const notify = useNotifyStore()
+            console.log(ctx)
             if (ctx.error.message === 'Failed to fetch') {
                 notify.setError('Failed to fetch. Please check your connection and url and try again.')
                 return ctx
@@ -25,6 +26,10 @@ export const useAuthFetch = createFetch({
                     await authStore.refresh()
                     const { data, response, error } = await useFetch(ctx.response.url).json()
                     return { data: data.value, response: response.value, error: error.value }
+                }
+                case 409: {
+                    notify.setError(`Error 409: Conflict. ${ctx.data.message}`)
+                    break;
                 }
                 case 500: {
                     notify.setError('Error 500: Internal Server Error. Please check the server logs for more information.');

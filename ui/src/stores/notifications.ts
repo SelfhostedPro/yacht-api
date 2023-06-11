@@ -67,6 +67,7 @@ export const useNotifyStore = defineStore('notify', {
             }
         },
         async setError(error: string) {
+            console.log(error)
             this.setNotification(new Notification({ message: error, level: 'error', timeout: -1 }))
         },
         async clearNotification(idx: number) {
@@ -86,7 +87,9 @@ export const useNotifyStore = defineStore('notify', {
                         throw err
                     },
                     onmessage(msg) {
+                        console.log(msg)
                         if (msg.data) {
+                            console.log(msg.data)
                             self.setNotification(new Notification(JSON.parse(msg.data)))
                         }
                     },
