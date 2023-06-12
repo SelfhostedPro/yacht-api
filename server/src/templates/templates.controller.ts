@@ -25,4 +25,10 @@ export class TemplatesController {
   ) {
     return await this.templatesService.deleteTemplate(name);
   }
+  @Get('/:name/update')
+  async updateTemplate(
+    @Param('name') name: string,
+  ) {
+    return await this.templatesService.updateTemplate(name);
+  }
 }

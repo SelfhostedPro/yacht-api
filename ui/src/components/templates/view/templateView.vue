@@ -42,11 +42,14 @@
                                 <v-card-subtitle>name: {{ template.name }}</v-card-subtitle>
                                 <v-card-subtitle>type: {{ template.type }}</v-card-subtitle>
                                 <v-card-subtitle>created: {{ formatDate(template.created) }}</v-card-subtitle>
+                                <v-card-subtitle v-if="template.updated">updated: {{ formatDate(template.updated)
+                                }}</v-card-subtitle>
                                 <v-card-subtitle>apps: {{ template.templates.length }}</v-card-subtitle>
                                 <v-card-actions class="flex-d justify-center">
                                     <v-btn v-for="link in template['links']" :color="link.color || null" :key="link.text"
                                         :prepend-icon="link.icon || 'mdi-link'" :href="link.url || null" target="_blank">{{
                                             link.text || 'link' }}</v-btn>
+                                    <v-btn color="info" prepend-icon="mdi-restart" @click="updateTemplate()">update</v-btn>
                                     <v-menu v-model="deleteMenu" :close-on-content-click="false" location="top"
                                         transition="slide-y-transition">
                                         <template v-slot:activator="{ props }">
@@ -58,8 +61,9 @@
                                                 Apps deployed with this template will continue to run on your system.<br />
                                             </v-card-text>
                                             <v-card-actions>
-                                                <v-btn @click="deleteTemplate(); deleteMenu = false" color="error">confirm</v-btn>
-                                                <v-btn @click="deleteMenu = false" >cancel</v-btn>
+                                                <v-btn @click="deleteTemplate(); deleteMenu = false"
+                                                    color="error">confirm</v-btn>
+                                                <v-btn @click="deleteMenu = false">cancel</v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </v-menu>
@@ -140,6 +144,11 @@ defineEmits(['close', 'maximize'])
 const deleteTemplate = async () => {
     const templateStore = useTemplateStore()
     await templateStore.deleteTemplate(props.template.name)
+}
+
+const updateTemplate = async () => {
+    const templateStore = useTemplateStore()
+    await templateStore.updateTemplate(props.template.name)
 }
 
 const formatDate = (date) => {

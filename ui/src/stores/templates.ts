@@ -23,8 +23,8 @@ export const useTemplateStore = defineStore('templates', {
             const { error, data } = await useAuthFetch<string>(`/api/templates/`).json()
             if (!error.value) {
                 this.templates = data.value
-                loadingStore.stopLoadingItem('templates')
             }
+            loadingStore.stopLoadingItem('templates')
         },
         async addTemplate(url: string, name: string, title?: string) {
             const loadingStore = useLoadingStore()
@@ -32,8 +32,9 @@ export const useTemplateStore = defineStore('templates', {
             const { error, data } = await useAuthFetch<string>(`/api/templates/`).post({ url, name, title }).json()
             if (!error.value) {
                 this.templates.push(data.value)
-                loadingStore.stopLoadingItem('templates')
             }
+            loadingStore.stopLoadingItem('templates')
+
         },
         async deleteTemplate(name: string) {
             const loadingStore = useLoadingStore()
@@ -41,8 +42,19 @@ export const useTemplateStore = defineStore('templates', {
             const { error } = await useAuthFetch<string>(`/api/templates/${name}`).delete().json()
             if (!error.value) {
                 this.templates.splice(this.templates.findIndex((template) => template.name === name), 1)
-                loadingStore.stopLoadingItem('templates')
             }
+            loadingStore.stopLoadingItem('templates')
+
+        },
+        async updateTemplate(name: string) {
+            const loadingStore = useLoadingStore()
+            loadingStore.startLoadingItem('templates')
+            const { error, data } = await useAuthFetch<string>(`/api/template/${name}/update`).get().json()
+            if (!error.value) {
+                this.templates[this.templates.findIndex((template) => template.name === name)] = data.value
+            }
+            loadingStore.stopLoadingItem('templates')
         }
+
     }
 })

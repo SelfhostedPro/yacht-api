@@ -6,9 +6,9 @@ import { fetchEventSource } from '@microsoft/fetch-event-source'
 
 export const useAuthFetch = createFetch({
     options: {
-        async beforeFetch({ options }) {
+        async beforeFetch({ options, url }) {
             const token = localStorage.getItem('auth-token')
-            if (token) {
+            if (token && url.startsWith('/api')) {
                 options.headers['Authorization'] = `Bearer ${token}`
             }
             return { options }
@@ -16,7 +16,6 @@ export const useAuthFetch = createFetch({
         async onFetchError(ctx) {
             const authStore = useAuthStore()
             const notify = useNotifyStore()
-            console.log(ctx)
             if (ctx.error.message === 'Failed to fetch') {
                 notify.setError('Failed to fetch. Please check your connection and url and try again.')
                 return ctx

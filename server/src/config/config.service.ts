@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import * as yaml from 'js-yaml';
+import {stringify, parse} from 'yaml'
 import * as crypto from 'crypto';
 import * as _ from 'lodash';
 import { YachtConfig } from '@yacht/types';
@@ -89,7 +89,7 @@ export class ConfigService implements OnModuleInit {
     private logger: Logger,
   ) {
     const yachtConfig: YachtConfig = <YachtConfig>(
-      yaml.load(fs.readFileSync(this.configPath).toString())
+      parse(fs.readFileSync(this.configPath).toString())
     );
     this.logger.setContext(ConfigService.name)
     this.parseConfig(yachtConfig);
@@ -138,7 +138,7 @@ export class ConfigService implements OnModuleInit {
     const existingConfig = fs.readFileSync(this.configPath, 'utf-8');
 
     // Parse the existing configuration
-    const existingYachtConfig = yaml.load(existingConfig);
+    const existingYachtConfig = parse(existingConfig);
 
     // Compare the existing configuration with the new configuration
     const updatedYachtConfig = this.compareConfigs(
@@ -147,7 +147,7 @@ export class ConfigService implements OnModuleInit {
     );
 
     // Write the updated configuration to the file
-    fs.writeFileSync(this.configPath, yaml.dump(updatedYachtConfig), {
+    fs.writeFileSync(this.configPath, stringify(updatedYachtConfig), {
       flag: 'w',
     });
 
@@ -319,7 +319,7 @@ export class ConfigService implements OnModuleInit {
     let config;
     if (fs.existsSync(configPath)) {
       try {
-        config = yaml.load(fs.readFileSync(configPath, 'utf8'));
+        config = parse(fs.readFileSync(configPath, 'utf8'));
         this.logger.log('Config Exists!');
       } catch (e) {
         this.logger.error(e);
@@ -330,7 +330,7 @@ export class ConfigService implements OnModuleInit {
           recursive: true,
         });
         fs.mkdirSync(path.resolve('../config/storage/.ssh'), { recursive: true });
-        fs.writeFileSync(configPath, yaml.dump(defaultConfig), { flag: 'w' });
+        fs.writeFileSync(configPath, stringify(defaultConfig), { flag: 'w' });
         this.logger.success('Config Created!');
       } catch (e) {
         this.logger.error(e);

@@ -7,6 +7,7 @@ export interface YachtTemplate {
     description?: string;
     image?: string;
     created?: string;
+    updated?: string;
     type?: 'portainerv1' | 'portainerv2' | 'yachtv1' | 'yachtv2';
     authors?: YachtTemplateAuthor[];
     links?: YachtTemplateLink[];

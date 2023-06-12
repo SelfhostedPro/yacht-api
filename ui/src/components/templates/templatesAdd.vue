@@ -37,6 +37,7 @@
 <script setup lang="ts">
 import useVuelidate from '@vuelidate/core';
 import { helpers, required, requiredIf, url as urlValidator } from '@vuelidate/validators';
+import YAML from 'yaml'
 import { useAuthFetch } from '@/helpers/auth/fetch';
 import { useNotifyStore } from '@/stores/notifications';
 import { useTemplateStore } from '@/stores/templates'
@@ -84,10 +85,11 @@ const rules = {
 const v$ = useVuelidate(rules, form)
 
 const validate = async () => {
-    const { data, isFetching } = await useAuthFetch<string>(form.value.url)
+    const { data, isFetching } = await useAuthFetch<string>(form.value.url).get()
     loading.value = isFetching.value
     try {
-        const templateJSON = JSON.parse(data.value)
+        const templateJSON = YAML.parse(data.value) || JSON.parse(data.value)
+        console.log(templateJSON)
         templateValid.value = true
         if (templateJSON['name']) {
             form.value.name = templateJSON['name']

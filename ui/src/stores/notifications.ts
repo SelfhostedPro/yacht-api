@@ -87,9 +87,7 @@ export const useNotifyStore = defineStore('notify', {
                         throw err
                     },
                     onmessage(msg) {
-                        console.log(msg)
                         if (msg.data) {
-                            console.log(msg.data)
                             self.setNotification(new Notification(JSON.parse(msg.data)))
                         }
                     },
