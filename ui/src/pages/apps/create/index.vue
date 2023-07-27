@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import AppForm from '@/components/apps/AppForm.vue';
+import AppForm from '@/components/apps/AppCreate.vue';
 </script>
 
 <route lang="yaml">
