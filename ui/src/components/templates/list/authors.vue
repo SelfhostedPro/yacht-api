@@ -15,9 +15,9 @@
     </v-tooltip>
 </template>
 <script setup lang="ts">
-import { Author } from '@yacht/types';
+import { YachtTemplateAuthor } from '@yacht/types';
 interface Props {
-    authors: Author[]
+    authors: YachtTemplateAuthor[]
 }
 defineProps<Props>()
 </script>

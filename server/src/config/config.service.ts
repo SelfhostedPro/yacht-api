@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import {stringify, parse} from 'yaml'
+import { stringify, parse } from 'yaml';
 import * as crypto from 'crypto';
 import * as _ from 'lodash';
 import { YachtConfig } from '@yacht/types';
@@ -10,7 +10,7 @@ import { Logger } from '../common/logger/logger.service';
 
 @Injectable()
 export class ConfigService implements OnModuleInit {
-  onModuleInit() { }
+  onModuleInit() {}
 
   public name = 'yacht';
 
@@ -85,13 +85,11 @@ export class ConfigService implements OnModuleInit {
 
   public instanceId: string;
 
-  constructor(
-    private logger: Logger,
-  ) {
+  constructor(private logger: Logger) {
     const yachtConfig: YachtConfig = <YachtConfig>(
       parse(fs.readFileSync(this.configPath).toString())
     );
-    this.logger.setContext(ConfigService.name)
+    this.logger.setContext(ConfigService.name);
     this.parseConfig(yachtConfig);
   }
 
@@ -296,7 +294,7 @@ export class ConfigService implements OnModuleInit {
       .digest('hex');
   }
   public getStartupConfig(): YachtConfig {
-    this.logger.setContext('StartupConfig')
+    this.logger.setContext('StartupConfig');
     this.logger.log('Getting startup config...');
     const configPath = path.resolve('../config/config.yaml');
     const defaultConfig: YachtConfig = {
@@ -311,7 +309,9 @@ export class ConfigService implements OnModuleInit {
           },
         ],
         auth: true,
-        theme: 'dark',
+        theme: {
+          type: 'dark',
+        },
         plugins: null,
         sessionTimeout: 3600,
       },
@@ -329,7 +329,9 @@ export class ConfigService implements OnModuleInit {
         fs.mkdirSync(path.resolve('../config/storage/templates'), {
           recursive: true,
         });
-        fs.mkdirSync(path.resolve('../config/storage/.ssh'), { recursive: true });
+        fs.mkdirSync(path.resolve('../config/storage/.ssh'), {
+          recursive: true,
+        });
         fs.writeFileSync(configPath, stringify(defaultConfig), { flag: 'w' });
         this.logger.success('Config Created!');
       } catch (e) {
@@ -339,5 +341,4 @@ export class ConfigService implements OnModuleInit {
 
     return config;
   }
-
 }

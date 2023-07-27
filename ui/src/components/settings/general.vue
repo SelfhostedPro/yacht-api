@@ -4,10 +4,9 @@
             <v-form v-if="settings && settings.base">
                 <v-text-field label="page name" v-model="settings.base.name"></v-text-field>
                 <v-select :items="[true, false]" v-model="settings.base.auth" label="auth" required></v-select>
-                <v-select :items="['light', 'dark']" v-model="settings.base.theme" label="theme" required></v-select>
             </v-form>
             <v-row>
-                <v-col cols="4" v-for="server in servers">
+                <v-col cols="4" v-for="server in servers" :key="server.name" >
                     <v-card>
                         <v-row>
                             <v-col><v-card-title>{{ server.name }} </v-card-title></v-col>
@@ -33,8 +32,8 @@
                 </v-col>
             </v-row>
         </v-card-text>
+        <p>{{ settings }}</p>
     </v-card>
-    {{ settings }}
 </template>
 
 <script setup lang="ts">

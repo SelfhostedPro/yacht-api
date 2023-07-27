@@ -4,7 +4,7 @@ export interface YachtConfig {
         name: string;
         servers: serverConfig[];
         auth: boolean;
-        theme: 'dark' | 'light' | ThemeSettings;
+        theme: ThemeSettings;
         plugins: string[];
         sessionTimeout: number;
         templates?: {
@@ -25,15 +25,16 @@ export interface serverConfig {
     key?: string;
 }
 export interface ThemeSettings {
-    primary: string;
-    secondary: string;
-    surface: string;
-    foreground: string;
-    background: string;
-    error: string;
-    info: string;
-    warning: string;
-    success: string;
+    type: 'light' | 'dark' | 'custom';
+    primary?: string;
+    secondary?: string;
+    surface?: string;
+    foreground?: string;
+    background?: string;
+    error?: string;
+    info?: string;
+    warning?: string;
+    success?: string;
 }
 export interface DockerOptions {
     socketPath?: string | undefined;

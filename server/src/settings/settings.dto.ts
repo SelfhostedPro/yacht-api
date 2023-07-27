@@ -5,26 +5,27 @@ export class baseDto {
   name: string;
   servers: serverConfigDto[];
   auth: boolean;
-  theme: 'light' | 'dark' | ThemeSettings;
-  plugins: string[]
+  theme: ThemeSettings;
+  plugins: string[];
   sessionTimeout: number;
 }
 export class ThemeSettings {
-  primary: string;
-  secondary: string;
-  surface: string;
-  foreground: string;
-  background: string;
-  error: string;
-  info: string;
-  warning: string;
-  success: string;
+  type: 'light' | 'dark' | 'custom';
+  primary?: string;
+  secondary?: string;
+  surface?: string;
+  foreground?: string;
+  background?: string;
+  error?: string;
+  info?: string;
+  warning?: string;
+  success?: string;
 }
 
 export class serverUIConfigDto {
-  theme: 'light' | 'dark' | ThemeSettings;
-  auth: boolean 
-  plugins: string[]
+  theme: ThemeSettings;
+  auth: boolean;
+  plugins: string[];
 }
 
 export class serverConfigDto {
