@@ -5,6 +5,7 @@
 # initial folders
 mkdir -p /data
 mkdir -p /config
+touch /config/config.yaml
 
 # permissions
 lsiown -R abc:abc \
