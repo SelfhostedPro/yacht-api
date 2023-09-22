@@ -10,7 +10,7 @@ import { Logger } from '../common/logger/logger.service';
 
 @Injectable()
 export class ConfigService implements OnModuleInit {
-  onModuleInit() {}
+  onModuleInit() { }
 
   public name = 'yacht';
 
@@ -86,8 +86,16 @@ export class ConfigService implements OnModuleInit {
   public instanceId: string;
 
   constructor(private logger: Logger) {
+
+    /**
+     * Check file/folder locations to see if they exist, if not create them
+     */
+
     const yachtConfig: YachtConfig = <YachtConfig>(
-      parse(fs.readFileSync(this.configPath).toString())
+      fs.existsSync(this.configPath) ? parse(fs.readFileSync(this.configPath).toString()) : () => {
+        fs.mkdirSync(path.dirname(this.configPath), { recursive: true });
+        fs.writeFileSync(this.configPath, '');
+      }
     );
     this.logger.setContext(ConfigService.name);
     this.parseConfig(yachtConfig);
@@ -97,10 +105,10 @@ export class ConfigService implements OnModuleInit {
    * Loads the config from the config.json
    */
   public parseConfig(yachtConfig: YachtConfig) {
-    this.yachtConfig = yachtConfig;
+    this.yachtConfig = yachtConfig || {} as YachtConfig;
 
-    if (!this.yachtConfig.base) {
-      this.yachtConfig.base = {} as this['yachtConfig']['base'];
+    if (!Object(this.yachtConfig).hasOwnProperty('base')) {
+      this.yachtConfig['base'] = {} as YachtConfig['base'];
     }
 
     // this.ui = Array.isArray(this.yachtConfig.platforms) ? this.yachtConfig.platforms.find(x => x.platform === 'config') : undefined as any;
@@ -279,7 +287,11 @@ export class ConfigService implements OnModuleInit {
       },
     };
 
-    fs.writeJsonSync(this.secretPath, secrets);
+    // check secrets path exists, if not create it
+    fs.existsSync(this.secretPath) ? fs.writeJsonSync(this.secretPath, secrets) : () => {
+      fs.mkdirSync(path.dirname(this.secretPath), { recursive: true });
+      fs.writeJsonSync(this.secretPath, secrets);
+    }
 
     return secrets;
   }
