@@ -14,23 +14,56 @@
             </v-btn-group>
         </div>
     </v-expand-transition>
+    <v-dialog v-model="removeDialog">
+        <v-card max-width="290" class="mx-auto">
+            <v-card-title class="text-no-wrap">
+                Remove {{ app.name }} <v-btn variant="plain"><v-icon icon="mdi-window-close" /></v-btn>
+            </v-card-title>
+            <v-card-text> 
+                Are you sure you want to permanently remove
+                {{ app.name }}?<br />
+                All non peristent data will be removed.
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer />
+                <v-btn @click="removeDialog = false">cancel</v-btn>
+                <v-btn
+                    @click="handleRemove(); removeDialog = false;"
+                    prepend-icon="mdi-trash-can" color="red">confirm</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { useDisplay } from 'vuetify';
 import { Container } from '@yacht/types';
 import { useAppStore } from '@/stores/apps';
+import { Ref, ref } from 'vue';
 interface Props {
     app: Container,
     server: string|number,
     reveal: any
 }
 const props = defineProps<Props>()
+const removeDialog: Ref<boolean> = ref(false)
+
 const { mdAndDown } = useDisplay()
 const appStore = useAppStore()
 
 const handleAction = async (action: string) => {
-    await appStore.fetchAppAction(props.server,props.app.id,action)
+    if (action === "remove") {
+        removeDialog.value = true
+        return
+    } else {
+        await appStore.fetchAppAction(props.server,props.app.id,action)
+        appStore.fetchStats()
+    }
+}
+
+const handleRemove = async () => {
+    await appStore.fetchAppAction(props.server,props.app.id,'remove')
+    appStore.fetchApps()
     appStore.fetchStats()
 }
 

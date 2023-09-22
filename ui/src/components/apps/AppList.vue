@@ -8,8 +8,8 @@
                 <v-btn icon @click='refresh()'>
                     <v-icon>mdi-restart</v-icon>
                 </v-btn>
-                <v-dialog class="create-dialog" persistent :fullscreen="maximize" :width="maximize ? undefined : '80vw'" scrollable
-                    transition="dialog-bottom-transition">
+                <v-dialog class="create-dialog" persistent :fullscreen="maximize" :width="maximize ? undefined : '80vw'"
+                    scrollable transition="dialog-bottom-transition">
                     <template v-slot:activator="{ props }">
                         <v-btn icon color="primary" v-bind="props"><v-icon icon="mdi-plus" /></v-btn>
                     </template>
@@ -35,7 +35,13 @@
             <v-fade-transition v-else-if="apps">
                 <v-window v-model="serverTab">
                     <v-window-item v-for="(appList, server, i) in apps" :value="i" :key="i">
-                        <v-container>
+                        <v-container v-if="appList.length === 0">
+                            <v-row dense justify="center">
+                                <v-alert border="top" icon="$warning" border-color="warning" max-width="30%" class="mx-auto my-5 px-5"
+                                    title="No apps found" text="Create at least one to view it here."></v-alert>
+                            </v-row>
+                        </v-container>
+                        <v-container v-else>
                             <v-row dense>
                                 <v-col cols="12" xs="12" sm="6" md="4" lg="4" xl="3" v-for="app in appSearch(appList)"
                                     :key="app.shortId">
@@ -143,6 +149,7 @@ onMounted(async () => {
 .v-app-bar-title__content {
     display: flex;
 }
+
 .create-dialog {
     position: absolute !important;
 }

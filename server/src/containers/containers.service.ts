@@ -70,8 +70,10 @@ export class ContainersService {
     const server: any = await this.serversService.getServerFromConfig(
       serverName,
     );
+    this.logger.log(`Creating container: ${form.name} from image: ${form.image} on server: ${serverName}`);
     const pullStream = await server.pull(form.image);
     await new Promise((res) => server.modem.followProgress(pullStream, res));
+    this.logger.log(`Image: ${form.image} pulled successfully.`)
     const test = await server
       .createContainer(await this.containerFormatterService.normalizeCreate(form))
       .catch((err) => {
@@ -80,9 +82,10 @@ export class ContainersService {
     await server
       .getContainer(form.name)
       .start()
-      .catch((err) => {
+      .catch((err) => { 
         throw err;
       });
+      this.logger.success(`Container ${form.name} started successfully on ${serverName}.`)
     return await this.containerFormatterService.normalizeContainer(
       await server.getContainer(form.name).inspect(),
     );
@@ -98,6 +101,7 @@ export class ContainersService {
       serverName,
     );
     const container = server.getContainer(id);
+    const containerInfo = await this.containerFormatterService.normalizeContainer(await container.inspect());
 
     const actions: { [key: string]: (res) => Promise<any> } = {
       start: (res) => container.start(res),
@@ -110,10 +114,10 @@ export class ContainersService {
     };
     if (action in actions) {
       await new Promise((res) => actions[action](res));
-      const containerInfo = await this.containerFormatterService.normalizeContainer(await container.inspect());
-      this.logger.log(
+      this.logger.success(
         `Action: ${action} used on container ${containerInfo.name}: ${containerInfo.shortId}`,
       );
+      action !== 'remove' ? await this.containerFormatterService.normalizeContainer(await container.inspect()) : null
       return containerInfo;
     } else {
       throw new Error('Error: Action not found.');
