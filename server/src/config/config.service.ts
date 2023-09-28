@@ -288,10 +288,11 @@ export class ConfigService implements OnModuleInit {
     };
 
     // check secrets path exists, if not create it
-    fs.existsSync(this.secretPath) ? fs.writeJsonSync(this.secretPath, secrets) : () => {
-      fs.mkdirSync(path.dirname(this.secretPath), { recursive: true });
-      fs.writeJsonSync(this.secretPath, secrets);
-    }
+    const secretsExist = fs.existsSync(this.secretPath);
+    fs.existsSync(this.secretPath) ? fs.writeJsonSync(this.secretPath, secrets) : (
+      fs.mkdirSync(path.dirname(this.secretPath), { recursive: true }),
+      fs.writeJsonSync(this.secretPath, secrets)
+    );
 
     return secrets;
   }

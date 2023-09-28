@@ -36,19 +36,37 @@
             </v-toolbar-title>
             <v-dialog scrollable :fullscreen="logsFullscreen" :max-width="logsFullscreen ? '100vw' : '70vw'"
                 transition="dialog-bottom-transition">
-                <template v-slot:activator="{ props }">
-                    <v-btn :rounded="0" v-bind="props" prepend-icon="mdi-note-text-outline">logs</v-btn>
+                <template v-slot:activator="{ props: dialog }">
+                    <v-tooltip text="logs" location="top">
+                        <template v-slot:activator="{ props: tooltip }">
+                            <v-btn :rounded="0" v-bind="mergeProps(dialog, tooltip)" icon="mdi-note-text-outline"></v-btn>
+                        </template>
+                    </v-tooltip>
                 </template>
                 <template v-slot:default="{ isActive }">
                     <logs @close="isActive.value = false" @maximize="logsFullscreen = !logsFullscreen" :server="server"
                         :name="app.name" :closable="true" />
                 </template>
             </v-dialog>
-
-            <v-btn :rounded="0" variant="text" icon>
-                <v-icon icon="mdi-console-line" />
-            </v-btn>
-            <v-btn :rounded="0" @click="$emit('refresh')" variant="text" icon="mdi-refresh" />
+            <v-dialog scrollable :fullscreen="termFullscreen" :max-width="termFullscreen ? '100vw' : '70vw'"
+                transition="dialog-bottom-transition">
+                <template v-slot:activator="{ props: dialog }">
+                    <v-tooltip text="terminal" location="top">
+                        <template v-slot:activator="{ props: tooltip }">
+                            <v-btn :rounded="0" v-bind="mergeProps(dialog, tooltip)" icon="mdi-console-line"></v-btn>
+                        </template>
+                    </v-tooltip>
+                </template>
+                <template v-slot:default="{ isActive }">
+                    <terminal @close="isActive.value = false" @maximize="logsFullscreen = !logsFullscreen" :server="server"
+                        :name="app.name" :closable="true" />
+                </template>
+            </v-dialog>
+            <v-tooltip text="refresh">
+                <template v-slot:activator="{ props }">
+                    <v-btn :rounded="0" v-bind="props" @click="$emit('refresh')" variant="text" icon="mdi-refresh" />
+                </template>
+            </v-tooltip>
         </v-toolbar>
         <v-row>
             <v-col :cols="mdAndDown ? 12 : 6">
@@ -84,7 +102,8 @@ import { Container } from '@yacht/types';
 import ocilabels from "@/components/apps/details/ocilabels.vue"
 import actioncard from './actioncard.vue';
 import logs from '../shared/logs.vue'
-import { ref } from 'vue';
+import terminal from '../shared/terminal.vue';
+import { ref, mergeProps } from 'vue';
 import { useLoadingStore } from '@/stores/loading';
 import { storeToRefs } from 'pinia';
 import { useDisplay } from 'vuetify';
@@ -93,6 +112,7 @@ const { mdAndDown } = useDisplay()
 
 const emit = defineEmits(['refresh', 'action'])
 const logsFullscreen = ref(false)
+const termFullscreen = ref(false)
 const loading = ref(true)
 const loadingStore = useLoadingStore()
 const { isLoading } = storeToRefs(loadingStore)

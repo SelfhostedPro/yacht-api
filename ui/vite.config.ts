@@ -54,14 +54,18 @@ export default defineConfig({
     https: false,
     cors: false,
     proxy: {
+      '/socket.io': {
+        target: 'ws://127.0.0.1:3000',
+        ws: true,
+        secure: false,
+      },
+      '/terminal': {
+        target: 'ws://127.0.0.1:3000',
+        ws: true,
+      },
       '/api': {
         target: 'http://127.0.0.1:3000',
         changeOrigin: true,
-      },
-      '/ws': {
-        target: 'ws://127.0.0.1:3000',
-        ws: true,
-        changeOrigin: true
       },
     }
   },

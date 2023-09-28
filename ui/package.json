@@ -28,6 +28,7 @@
     "primevue": "^3.29.1",
     "roboto-fontface": "^0.10.0",
     "sanitize-html": "^2.10.0",
+    "socket.io-client": "^4.7.2",
     "universal-cookie": "^4.0.4",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6",

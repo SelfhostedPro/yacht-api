@@ -6,16 +6,22 @@ import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { Logger } from './common/logger/logger.service';
 import { ConfigService } from './config/config.service';
+import { HttpServer } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
   });
   app.useLogger(await app.resolve(Logger));
+  
+  const startupLogger = new Logger()
+  startupLogger.setContext('Startup')
+  
   const configService = app.get(ConfigService)
   configService.getStartupConfig();
+  startupLogger.log('Startup config loaded.');
+  
   app.setGlobalPrefix('api');
-
   const config = new DocumentBuilder()
     .setTitle('Yacht API')
     .setDescription('Yacht API for interacting with docker containers.')
@@ -45,7 +51,8 @@ async function bootstrap() {
   // }));
 
   await app.listen(3000, '0.0.0.0', function () {
-    console.log('Listening to port: ' + 3000);
+    startupLogger.log('Listening to port: ' + 3000);
+    startupLogger.log('Swagger docs available at /api/docs.');
   });
 }
 bootstrap();

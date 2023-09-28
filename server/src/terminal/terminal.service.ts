@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { WebSocket } from 'ws';
 import { Injectable } from '@nestjs/common';
 import { Container, Exec } from 'dockerode';
 import { Duplex } from 'stream';
@@ -15,7 +16,7 @@ export class TerminalService {
    * Create a new terminal session
    * @param id: container id
    */
-  async startSession(client: WsEventEmitter, id: string) {
+  async startSession(client: WebSocket, id: string) {
     const Docker = require('dockerode');
     const docker = new Docker();
     // get the container
@@ -42,12 +43,16 @@ export class TerminalService {
         stderr: true,
         hijack: true,
       };
-      container.wait((err, data) => {
-        client.emit('end', 'ended');
-      });
+      // container.wait((err, data) => {
+      //   client.emit('end', 'ended');
+      // });
       exec.start(options, (err, stream: Duplex) => {
+        client.on('connection', () => {
+          client.send('Connected to container.');
+        })
+
         stream.on('data', (chunk) => {
-          client.emit('show', chunk.toString());
+          client.send(chunk.toString());
         });
 
         client.on('cmd', (data) => {

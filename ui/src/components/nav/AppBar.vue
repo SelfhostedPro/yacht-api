@@ -1,7 +1,7 @@
 <template>
   <v-app-bar class="app-bar" elevation="8">
     <template v-slot:append>
-      <v-app-bar-nav-icon v-if="mdAndDown" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon v-if="mdAndDown" color="grey-lighten-5" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
     <v-app-bar-title>
       <v-img max-height="30" class="d-flex align-center mx-auto text-logo" :src="logo" style="filter: brightness(5)" />

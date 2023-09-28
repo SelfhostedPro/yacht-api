@@ -7,9 +7,8 @@ import { ConfigService } from '../config/config.service';
 import { AccessTokenStrategy } from './jwt.strategy';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { WsGuard } from '../common/guards/ws.guard';
+import { WsAccessTokenGuard } from '../common/guards/wsAccessToken.guard';
 import { AdminGuard } from '../common/guards/admin.guard';
-import { WsAdminGuard } from '../common/guards/ws-admin-guard';
 import { RefreshTokenStrategy } from './refresh.strategy';
 import { UsersModule } from '../users/users.module';
 import { UsersService } from '../users/users.service';
@@ -36,8 +35,7 @@ import { UsersService } from '../users/users.service';
     UsersService,
     AccessTokenStrategy,
     RefreshTokenStrategy,
-    WsGuard,
-    WsAdminGuard,
+    WsAccessTokenGuard,
     AdminGuard,
   ],
   controllers: [AuthController],

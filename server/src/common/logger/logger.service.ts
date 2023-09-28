@@ -5,7 +5,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 @Injectable({ scope: Scope.TRANSIENT })
 export class Logger extends ConsoleLogger {
   constructor(
-    private readonly notificationsService: NotificationsService,
+    private readonly notificationsService?: NotificationsService,
   ) {
     super()
   }
@@ -22,7 +22,7 @@ export class Logger extends ConsoleLogger {
   }
 
   error(...args) {
-    this.notificationsService.error(args.join(' '))
+    this.notificationsService ? this.notificationsService.error(args.join(' ')) : null
     console.error(this.prefix, ...args.map((x) => color.red(x)));
   }
 
@@ -31,7 +31,7 @@ export class Logger extends ConsoleLogger {
   }
 
   success(...args) {
-    this.notificationsService.success(args.join(' '))
+    this.notificationsService ? this.notificationsService.success(args.join(' ')) : null
     console.log(this.prefix, ...args.map((x) => color.green(x)));
   }
 

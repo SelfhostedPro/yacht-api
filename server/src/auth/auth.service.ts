@@ -70,7 +70,7 @@ export class AuthService {
       }
     } catch (e) {
       if (e instanceof ForbiddenException) {
-        this.logger.warn('Failed login attempt');
+        this.logger.warn(`Failed login attempt for ${username}.`);
         this.logger.warn(
           "If you've forgotten your password you can reset to the default " +
             `of admin/admin by deleting the "auth.json" file (${this.configService.authPath}) and then restarting Yacht.`,

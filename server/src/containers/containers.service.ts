@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import Dockerode, {
+import {
   Container as UsableContainer,
   ContainerStats,
 } from 'dockerode';
@@ -82,10 +82,10 @@ export class ContainersService {
     await server
       .getContainer(form.name)
       .start()
-      .catch((err) => { 
+      .catch((err) => {
         throw err;
       });
-      this.logger.success(`Container ${form.name} started successfully on ${serverName}.`)
+    this.logger.success(`Container ${form.name} started successfully on ${serverName}.`)
     return await this.containerFormatterService.normalizeContainer(
       await server.getContainer(form.name).inspect(),
     );
