@@ -13,14 +13,14 @@ async function bootstrap() {
     bufferLogs: true,
   });
   app.useLogger(await app.resolve(Logger));
-  
-  const startupLogger = new Logger()
-  startupLogger.setContext('Startup')
-  
-  const configService = app.get(ConfigService)
-  configService.getStartupConfig();
+
+  const startupLogger = new Logger();
+  startupLogger.setContext('Startup');
+
+  const configService = app.get(ConfigService);
+  configService.getConfig();
   startupLogger.log('Startup config loaded.');
-  
+
   app.setGlobalPrefix('api');
   const config = new DocumentBuilder()
     .setTitle('Yacht API')

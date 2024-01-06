@@ -22,7 +22,8 @@ import { Public } from 'src/common/decorators/public';
 export class SettingsController {
   constructor(
     private readonly configService: ConfigService,
-    private readonly keyManager: SSHManagerService) { }
+    private readonly keyManager: SSHManagerService,
+  ) {}
 
   @Get()
   @ApiCreatedResponse({
@@ -50,7 +51,7 @@ export class SettingsController {
     } catch (err) {
       // Error Handling
       if (err.statusCode) {
-        console.log(err)
+        console.log(err);
         throw new HttpException(err.message, err.statusCode);
       } else {
         throw new HttpException(err.message, 500);
@@ -60,7 +61,7 @@ export class SettingsController {
   @Public()
   @Get('/ui')
   @ApiCreatedResponse({
-    description: 'List all ui settings'
+    description: 'List all ui settings',
   })
   async getUiSettings(): Promise<serverUIConfigDto> {
     try {
@@ -68,7 +69,7 @@ export class SettingsController {
         plugins: this.configService.yachtConfig.base.plugins || null,
         auth: this.configService.yachtConfig.base.auth || true,
         theme: this.configService.yachtConfig.base.theme,
-      } as serverUIConfigDto
+      } as serverUIConfigDto;
     } catch (err) {
       // Error Handling
       if (err.statusCode) {

@@ -3,7 +3,7 @@
         <v-card-text>
             <v-form v-if="settings && settings.base">
                 <v-text-field label="page name" v-model="settings.base.name"></v-text-field>
-                <v-select :items="[true, false]" v-model="settings.base.auth" label="auth" required></v-select>
+                <v-select :items="[{title: 'true', value: true},{title: 'false', value: false}]" item-title="title" item-value="value" v-model="settings.base.auth" label="auth" required></v-select>
             </v-form>
             <v-row>
                 <v-col cols="4" v-for="server in servers" :key="server.name" >
@@ -46,6 +46,8 @@ const serverRemoveModal = ref({})
 const serverAddModal = ref(false)
 const settingStore = useSettingsStore()
 const { settings, servers } = storeToRefs(settingStore)
+
+
 
 onMounted(async () => {
     settingStore.fetchSettings()

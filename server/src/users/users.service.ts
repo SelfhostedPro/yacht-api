@@ -231,7 +231,6 @@ export class UsersService {
       id: user.id,
       username: user.username,
       admin: user.admin,
-      refreshToken: user.refreshToken,
       otpActive: user.otpActive || false,
     };
   }

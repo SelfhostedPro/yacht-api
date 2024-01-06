@@ -8,9 +8,29 @@ import * as _ from 'lodash';
 import { YachtConfig } from '@yacht/types';
 import { Logger } from '../common/logger/logger.service';
 
+const defaultConfig: YachtConfig = {
+  base: {
+    name: 'Yacht',
+    servers: [
+      {
+        name: 'local',
+        options: {
+          socketPath: process.env.DOCKER_HOST ?? '/var/run/docker.sock',
+        },
+      },
+    ],
+    auth: true,
+    theme: {
+      type: 'dark',
+    },
+    plugins: null,
+    sessionTimeout: 3600,
+  },
+};
+
 @Injectable()
 export class ConfigService implements OnModuleInit {
-  onModuleInit() { }
+  onModuleInit() {}
 
   public name = 'yacht';
 
@@ -86,17 +106,11 @@ export class ConfigService implements OnModuleInit {
   public instanceId: string;
 
   constructor(private logger: Logger) {
-
     /**
      * Check file/folder locations to see if they exist, if not create them
      */
 
-    const yachtConfig: YachtConfig = <YachtConfig>(
-      fs.existsSync(this.configPath) ? parse(fs.readFileSync(this.configPath).toString()) : () => {
-        fs.mkdirSync(path.dirname(this.configPath), { recursive: true });
-        fs.writeFileSync(this.configPath, '');
-      }
-    );
+    const yachtConfig: YachtConfig = this.getConfig();
     this.logger.setContext(ConfigService.name);
     this.parseConfig(yachtConfig);
   }
@@ -105,7 +119,7 @@ export class ConfigService implements OnModuleInit {
    * Loads the config from the config.json
    */
   public parseConfig(yachtConfig: YachtConfig) {
-    this.yachtConfig = yachtConfig || {} as YachtConfig;
+    this.yachtConfig = yachtConfig || ({} as YachtConfig);
 
     if (!Object(this.yachtConfig).hasOwnProperty('base')) {
       this.yachtConfig['base'] = {} as YachtConfig['base'];
@@ -289,10 +303,10 @@ export class ConfigService implements OnModuleInit {
 
     // check secrets path exists, if not create it
     const secretsExist = fs.existsSync(this.secretPath);
-    fs.existsSync(this.secretPath) ? fs.writeJsonSync(this.secretPath, secrets) : (
-      fs.mkdirSync(path.dirname(this.secretPath), { recursive: true }),
-      fs.writeJsonSync(this.secretPath, secrets)
-    );
+    fs.existsSync(this.secretPath)
+      ? fs.writeJsonSync(this.secretPath, secrets)
+      : (fs.mkdirSync(path.dirname(this.secretPath), { recursive: true }),
+        fs.writeJsonSync(this.secretPath, secrets));
 
     return secrets;
   }
@@ -306,52 +320,39 @@ export class ConfigService implements OnModuleInit {
       .update(this.secrets.accessSecret)
       .digest('hex');
   }
-  public getStartupConfig(): YachtConfig {
+
+  private createConfig(): YachtConfig {
+    this.logger.setContext('StartupConfig');
+    this.logger.log('Creating startup config...');
+    try {
+      fs.pathExistsSync(path.dirname(this.configPath))
+        ? null
+        : fs.mkdirSync(path.dirname(this.configPath));
+      fs.existsSync(this.configPath)
+        ? null
+        : fs.writeFileSync(this.configPath, stringify(defaultConfig), {
+            flag: 'w',
+          });
+      fs.existsSync(path.dirname(this.configPath) + '/storage/templates')
+        ? null
+        : fs.mkdirSync(path.dirname(this.configPath) + '/storage/templates', {
+            recursive: true,
+          });
+      fs.mkdirSync(path.dirname(this.configPath) + '/storage/.ssh', {
+        recursive: true,
+      });
+    } catch (e) {
+      this.logger.error(e);
+    }
+    return defaultConfig;
+  }
+
+  public getConfig(): YachtConfig {
     this.logger.setContext('StartupConfig');
     this.logger.log('Getting startup config...');
-    const configPath = path.resolve('../config/config.yaml');
-    const defaultConfig: YachtConfig = {
-      base: {
-        name: 'Yacht',
-        servers: [
-          {
-            name: 'local',
-            options: {
-              socketPath: process.env.DOCKER_HOST ?? '/var/run/docker.sock',
-            },
-          },
-        ],
-        auth: true,
-        theme: {
-          type: 'dark',
-        },
-        plugins: null,
-        sessionTimeout: 3600,
-      },
-    };
-    let config;
-    if (fs.existsSync(configPath)) {
-      try {
-        config = parse(fs.readFileSync(configPath, 'utf8'));
-        this.logger.log('Config Exists!');
-      } catch (e) {
-        this.logger.error(e);
-      }
-    } else {
-      try {
-        fs.mkdirSync(path.resolve('../config/storage/templates'), {
-          recursive: true,
-        });
-        fs.mkdirSync(path.resolve('../config/storage/.ssh'), {
-          recursive: true,
-        });
-        fs.writeFileSync(configPath, stringify(defaultConfig), { flag: 'w' });
-        this.logger.success('Config Created!');
-      } catch (e) {
-        this.logger.error(e);
-      }
-    }
-
+    const config = fs.existsSync(this.configPath)
+      ? parse(fs.readFileSync(this.configPath, 'utf-8'))
+      : this.createConfig();
     return config;
   }
 }

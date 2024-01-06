@@ -2,12 +2,13 @@
 import { defineStore } from "pinia"
 import { useAuthFetch } from "@/helpers/auth/fetch"
 import { useLoadingStore } from "@/stores/loading"
-import { NewServer, YachtConfig } from "@yacht/types"
+import { NewServer, YachtConfig, User } from "@yacht/types"
 
 export const useSettingsStore = defineStore('settings', {
     state: () => ({
         servers: {} as YachtConfig['base']['servers'],
         settings: {} as YachtConfig,
+        users: [] as User[],
         keys: [] as string[],
     }),
     getters: {
@@ -22,6 +23,15 @@ export const useSettingsStore = defineStore('settings', {
                 this.servers = data.value
                 loadingStore.stopLoadingItem('servers')
             }
+        },
+        async fetchUsers() {
+          const loadingStore = useLoadingStore()
+          loadingStore.startLoadingItem('users')
+          const { error, data} = await useAuthFetch<string>(`/api/users`).json()
+          if (!error.value) {
+            this.users = data.value
+            loadingStore.startLoadingItem('users')
+          }
         },
         async fetchSettings() {
             const loadingStore = useLoadingStore()

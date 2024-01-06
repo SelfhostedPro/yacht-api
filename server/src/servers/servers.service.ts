@@ -14,16 +14,27 @@ export class ServersService {
     private readonly configService: ConfigService,
     private readonly keyManager: SSHManagerService,
   ) {
-    this.logger.setContext(ServersService.name)
+    this.logger.setContext(ServersService.name);
   }
-  async createDockerInstance(server: serverConfig, privateKey?: string): Promise<Docker | null> {
-    const options = privateKey ? { ...server.options, sshOptions: { privateKey } } : server.options;
+  async createDockerInstance(
+    server: serverConfig,
+    privateKey?: string,
+  ): Promise<Docker | null> {
+    const options = privateKey
+      ? { ...server.options, sshOptions: { privateKey } }
+      : server.options;
     const newServer = new Docker(options);
     try {
       await newServer.info();
       return newServer;
     } catch (e) {
-      this.logger.error(`Error connecting to ${server.name} (${server.options.host && server.options.port ? server.options.host + ':' + server.options.port : server.options.socketPath}) => ${e}`);
+      this.logger.error(
+        `Error connecting to ${server.name} (${
+          server.options.host && server.options.port
+            ? server.options.host + ':' + server.options.port
+            : server.options.socketPath
+        }) => ${e}`,
+      );
       return null;
     }
   }
@@ -38,7 +49,9 @@ export class ServersService {
           result[server.name] = newServer;
         }
       } else if (server.options.protocol === 'ssh' && !server.key) {
-        this.logger.error(`SSH key not found for ${server.name} please try removing and re-adding the server`);
+        this.logger.error(
+          `SSH key not found for ${server.name} please try removing and re-adding the server`,
+        );
       } else {
         const newLocal = await this.createDockerInstance(server);
         if (newLocal) {
@@ -75,16 +88,19 @@ export class ServersService {
       }
     }
     if (serverExists) {
-      this.logger.error('Server already exists')
+      this.logger.error('Server already exists');
       throw new Error('Server already exists');
     }
-    const currentKeys = await this.keyManager.getAllKeys()
-    const keyExists = currentKeys.includes(keyName)
+    const currentKeys = await this.keyManager.getAllKeys();
+    const keyExists = currentKeys.includes(keyName);
     // Generate a new ssh key and copy it to the remote server
     if (options.protocol === 'ssh' && keyName && !keyExists && copyToServer) {
       // Generate random passphrase and create SSH key
       this.logger.log(`Generating SSH key for ${name}`);
-      await this.keyManager.createSSHKey(keyName, randomBytes(32).toString('hex'));
+      await this.keyManager.createSSHKey(
+        keyName,
+        randomBytes(32).toString('hex'),
+      );
       this.logger.log(`Copying SSH key to ${name}`);
       try {
         await this.keyManager.copyPublicKeyToRemoteServer(
@@ -95,18 +111,22 @@ export class ServersService {
           options.password,
         );
       } catch (e) {
-        this.logger.log(`Error copying SSH key to ${name}: ${e}`)
-        this.keyManager.removeSSHKey(keyName)
-        throw new Error(`Error copying SSH key to ${name}: ${e}`)
+        this.logger.log(`Error copying SSH key to ${name}: ${e}`);
+        this.keyManager.removeSSHKey(keyName);
+        throw new Error(`Error copying SSH key to ${name}: ${e}`);
       }
-    }
-
-    else if (options.protocol === 'ssh' && keyName && !keyExists && !copyToServer) {
+    } else if (
+      options.protocol === 'ssh' &&
+      keyName &&
+      !keyExists &&
+      !copyToServer
+    ) {
       this.logger.log(`Generating SSH key for ${name}`);
-      await this.keyManager.createSSHKey(keyName, randomBytes(32).toString('hex'));
-    }
-
-    else if (options.protocol === 'ssh' && keyName && copyToServer) {
+      await this.keyManager.createSSHKey(
+        keyName,
+        randomBytes(32).toString('hex'),
+      );
+    } else if (options.protocol === 'ssh' && keyName && copyToServer) {
       try {
         await this.keyManager.copyPublicKeyToRemoteServer(
           keyName,
@@ -116,9 +136,9 @@ export class ServersService {
           options.password,
         );
       } catch (e) {
-        this.logger.error(`Error copying SSH key to ${name}: ${e}`)
-        this.keyManager.removeSSHKey(keyName)
-        throw new Error(`Error copying SSH key to ${name}: ${e}`)
+        this.logger.error(`Error copying SSH key to ${name}: ${e}`);
+        this.keyManager.removeSSHKey(keyName);
+        throw new Error(`Error copying SSH key to ${name}: ${e}`);
       }
     }
     delete options.password;
@@ -128,28 +148,43 @@ export class ServersService {
 
     return this.configService.writeConfig(currentConfig);
   }
-  async removeServerFromConfig(name: string, removeRemoteKey: boolean, removeLocalKey: boolean): Promise<YachtConfig> {
+  async removeServerFromConfig(
+    name: string,
+    removeRemoteKey: boolean,
+    removeLocalKey: boolean,
+  ): Promise<YachtConfig> {
     const servers = await this.getServerConfig();
     // Check for existing servers
     let serverExists = false;
-    let serverToDelete = null
+    let serverToDelete = null;
     this.logger.debug(`Checking if server ${name} already exists`);
     for (const server of servers) {
       if (server.name === name) {
-        this.logger.warn(`Removing server ${name} (${server.options.host && server.options.port ? server.options.host + ':' + server.options.port : server.options.socketPath})})`)
+        this.logger.warn(
+          `Removing server ${name} (${
+            server.options.host && server.options.port
+              ? server.options.host + ':' + server.options.port
+              : server.options.socketPath
+          })})`,
+        );
         serverExists = true;
-        serverToDelete = server
-        const index = servers.indexOf(server)
-        servers.splice(index, 1)
+        serverToDelete = server;
+        const index = servers.indexOf(server);
+        servers.splice(index, 1);
         break;
       }
     }
     if (!serverExists) {
-      this.logger.error('Server not found')
+      this.logger.error('Server not found');
       throw new Error('Server not found');
     }
     if (serverToDelete.options.protocol === 'ssh' && removeRemoteKey) {
-      await this.keyManager.removePublicKeyFromRemoteServer(serverToDelete.key, serverToDelete.options.host, serverToDelete.options.port, serverToDelete.options.username)
+      await this.keyManager.removePublicKeyFromRemoteServer(
+        serverToDelete.key,
+        serverToDelete.options.host,
+        serverToDelete.options.port,
+        serverToDelete.options.username,
+      );
     }
 
     if (serverToDelete.options.protocol === 'ssh' && removeLocalKey) {
@@ -158,7 +193,7 @@ export class ServersService {
     delete servers[name];
     const currentConfig = this.configService.yachtConfig;
     currentConfig.base.servers = servers;
-    this.logger.success(`Server ${name} removed`)
+    this.logger.success(`Server ${name} removed`);
     return this.configService.writeConfig(currentConfig);
   }
 }

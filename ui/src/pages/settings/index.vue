@@ -19,6 +19,11 @@
                                 <general />
                             </Suspense>
                     </v-window-item>
+                    <v-window-item :value="2">
+                      <Suspense>
+                        <users />
+                      </Suspense>
+                    </v-window-item>
                 </v-window>
             </div>
         </v-card>
@@ -27,6 +32,7 @@
 
 <script setup lang="ts">
 import general from '@/components/settings/general.vue';
+import users from '@/components/settings/users.vue';
 import { ref } from 'vue';
 const tab = ref(1);
 </script>

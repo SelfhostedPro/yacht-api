@@ -27,4 +27,9 @@ interface KeyObject {
     pem: string | Buffer;
     passphrase?: string | undefined;
 }
+export declare class User {
+    username?: string;
+    admin?: boolean;
+    password?: string;
+}
 export {};
